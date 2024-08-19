@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bopl Map Database</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="header-title">Bopl Map Database</div>
+        <button id="upload-button">Upload Map</button>
+    </header>
+
+    <div class="search-bar">
+        <input type="text" id="search-bar" placeholder="Search for maps...">
+    </div>
+    
+    <div id="map-gallery"></div>
+
+    <!-- Popup Upload Form -->
+    <div id="upload-popup" class="popup">
+        <div class="popup-content">
+            <span class="close">&times;</span>
+            <h2>Upload a New Map</h2>
+            <form id="upload-form">
+                <input type="file" id="map-file" accept=".zip,.rar" required>
+                <input type="text" id="map-name" placeholder="Map Name" required>
+                <button type="submit">Upload</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
