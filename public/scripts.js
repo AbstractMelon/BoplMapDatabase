@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadButton = document.getElementById('upload-button');
     const uploadPopup = document.getElementById('upload-popup');
     const closePopup = document.querySelector('.popup-content .close');
+    const searchBar = document.getElementById('search-bar');
 
     // Get and display maps
     function displayMaps(maps) {

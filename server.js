@@ -102,8 +102,14 @@ app.post('/api/upload', upload.single('map'), async (req, res) => {
 
             // Change Filename to the GUID
             const mapFileName = `${metadata.MapUUID}.zip`;
+            const mapsPath = path.join(__dirname, 'public', 'maps');
             const mapStoragePath = path.join(__dirname, 'public', 'maps', mapFileName);
 
+            // Make the dirrectory
+            if (!fs.existsSync(mapsPath)){
+                fs.mkdirSync(mapsPath);
+            }
+            
             // Move the uploaded file to the final location with its GUID as the filename
             fs.renameSync(req.file.path, mapStoragePath);
             console.log(`Stored map as: ${mapStoragePath}`);
