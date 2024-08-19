@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const morgan = require('morgan');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 app.use(express.static('public'));
 app.use(morgan('dev')); // HTTP request logger
@@ -109,7 +109,7 @@ app.post('/api/upload', upload.single('map'), async (req, res) => {
             if (!fs.existsSync(mapsPath)){
                 fs.mkdirSync(mapsPath);
             }
-            
+
             // Move the uploaded file to the final location with its GUID as the filename
             fs.renameSync(req.file.path, mapStoragePath);
             console.log(`Stored map as: ${mapStoragePath}`);
