@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function fetchMaps(searchQuery = '') {
-        const endpoint = searchQuery ? `/api/search?q=${searchQuery}` : '/api/maps';
+        const endpoint = searchQuery ? `/api/search?q=${encodeURIComponent(searchQuery)}` : '/api/maps';
         fetch(endpoint)
             .then(response => response.json())
             .then(maps => displayMaps(maps));
