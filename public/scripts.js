@@ -12,13 +12,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const mapCard = document.createElement('div');
             mapCard.className = 'map-card';
             mapCard.innerHTML = `
-                <h2>${map.MapName}</h2>
-                <p><strong>Developer:</strong> ${map.MapDeveloper}</p>
-                <p><strong>Type:</strong> ${map.MapType}</p>
-                <p><strong>Description:</strong> ${map.MapDescription}</p>
-                <p><strong>Date Created:</strong> ${map.DateCreated}</p>
-                <button onclick="downloadMap('${map.MapUUID}')">Download</button>
+                <h2 class="mapName">${map.MapName}</h2>
+                <p><strong>Developer:</strong><span class="mapDeveloper">Something went wrong!</span></p>
+                <p><strong>Type:</strong><span class="mapType">Something went wrong!</span></p>
+                <p><strong>Description:</strong><span class="mapDescription">Something went wrong!</span></p>
+                <p><strong>Date Created:</strong><span class="mapDate">Something went wrong!</span></p>
+                <button class="mapDownload">Download</button>
             `;
+            mapCard.querySelector(".mapDeveloper").textContent = map.MapDeveloper
+            mapCard.querySelector(".mapType").textContent = map.MapType
+            mapCard.querySelector(".mapDescription").textContent = map.MapDescription
+            mapCard.querySelector(".mapDate").textContent = map.DateCreated
+            mapCard.querySelector(".mapDownload").addEventListener("click", ()=>{
+                downloadMap(map.MapUUID)
+            })
+
             mapGallery.appendChild(mapCard);
         });
     }
