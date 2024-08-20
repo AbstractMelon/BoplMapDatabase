@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const morgan = require('morgan');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 app.use(express.static('public'));
 app.use(morgan('dev')); // HTTP request logger
