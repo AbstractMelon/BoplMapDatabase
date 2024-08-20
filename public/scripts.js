@@ -12,13 +12,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const mapCard = document.createElement('div');
             mapCard.className = 'map-card';
             mapCard.innerHTML = `
-                <h2 class="mapName">${map.MapName}</h2>
+                <h2 class="mapName">Something went wrong!</h2>
                 <p><strong>Developer:</strong><span class="mapDeveloper">Something went wrong!</span></p>
                 <p><strong>Type:</strong><span class="mapType">Something went wrong!</span></p>
                 <p><strong>Description:</strong><span class="mapDescription">Something went wrong!</span></p>
                 <p><strong>Date Created:</strong><span class="mapDate">Something went wrong!</span></p>
                 <button class="mapDownload">Download</button>
             `;
+            mapCard.querySelector(".mapDeveloper").textContent = map.MapName
             mapCard.querySelector(".mapDeveloper").textContent = map.MapDeveloper
             mapCard.querySelector(".mapType").textContent = map.MapType
             mapCard.querySelector(".mapDescription").textContent = map.MapDescription
