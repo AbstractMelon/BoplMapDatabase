@@ -43,6 +43,21 @@ header {
     background-color: #2f5dbb;
 }
 
+a {
+    color: #eee;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #eee;
+    text-decoration: none;
+}
+
 .search-bar {
     text-align: center;
     margin-top: 20px;
