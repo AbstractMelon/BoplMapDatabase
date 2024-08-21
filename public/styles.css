@@ -58,21 +58,23 @@ a:visited {
 }
 
 .search-bar {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
     margin-top: 20px;
+    flex-wrap: wrap;
 }
 
-.search-bar input {
+.search-bar input, .search-bar button {
     padding: 10px;
     font-size: 1em;
     border: 1px solid var(--textcol);
     border-radius: 5px;
-    width: 300px;
     background-color: var(--bgcol2);
     color: var(--textcol);
 }
 
-.search-bar input::placeholder {
+.search-bar input::placeholder, .search-bar button {
     color: #999;
 }
 
@@ -82,6 +84,7 @@ a:visited {
     justify-content: center;
     gap: 20px;
     padding: 10px;
+    margin-top: 20px;
 }
 
 .map-card {

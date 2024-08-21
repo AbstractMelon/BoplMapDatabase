@@ -3,7 +3,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadButton = document.getElementById('upload-button');
     const uploadPopup = document.getElementById('upload-popup');
     const closePopup = document.querySelector('.popup-content .close');
-    const searchBar = document.getElementById('search-bar');
+    const searchBarName = document.getElementById('search-name');
+    const searchBarDeveloper = document.getElementById('search-developer');
+    const searchBarType = document.getElementById('search-type');
+    const searchBarDate = document.getElementById('search-date');
+    const clearFiltersButton = document.getElementById('clear-filters');
 
     // Get and display maps
     function displayMaps(maps) {
@@ -31,8 +35,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function fetchMaps(searchQuery = '') {
-        const endpoint = searchQuery ? `/api/search?q=${encodeURIComponent(searchQuery)}` : '/api/maps';
+    function fetchMaps(queryParams = {}) {
+        let queryString = Object.keys(queryParams).map(key => `${key}=${encodeURIComponent(queryParams[key])}`).join('&');
+        const endpoint = queryString ? `/api/search?${queryString}` : '/api/maps';
         fetch(endpoint)
             .then(response => response.json())
             .then(maps => displayMaps(maps));
@@ -65,11 +70,26 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Handle search
-    searchBar.addEventListener('input', function () {
-        const searchQuery = this.value.trim();
-        fetchMaps(searchQuery);
+    [searchBarName, searchBarDeveloper, searchBarType, searchBarDate].forEach(input => {
+        input.addEventListener('input', function () {
+            const queryParams = {
+                name: searchBarName.value.trim(),
+                developer: searchBarDeveloper.value.trim(),
+                type: searchBarType.value.trim(),
+                date: searchBarDate.value
+            };
+            fetchMaps(queryParams);
+        });
     });
 
+    // Clear filters
+    clearFiltersButton.addEventListener('click', () => {
+        searchBarName.value = '';
+        searchBarDeveloper.value = '';
+        searchBarType.value = '';
+        searchBarDate.value = '';
+        fetchMaps();
+    });
     // Open upload popup
     uploadButton.addEventListener('click', () => {
         uploadPopup.style.display = 'block';

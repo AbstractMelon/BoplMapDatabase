@@ -41,6 +41,23 @@ function updateIndex(metadata) {
     console.log(`Updated index.json with map UUID: ${metadata.MapUUID}`);
 }
 
+function getMaps(indexPath) {
+    try {
+        if (fs.existsSync(indexPath)) {
+            const indexContent = fs.readFileSync(indexPath, 'utf-8');
+            const maps = JSON.parse(indexContent);
+            console.log('Fetched all maps');
+            return maps;
+        } else {
+            console.log('Index file does not exist, returning an empty array');
+            return [];
+        }
+    } catch (error) {
+        console.error('Error fetching maps:', error.message);
+        throw new Error('Error fetching maps');
+    }
+}
+
 // Endpoint to fetch map data
 app.get('/api/maps', (req, res) => {
     try {
@@ -58,30 +75,29 @@ app.get('/api/maps', (req, res) => {
     }
 });
 
+
+
 // Endpoint to search maps
 app.get('/api/search', (req, res) => {
-    try {
-        const searchQuery = req.query.q.toLowerCase();
-        if (fs.existsSync(indexPath)) {
-            const indexContent = fs.readFileSync(indexPath);
-            const maps = JSON.parse(indexContent);
-            const filteredMaps = maps.filter(map => {
-                return (
-                    map.MapName.toLowerCase().includes(searchQuery) ||
-                    map.MapDescription.toLowerCase().includes(searchQuery) ||
-                    map.MapDeveloper.toLowerCase().includes(searchQuery) ||
-                    map.MapType.toLowerCase().includes(searchQuery)
-                );
-            });
-            res.json(filteredMaps);
-        } else {
-            res.json([]);
-        }
-        console.log(`Searched maps with query: ${searchQuery}`);
-    } catch (error) {
-        console.error('Error searching maps:', error.message);
-        res.status(500).json({ message: 'Error searching maps' });
+    let filters = req.query;
+    let filteredMaps = getMaps(indexPath)
+
+    // Apply filters
+    if (filters.name) {
+        filteredMaps = filteredMaps.filter(map => map.MapName.toLowerCase().includes(filters.name.toLowerCase()));
     }
+    if (filters.developer) {
+        filteredMaps = filteredMaps.filter(map => map.MapDeveloper.toLowerCase().includes(filters.developer.toLowerCase()));
+    }
+    if (filters.type) {
+        filteredMaps = filteredMaps.filter(map => map.MapType.toLowerCase().includes(filters.type.toLowerCase()));
+    }
+    if (filters.date) {
+        filteredMaps = filteredMaps.filter(map => map.DateCreated === filters.date);
+    }
+
+    // Send back as JSON
+    res.json(filteredMaps);
 });
 
 // Map uploads

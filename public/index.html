@@ -13,7 +13,11 @@
     </header>
 
     <div class="search-bar">
-        <input type="text" id="search-bar" placeholder="Search for maps...">
+        <input type="text" id="search-name" placeholder="Search by Name...">
+        <input type="text" id="search-developer" placeholder="Search by Developer...">
+        <input type="text" id="search-type" placeholder="Search by Type...">
+        <input type="date" id="search-date" placeholder="Search by Date...">
+        <button id="clear-filters">Clear Filters</button>
     </div>
     
     <div id="map-gallery"></div>
@@ -25,7 +29,6 @@
             <h2>Upload a New Map</h2>
             <form id="upload-form">
                 <input type="file" id="map-file" accept=".zip,.rar" required>
-                <input type="text" id="map-name" placeholder="Map Name" required>
                 <button type="submit">Upload</button>
             </form>
         </div>
