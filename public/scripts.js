@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const mapNameInput = document.getElementById('map-name');
 
         formData.append('map', fileInput.files[0]);
-        formData.append('name', mapNameInput.value);
+        // formData.append('name', mapNameInput.value);
 
         fetch('/api/upload', {
             method: 'POST',

@@ -137,7 +137,7 @@ app.post('/api/upload', upload.single('map'), async (req, res) => {
             fs.rmSync(extractedPath, { recursive: true, force: true });
             console.log(`Cleaned up extracted files at: ${extractedPath}`);
 
-            res.json({ message: 'Map uploaded and metadata extracted successfully' });
+            res.json({ message: 'Map uploaded successfully' });
         } else {
             console.error('MetaData.json not found in the uploaded map');
             res.status(400).json({ message: 'MetaData.json not found in the uploaded map' });
