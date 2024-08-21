@@ -15,6 +15,7 @@
     <div class="container">
         <h1>API Documentation</h1>
 
+        <!-- GET /api/maps -->
         <div class="endpoint">
             <h2>GET /api/maps</h2>
             <p>Fetches all map data from the <code>index.json</code> file.</p>
@@ -34,6 +35,7 @@ Example:
             </pre>
         </div>
 
+        <!-- GET /api/search?q=query -->
         <div class="endpoint">
             <h2>GET /api/search?q=query</h2>
             <p>Searches for maps matching the query in <code>MapName</code>, <code>MapDescription</code>, <code>MapDeveloper</code>, or <code>MapType</code>.</p>
@@ -42,8 +44,22 @@ Example:
                 <li><code>q</code> - The search query string.</li>
             </ul>
             <p><strong>Response:</strong> A JSON array of matching map metadata.</p>
+            <pre>
+Example:
+[
+  {
+    "MapUUID": "123e4567-e89b-12d3-a456-426614174000",
+    "MapName": "Sample Map",
+    "MapDescription": "A sample map matching the query.",
+    "MapType": "PvP",
+    "MapDeveloper": "DeveloperName",
+    "DateCreated": "2024-08-19"
+  }
+]
+            </pre>
         </div>
 
+        <!-- POST /api/upload -->
         <div class="endpoint">
             <h2>POST /api/upload</h2>
             <p>Uploads a map file in .zip format and extracts metadata from the <code>MetaData.json</code> file inside the .zip.</p>
@@ -60,6 +76,7 @@ Example:
             </pre>
         </div>
 
+        <!-- GET /api/download/:uuid -->
         <div class="endpoint">
             <h2>GET /api/download/:uuid</h2>
             <p>Downloads a map file by its UUID.</p>
@@ -69,8 +86,13 @@ Example:
             </ul>
             <p><strong>Response:</strong> The map .zip file as a download.</p>
             <p>If the map is not found, returns a 404 error with a JSON message.</p>
+            <pre>
+Example:
+{
+  "message": "Map not found"
+}
+            </pre>
         </div>
-
     </div>
 </body>
 </html>
