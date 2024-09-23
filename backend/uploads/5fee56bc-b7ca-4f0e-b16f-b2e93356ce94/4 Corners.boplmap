@@ -1,0 +1,30 @@
+{"version": "1",
+"teamSpawns": [[-27.778, 33.995], [-28.201, 1.72], [21.243, 1.72], [21.456, 32.341]],
+"platforms": [
+{"transform": {"x": -27.551, "y": 27.381}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "smallcapsule"}
+}
+
+,{"transform": {"x": 21.523, "y": 27.249}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "smallcapsule"}
+}
+
+,{"transform": {"x": -28.212, "y": -4.101}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "smallcapsule"}
+}
+
+,{"transform": {"x": 21.523, "y": -4.365}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "smallcapsule"}
+}
+
+,{"transform": {"x": -3.44, "y": 12.302}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "circle"}
+}
+
+]
+}
