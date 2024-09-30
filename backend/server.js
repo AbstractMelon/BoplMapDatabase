@@ -5,9 +5,9 @@ const path = require("path");
 const unzipper = require("unzipper");
 const { v4: uuidv4 } = require("uuid");
 const morgan = require("morgan");
-const session = require("express-session");
 const { body, validationResult } = require('express-validator');
 const bcrypt = require("bcrypt");
+const cookieParser = require("cookie-parser");
 const saltRounds = 10;
 
 require('dotenv').config();
@@ -15,63 +15,47 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-const usersDbPath = path.join(__dirname, "users.json");
+const usersDir = path.join(__dirname, "../database/users");
 
-// Helper to read/write user data
-function readUsers() {
-  return fs.existsSync(usersDbPath)
-    ? JSON.parse(fs.readFileSync(usersDbPath))
-    : [];
+if (!fs.existsSync(usersDir)) {
+  fs.mkdirSync(usersDir, { recursive: true });
 }
 
-function writeUsers(users) {
-  fs.writeFileSync(usersDbPath, JSON.stringify(users, null, 2));
+function readUser(username) {
+  const userFilePath = path.join(usersDir, `${username}.json`);
+  return fs.existsSync(userFilePath) 
+    ? JSON.parse(fs.readFileSync(userFilePath)) 
+    : null;
 }
 
-// Session configuration
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: { 
-      secure: false,  
-      httpOnly: true,
-      sameSite: "strict"
-    },
-  })
-);
+function writeUser(username, userData) {
+  const userFilePath = path.join(usersDir, `${username}.json`);
+  fs.writeFileSync(userFilePath, JSON.stringify(userData, null, 2));
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(morgan("dev"));
+app.use(cookieParser());
 
 const upload = multer({ dest: "uploads/" });
 const indexPath = path.join(__dirname, "public", "maps", "index.json");
 
-// Middleware to protect routes
 function isAuthenticated(req, res, next) {
-  if (req.session.user) {
-    next();
-  } else {
-    res.status(401).json({ message: "Unauthorized, please log in." });
+  const { token } = req.cookies;
+  if (token) {
+    const users = fs.readdirSync(usersDir);
+    for (const file of users) {
+      const user = readUser(file.replace('.json', ''));
+      if (user && user.token === token) {
+        req.user = user;
+        return next();
+      }
+    }
+    return res.status(401).json({ message: "Unauthorized, please log in." });
   }
-}
-
-function updateIndex(metadata) {
-  let indexData = fs.existsSync(indexPath)
-    ? JSON.parse(fs.readFileSync(indexPath))
-    : [];
-  const mapIndex = indexData.findIndex(
-    (map) => map.MapUUID === metadata.MapUUID
-  );
-  if (mapIndex >= 0) {
-    indexData[mapIndex] = metadata;
-  } else {
-    indexData.push(metadata);
-  }
-  fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+  return res.status(401).json({ message: "Unauthorized, please log in." });
 }
 
 // Routes
@@ -80,30 +64,43 @@ app.post("/api/signup", [
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
 ], async (req, res) => {
   const errors = validationResult(req);
-  if (!errors.isEmpty()) {    
+  if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
+  
   const { username, password } = req.body;
-  const users = readUsers();
 
-  if (users.find((user) => user.username === username)) {
+  if (fs.existsSync(path.join(usersDir, `${username}.json`))) {
     return res.status(400).json({ message: "User already exists" });
   }
 
   const hashedPassword = await bcrypt.hash(password, saltRounds);
-  users.push({ username, password: hashedPassword });
-  writeUsers(users);
+  const token = uuidv4(); // Generate a token
+  const userData = {
+    username,
+    password: hashedPassword,
+    accountCreationDate: new Date().toISOString(), // Store account creation date
+    token // Store token
+  };
+  writeUser(username, userData);
 
   res.json({ message: "Signup successful" });
 });
 
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
-  const users = readUsers();
-  const user = users.find((u) => u.username === username);
+  const user = readUser(username);
 
   if (user && await bcrypt.compare(password, user.password)) {
-    req.session.user = username;
+    const token = uuidv4(); // Generate a new token
+    user.token = token; // Update user's token
+    writeUser(username, user); // Write updated user data
+
+    res.cookie('token', token, {
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      httpOnly: true,
+      sameSite: "strict"
+    });
     res.json({ message: "Login successful" });
   } else {
     res.status(401).json({ message: "Invalid credentials" });
@@ -111,7 +108,7 @@ app.post("/api/login", async (req, res) => {
 });
 
 app.post("/api/logout", (req, res) => {
-  req.session.destroy();
+  res.clearCookie('token');
   res.json({ message: "Logout successful" });
 });
 
@@ -121,7 +118,6 @@ app.get("/api/maps", (req, res) => {
   );
 });
 
-// Upload Route with authentication and duplicate prevention
 app.post(
   "/api/upload",
   isAuthenticated,
@@ -176,6 +172,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Something went wrong!" });
 });
 
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
