@@ -65,7 +65,8 @@ a:visited {
   flex-wrap: wrap;
 }
 
-.search-bar input, .search-bar button {
+.search-bar input,
+.search-bar button {
   padding: 10px;
   font-size: 1em;
   border: 1px solid var(--textcol);
@@ -74,7 +75,8 @@ a:visited {
   color: var(--textcol);
 }
 
-.search-bar input::placeholder, .search-bar button {
+.search-bar input::placeholder,
+.search-bar button {
   color: #999;
 }
 

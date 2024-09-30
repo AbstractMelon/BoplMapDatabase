@@ -22,6 +22,7 @@ export default {
       const data = await response.json();
       alert(data.message);
       this.$emit('upload-success');
+      window.location.href = "/"
       this.close();
     }
   }

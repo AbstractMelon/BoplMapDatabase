@@ -1,0 +1,70 @@
+{"version": "1",
+"teamSpawns": [[-2.91, -8.907], [-22.593, 9.436], [-2.063, 26.279], [16.79, 9.259]],
+"platforms": [
+{"transform": {"x": -1.979, "y": 4.63}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "asteroid xl"}
+}
+
+,{"transform": {"x": -16.129, "y": -7.231}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "asteroid l"}
+}
+
+,{"transform": {"x": 10.855, "y": -7.231}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "asteroid l"}
+}
+
+,{"transform": {"x": -15.511, "y": 17.372}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "asteroid l"}
+}
+
+,{"transform": {"x": 10.855, "y": 18.078}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "asteroid l"}
+}
+
+,{"transform": {"x": -23.063, "y": 4.762}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "spacetrash"}
+}
+
+,{"transform": {"x": -2.869, "y": -13.668}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "spacetrash"}
+}
+
+,{"transform": {"x": 16.796, "y": 4.145}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "spacetrash"}
+}
+
+,{"transform": {"x": -2.164, "y": 22.575}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "spacetrash"}
+}
+
+,{"transform": {"x": -23.554, "y": 26.014}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "asteroid s"}
+}
+
+,{"transform": {"x": -23.995, "y": -15.079}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "asteroid s"}
+}
+
+,{"transform": {"x": 16.393, "y": -16.667}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "asteroid s"}
+}
+
+,{"transform": {"x": 18.509, "y": 25.661}
+,"rotation": 0,
+"PresetPlatform": {"ScaleFactor": 1, "PresetPlatformName": "asteroid s"}
+}
+
+]
+}
