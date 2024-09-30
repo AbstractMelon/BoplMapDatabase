@@ -133,3 +133,7 @@ maps/
 index.json
 uploads/
 database
+
+# Vitepress
+docs/.vitepress/cache
+docs/.vitepress/dist
