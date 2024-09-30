@@ -5,12 +5,12 @@ const path = require("path");
 const unzipper = require("unzipper");
 const { v4: uuidv4 } = require("uuid");
 const morgan = require("morgan");
-const { body, validationResult } = require('express-validator');
+const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const saltRounds = 10;
 
-require('dotenv').config();
+require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -23,8 +23,8 @@ if (!fs.existsSync(usersDir)) {
 
 function readUser(username) {
   const userFilePath = path.join(usersDir, `${username}.json`);
-  return fs.existsSync(userFilePath) 
-    ? JSON.parse(fs.readFileSync(userFilePath)) 
+  return fs.existsSync(userFilePath)
+    ? JSON.parse(fs.readFileSync(userFilePath))
     : null;
 }
 
@@ -47,7 +47,7 @@ function isAuthenticated(req, res, next) {
   if (token) {
     const users = fs.readdirSync(usersDir);
     for (const file of users) {
-      const user = readUser(file.replace('.json', ''));
+      const user = readUser(file.replace(".json", ""));
       if (user && user.token === token) {
         req.user = user;
         return next();
@@ -59,47 +59,55 @@ function isAuthenticated(req, res, next) {
 }
 
 // Routes
-app.post("/api/signup", [
-  body('username').isLength({ min: 5 }).withMessage('Username must be at least 5 characters long'),
-  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
-], async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+app.post(
+  "/api/signup",
+  [
+    body("username")
+      .isLength({ min: 5 })
+      .withMessage("Username must be at least 5 characters long"),
+    body("password")
+      .isLength({ min: 6 })
+      .withMessage("Password must be at least 6 characters long"),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { username, password } = req.body;
+
+    if (fs.existsSync(path.join(usersDir, `${username}.json`))) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const token = uuidv4(); // Generate a token
+    const userData = {
+      username,
+      password: hashedPassword,
+      accountCreationDate: new Date().toISOString(), // Store account creation date
+      token, // Store token
+    };
+    writeUser(username, userData);
+
+    res.json({ message: "Signup successful" });
   }
-  
-  const { username, password } = req.body;
-
-  if (fs.existsSync(path.join(usersDir, `${username}.json`))) {
-    return res.status(400).json({ message: "User already exists" });
-  }
-
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
-  const token = uuidv4(); // Generate a token
-  const userData = {
-    username,
-    password: hashedPassword,
-    accountCreationDate: new Date().toISOString(), // Store account creation date
-    token // Store token
-  };
-  writeUser(username, userData);
-
-  res.json({ message: "Signup successful" });
-});
+);
 
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;
   const user = readUser(username);
 
-  if (user && await bcrypt.compare(password, user.password)) {
+  if (user && (await bcrypt.compare(password, user.password))) {
     const token = uuidv4(); // Generate a new token
     user.token = token; // Update user's token
     writeUser(username, user); // Write updated user data
 
-    res.cookie('token', token, {
+    res.cookie("token", token, {
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       httpOnly: true,
-      sameSite: "strict"
+      sameSite: "strict",
     });
     res.json({ message: "Login successful" });
   } else {
@@ -108,7 +116,7 @@ app.post("/api/login", async (req, res) => {
 });
 
 app.post("/api/logout", (req, res) => {
-  res.clearCookie('token');
+  res.clearCookie("token");
   res.json({ message: "Logout successful" });
 });
 
