@@ -60,7 +60,22 @@ function isAuthenticated(req, res, next) {
     return res.status(401).json({ message: "Unauthorized, please log in." });
 }
 
-// Routes
+function updateIndex(metadata) {
+    let indexData = fs.existsSync(indexPath)
+      ? JSON.parse(fs.readFileSync(indexPath))
+      : [];
+    const mapIndex = indexData.findIndex(
+      (map) => map.MapUUID === metadata.MapUUID
+    );
+    if (mapIndex >= 0) {
+      indexData[mapIndex] = metadata;
+    } else {
+      indexData.push(metadata);
+    }
+    fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+}
+
+// API Routes
 app.post(
     "/api/signup",
     [
@@ -84,12 +99,12 @@ app.post(
         }
 
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-        const token = uuidv4(); // Generate a token
+        const token = uuidv4();
         const userData = {
             username,
             password: hashedPassword,
-            accountCreationDate: new Date().toISOString(), // Store account creation date
-            token, // Store token
+            accountCreationDate: new Date().toISOString(),
+            token,
         };
         writeUser(username, userData);
 
@@ -102,12 +117,12 @@ app.post("/api/login", async (req, res) => {
     const user = readUser(username);
 
     if (user && (await bcrypt.compare(password, user.password))) {
-        const token = uuidv4(); // Generate a new token
-        user.token = token; // Update user's token
-        writeUser(username, user); // Write updated user data
+        const token = uuidv4();
+        user.token = token;
+        writeUser(username, user);
 
         res.cookie("token", token, {
-            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+            maxAge: 30 * 24 * 60 * 60 * 1000,
             httpOnly: true,
             sameSite: "strict",
         });
@@ -147,11 +162,8 @@ app.post(
                     ? JSON.parse(fs.readFileSync(indexPath))
                     : [];
 
-                // Check for duplicate map
                 if (indexData.some((map) => map.MapUUID === metadata.MapUUID)) {
-                    return res
-                        .status(400)
-                        .json({ message: "Map already exists" });
+                    return res.status(400).json({ message: "Map already exists" });
                 }
 
                 const mapFileName = `${metadata.MapUUID}.zip`;
@@ -180,6 +192,14 @@ app.post(
         }
     }
 );
+
+// Serve static files from the frontend dist directory
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
+// Catch-all handler to serve the Vue app
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+});
 
 // Error Handling
 app.use((err, req, res, next) => {
