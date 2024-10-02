@@ -9,7 +9,7 @@
         "frontend:dev": "cd ./frontend && npm run dev",
         "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
         "comment2": "Production scripts",
-        "backend:prod": "node ./backend/server.js",
+        "backend:prod": "pm2 start ./backend/server.js --name bopl-map-database",
         "frontend:prod": "cd ./frontend && npm run build",
         "prod": "npm run frontend:prod && npm run backend:prod",
         "commen3t": "Utility scripts",
