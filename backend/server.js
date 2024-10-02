@@ -62,15 +62,15 @@ function isAuthenticated(req, res, next) {
 
 function updateIndex(metadata) {
     let indexData = fs.existsSync(indexPath)
-      ? JSON.parse(fs.readFileSync(indexPath))
-      : [];
+        ? JSON.parse(fs.readFileSync(indexPath))
+        : [];
     const mapIndex = indexData.findIndex(
-      (map) => map.MapUUID === metadata.MapUUID
+        (map) => map.MapUUID === metadata.MapUUID
     );
     if (mapIndex >= 0) {
-      indexData[mapIndex] = metadata;
+        indexData[mapIndex] = metadata;
     } else {
-      indexData.push(metadata);
+        indexData.push(metadata);
     }
     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
 }
@@ -163,7 +163,9 @@ app.post(
                     : [];
 
                 if (indexData.some((map) => map.MapUUID === metadata.MapUUID)) {
-                    return res.status(400).json({ message: "Map already exists" });
+                    return res
+                        .status(400)
+                        .json({ message: "Map already exists" });
                 }
 
                 const mapFileName = `${metadata.MapUUID}.zip`;
