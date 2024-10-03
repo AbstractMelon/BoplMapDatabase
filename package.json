@@ -16,7 +16,7 @@
         "format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,md}'",
         "lint": "eslint '**/*.{js,jsx,ts,tsx}'",
         "start": "npm run prod",
-        "install": "npm install && cd ./frontend && npm install && cd .. && cd backend && npm install",
+        "setup": "npm install && cd ./frontend && npm install && cd .. && cd backend && npm install",
         "docs:dev": "vitepress dev docs",
         "docs:preview": "vitepress preview docs",
         "docs:build": "vitepress build docs",
