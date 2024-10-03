@@ -1,7 +1,6 @@
 # ![BoplMapDatabase](https://via.placeholder.com/800x200?text=BoplMapDatabase)
 # Bopl Map Database
 [![npm version](https://img.shields.io/npm/v/npm.svg)](https://www.npmjs.com/package/npm)
-[![Build Status](https://img.shields.io/travis/com/Abstractmelon/BoplMapDatabase.svg)](https://travis-ci.com/Abstractmelon/BoplMapDatabase)
 [![License](https://img.shields.io/badge/license-GNU-brightgreen.svg)](https://opensource.org/licenses/GNU)
 ![GitHub stars](https://img.shields.io/github/stars/Abstractmelon/BoplMapDatabase.svg?style=social)
 
