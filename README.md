@@ -1,7 +1,7 @@
 # ![BoplMapDatabase](https://via.placeholder.com/800x200?text=BoplMapDatabase)
 # Bopl Map Database
 [![npm version](https://img.shields.io/npm/v/npm.svg)](https://www.npmjs.com/package/npm)
-[![License](https://img.shields.io/badge/license-GNU-brightgreen.svg)](https://opensource.org/licenses/GNU)
+[![License](https://img.shields.io/badge/license-GPL-brightgreen.svg)](https://opensource.org/licenses/GPL)
 ![GitHub stars](https://img.shields.io/github/stars/Abstractmelon/BoplMapDatabase.svg?style=social)
 
 ## Overview
@@ -46,12 +46,11 @@ We welcome contributions! Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for
 
 ## License
 
-This project is licensed under the GNU v3 License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GPL v3 License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
 
 For questions or feedback, please reach out on discord:
 https://discord.gg/TNHjPhsqmD
-
 
 Thank you for checking out Bopl Map Database! We hope you find it useful and easy to use. Happy bopling!
