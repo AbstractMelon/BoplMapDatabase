@@ -5,5 +5,5 @@
 1. Install
 
 ```
-npm run install
+npm run setup
 ```
