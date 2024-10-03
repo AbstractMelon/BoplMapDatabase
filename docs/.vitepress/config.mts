@@ -4,7 +4,7 @@ export default defineConfig({
   title: 'Map Maker Docs',
   description: 'The docs for the map maker bopl mod!',
   head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
-  base: '/MapMakerDocs/',
+  base: '/docs/',
   ignoreDeadLinks: true,
   themeConfig: {
     siteTitle: 'Map Maker Docs',
