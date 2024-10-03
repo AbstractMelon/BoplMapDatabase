@@ -47,8 +47,7 @@ jobs:
       - name: Deploy to Production
         if: success()  # Only run if all previous steps succeeded
         run: |
-          curl -X POST https://map-maker.abstractmelon.net/admin/deploy \
+          curl -X POST "${{ secrets.WEBSITE }}/admin/deploy" \
           -H "Content-Type: application/json" \
-          -d '{"deployToken": "skibidirizz"}'
+          -d '{"deployToken": "${{ secrets.TOKEN }}"}'
         continue-on-error: false  # Stop the workflow if the request fails
-
