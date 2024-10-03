@@ -18,8 +18,9 @@
         "start": "npm run prod",
         "install": "npm install && cd ./frontend && npm install && cd .. && cd backend && npm install",
         "docs:dev": "vitepress dev docs",
+        "docs:preview": "vitepress preview docs",
         "docs:build": "vitepress build docs",
-        "docs:preview": "vitepress preview docs"
+        "frontend:build": "cd ./frontend && npm run build"
     },
     "devDependencies": {
         "concurrently": "^6.2.1",
