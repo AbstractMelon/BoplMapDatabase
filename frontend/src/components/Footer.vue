@@ -3,11 +3,11 @@
       <div class="footer-content">
         <div class="footer-links">
           <a href="/feedback" class="footer-link">Feedback</a>
-          <a href="/discord" class="footer-link">Discord</a>
+          <a href="https://discord.gg/TNHjPhsqmD" class="footer-link">Discord</a>
           <a href="/motw" class="footer-link">MOTW</a>
           <a href="/map-creator" class="footer-link">Map Creator</a>
           <a href="/map-downloader" class="footer-link">Map Downloader</a>
-          <a href="/wiki" class="footer-link">Wiki</a>
+          <a href="/docs/" class="footer-link">Wiki</a>
           <a href="/credits" class="footer-link">Credits</a>
         </div>
         <div class="footer-credit">
@@ -25,7 +25,8 @@
   
   <style scoped>
   .footer {
-    background-color: var(--bgcol3);
+    margin-top: 20px;
+    background-color: var(--bgcol4);
     padding: 20px 0;
     display: flex;
     justify-content: center;

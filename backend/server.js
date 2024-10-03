@@ -218,11 +218,6 @@ app.get("/api/user", isAuthenticated, (req, res) => {
 // Serve static files from the frontend dist directory
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-// Catch-all handler to serve the Vue app
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
-});
-
 // Docs
 // Serve VitePress documentation
 app.use('/docs', express.static(path.join(__dirname, '../docs/.vitepress/dist')));
@@ -231,6 +226,12 @@ app.use('/docs', express.static(path.join(__dirname, '../docs/.vitepress/dist'))
 app.get('/docs/*', (req, res) => {
     res.sendFile(path.join(__dirname, '../docs/.vitepress/dist', 'index.html'));
 });
+
+// Catch-all handler to serve the Vue app
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+});
+
 
 // Error Handling
 app.use((err, req, res, next) => {
