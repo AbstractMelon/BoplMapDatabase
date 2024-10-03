@@ -75,6 +75,14 @@ function updateIndex(metadata) {
     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
 }
 
+function isAdmin(req, res, next) {
+    if (req.user && req.user.isAdmin) {
+        return next();
+    }
+    return res.status(403).json({ message: "Forbidden: Admin access required." });
+}
+
+
 // API Routes
 app.post(
     "/api/signup",
@@ -98,6 +106,8 @@ app.post(
             return res.status(400).json({ message: "User already exists" });
         }
 
+        const isAdmin = false
+
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         const token = uuidv4();
         const userData = {
@@ -105,6 +115,7 @@ app.post(
             password: hashedPassword,
             accountCreationDate: new Date().toISOString(),
             token,
+            isAdmin,
         };
         writeUser(username, userData);
 
@@ -141,6 +152,11 @@ app.get("/api/maps", (req, res) => {
     res.json(
         fs.existsSync(indexPath) ? JSON.parse(fs.readFileSync(indexPath)) : []
     );
+});
+
+app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
+    const users = fs.readdirSync(usersDir).map(file => readUser(file.replace(".json", "")));
+    res.json(users);
 });
 
 app.post(

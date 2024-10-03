@@ -4,6 +4,8 @@ import Login from "../components/Login.vue";
 import Signup from "../components/Signup.vue";
 import NotFound from "../components/NotFound.vue";
 import Showcase from "../components/Showcase.vue";
+import AdminPanel from "../components/AdminPanel.vue"; 
+import store from "../store";
 
 const routes = [
     {
@@ -27,6 +29,12 @@ const routes = [
         component: Showcase,
     },
     {
+        path: "/admin",
+        name: "Admin",
+        component: AdminPanel,
+        meta: { requiresAuth: true, isAdmin: true },
+    },
+    {
         path: "/:catchAll(.*)",
         name: "NotFound",
         component: NotFound,
@@ -36,6 +44,20 @@ const routes = [
 const router = createRouter({
     history: createWebHistory(),
     routes,
+});
+
+// Navigation Guard
+router.beforeEach((to, from, next) => {
+    const isAuthenticated = !!store.state.user; // Check if the user is authenticated
+    const isAdmin = isAuthenticated && store.state.user.isAdmin; // Check if the user is admin
+
+    if (to.meta.requiresAuth && !isAuthenticated) {
+        next({ name: "Login" }); // Redirect to login if not authenticated
+    } else if (to.meta.isAdmin && !isAdmin) {
+        next({ name: "NotFound" }); // Redirect to NotFound if not admin
+    } else {
+        next(); 
+    }
 });
 
 export default router;

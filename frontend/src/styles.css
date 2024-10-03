@@ -94,7 +94,9 @@ a:visited {
     padding: 15px;
     border-radius: 10px;
     width: 250px;
+    height: 180px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative; 
     transition: transform 0.2s;
 }
 
@@ -119,7 +121,16 @@ a:visited {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    width: 100%;
+    width: 90%;
+    position: absolute; 
+    bottom: 15px; 
+    left: 0; 
+    right: 0;
+    margin: auto;
+}
+
+.map-card button:hover {
+    background-color: #2f5dbb;
 }
 
 .map-card button:hover {
