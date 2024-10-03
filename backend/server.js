@@ -79,9 +79,10 @@ function isAdmin(req, res, next) {
     if (req.user && req.user.isAdmin) {
         return next();
     }
-    return res.status(403).json({ message: "Forbidden: Admin access required." });
+    return res
+        .status(403)
+        .json({ message: "Forbidden: Admin access required." });
 }
-
 
 // API Routes
 app.post(
@@ -106,7 +107,7 @@ app.post(
             return res.status(400).json({ message: "User already exists" });
         }
 
-        const isAdmin = false
+        const isAdmin = false;
 
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         const token = uuidv4();
@@ -155,7 +156,9 @@ app.get("/api/maps", (req, res) => {
 });
 
 app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
-    const users = fs.readdirSync(usersDir).map(file => readUser(file.replace(".json", "")));
+    const users = fs
+        .readdirSync(usersDir)
+        .map((file) => readUser(file.replace(".json", "")));
     res.json(users);
 });
 
@@ -220,18 +223,20 @@ app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 // Docs
 // Serve VitePress documentation
-app.use('/docs', express.static(path.join(__dirname, '../docs/.vitepress/dist')));
+app.use(
+    "/docs",
+    express.static(path.join(__dirname, "../docs/.vitepress/dist"))
+);
 
 // Serve VitePress index.html for the docs route
-app.get('/docs/*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../docs/.vitepress/dist', 'index.html'));
+app.get("/docs/*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../docs/.vitepress/dist", "index.html"));
 });
 
 // Catch-all handler to serve the Vue app
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
 });
-
 
 // Error Handling
 app.use((err, req, res, next) => {

@@ -4,7 +4,7 @@ import Login from "../components/Login.vue";
 import Signup from "../components/Signup.vue";
 import NotFound from "../components/NotFound.vue";
 import Showcase from "../components/Showcase.vue";
-import AdminPanel from "../components/AdminPanel.vue"; 
+import AdminPanel from "../components/AdminPanel.vue";
 import store from "../store";
 
 const routes = [
@@ -56,7 +56,7 @@ router.beforeEach((to, from, next) => {
     } else if (to.meta.isAdmin && !isAdmin) {
         next({ name: "NotFound" }); // Redirect to NotFound if not admin
     } else {
-        next(); 
+        next();
     }
 });
 

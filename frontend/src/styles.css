@@ -97,7 +97,7 @@ a:visited {
     width: 250px;
     height: 180px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    position: relative; 
+    position: relative;
     transition: transform 0.2s;
 }
 
@@ -123,9 +123,9 @@ a:visited {
     border-radius: 5px;
     cursor: pointer;
     width: 90%;
-    position: absolute; 
-    bottom: 15px; 
-    left: 0; 
+    position: absolute;
+    bottom: 15px;
+    left: 0;
     right: 0;
     margin: auto;
 }
