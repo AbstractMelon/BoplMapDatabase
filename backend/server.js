@@ -199,8 +199,17 @@ app.post(
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
 // Catch-all handler to serve the Vue app
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+});
+
+// Docs
+// Serve VitePress documentation
+app.use('/docs', express.static(path.join(__dirname, '../docs/.vitepress/dist')));
+
+// Serve VitePress index.html for the docs route
+app.get('/docs/*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../docs/.vitepress/dist', 'index.html'));
 });
 
 // Error Handling
