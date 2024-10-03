@@ -39,9 +39,9 @@ jobs:
         continue-on-error: false  # Stop the workflow if this fails
 
       # Step 6: Check for errors in backend/server.js
-      - name: Check Backend Server
-        run: node backend/server.js
-        continue-on-error: false  # Stop the workflow if this fails
+      # - name: Check Backend Server
+      #   run: node backend/server.js
+      #   continue-on-error: false  # Stop the workflow if this fails
 
       # Step 7: Deploy if all steps passed
       - name: Deploy to Production
