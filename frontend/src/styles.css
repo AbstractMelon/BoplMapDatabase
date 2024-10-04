@@ -138,6 +138,22 @@ a:visited {
     background-color: #2f5dbb;
 }
 
+.heart-icon {
+    cursor: pointer;
+    font-size: 24px;
+    margin-left: 5px;
+    transition: color 0.3s;
+}
+
+.heart-icon.liked {
+    color: red; 
+}
+
+.like-count {
+    font-weight: bold;
+}
+
+
 /* Popup Form */
 .popup {
     position: fixed;
