@@ -16,6 +16,11 @@ const app = express();
 const PORT = process.env.PORT || 3002;
 
 const usersDir = path.join(__dirname, "../database/users");
+const mapsDir = path.join(__dirname, "../database/maps");
+
+if (!fs.existsSync(mapsDir)) {
+    fs.mkdirSync(mapsDir, { recursive: true });
+}
 
 if (!fs.existsSync(usersDir)) {
     fs.mkdirSync(usersDir, { recursive: true });
@@ -35,12 +40,11 @@ function writeUser(username, userData) {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
 app.use(morgan("dev"));
 app.use(cookieParser());
 
 const upload = multer({ dest: "uploads/" });
-const indexPath = path.join(__dirname, "public", "maps", "index.json");
+const indexPath = path.join(__dirname, "../database", "maps", "index.json");
 
 function isAuthenticated(req, res, next) {
     const { token } = req.cookies;
@@ -165,21 +169,31 @@ app.get("/api/user", isAuthenticated, (req, res) => {
     res.json({ message: "User data", user: req.user });
 });
 
-app.post("/api/maps/:mapUUID/download", (req, res) => {
-    const { mapUUID } = req.params;
-    const indexData = fs.existsSync(indexPath)
-        ? JSON.parse(fs.readFileSync(indexPath))
-        : [];
-    
-    const map = indexData.find((map) => map.MapUUID === mapUUID);
-    if (map) {
-        map.downloadCount = (map.downloadCount || 0) + 1;
-        fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
-        res.json({ message: "Download count updated", downloadCount: map.downloadCount });
+app.get("/api/maps/download/:mapid", (req, res) => {
+    const { mapid } = req.params;
+    const mapFilePath = path.join(mapsDir, `${mapid}.zip`);
+
+    if (fs.existsSync(mapFilePath)) {
+        res.download(mapFilePath, (err) => {
+            if (err) {
+                console.error(err);
+                res.status(500).json({ message: "Download failed" });
+            } else {
+                const indexData = fs.existsSync(indexPath)
+                    ? JSON.parse(fs.readFileSync(indexPath))
+                    : [];
+                const map = indexData.find((map) => map.MapUUID === mapid);
+                if (map) {
+                    map.downloadCount = (map.downloadCount || 0) + 1;
+                    fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+                }
+            }
+        });
     } else {
         res.status(404).json({ message: "Map not found" });
     }
 });
+
 
 app.post("/api/maps/:mapUUID/like", isAuthenticated, (req, res) => {
     const { mapUUID } = req.params;
@@ -239,7 +253,7 @@ app.post(
                 }
 
                 const mapFileName = `${metadata.MapUUID}.zip`;
-                const mapStorageDir = path.join(__dirname, "public", "maps");
+                const mapStorageDir = path.join(__dirname, "../database", "maps");
                 const mapStoragePath = path.join(mapStorageDir, mapFileName);
 
                 if (!fs.existsSync(mapStorageDir)) {
