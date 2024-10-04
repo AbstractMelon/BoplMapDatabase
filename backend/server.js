@@ -214,9 +214,32 @@ app.post(
     }
 );
 
+// Admin
 app.get("/api/user", isAuthenticated, (req, res) => {
     res.json({ message: "User data", user: req.user });
 });
+
+// Deploy
+app.post("/admin/deploy", (req, res) => {
+    const { deployToken } = req.body; 
+    const expectedToken = process.env.DEPLOY_TOKEN;
+
+    if (deployToken === expectedToken) {
+        const updateCommand = 'cd ../ && git pull && npm run update';
+
+        exec(updateCommand, { cwd: __dirname }, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`exec error: ${error}`);
+                return res.status(500).json({ message: "Failed to run update", error: stderr });
+            }
+            console.log(`stdout: ${stdout}`);
+            res.json({ message: "Update command executed successfully", output: stdout });
+        });
+    } else {
+        res.status(403).json({ message: "Forbidden: Invalid deploy token" });
+    }
+});
+
 
 // Serve static files from the frontend dist directory
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
