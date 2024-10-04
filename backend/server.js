@@ -68,12 +68,17 @@ function updateIndex(metadata) {
         (map) => map.MapUUID === metadata.MapUUID
     );
     if (mapIndex >= 0) {
+        indexData[mapIndex].downloadCount = (indexData[mapIndex].downloadCount || 0);
+        indexData[mapIndex].likeCount = (indexData[mapIndex].likeCount || 0);
         indexData[mapIndex] = metadata;
     } else {
+        metadata.downloadCount = 0; 
+        metadata.likeCount = 0;
         indexData.push(metadata);
     }
     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
 }
+
 
 function isAdmin(req, res, next) {
     if (req.user && req.user.isAdmin) {
@@ -117,6 +122,7 @@ app.post(
             accountCreationDate: new Date().toISOString(),
             token,
             isAdmin,
+            likedMaps: [],
         };
         writeUser(username, userData);
 
@@ -155,11 +161,56 @@ app.get("/api/maps", (req, res) => {
     );
 });
 
-app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
-    const users = fs
-        .readdirSync(usersDir)
-        .map((file) => readUser(file.replace(".json", "")));
-    res.json(users);
+app.get("/api/user", isAuthenticated, (req, res) => {
+    res.json({ message: "User data", user: req.user });
+});
+
+app.post("/api/maps/:mapUUID/download", (req, res) => {
+    const { mapUUID } = req.params;
+    const indexData = fs.existsSync(indexPath)
+        ? JSON.parse(fs.readFileSync(indexPath))
+        : [];
+    
+    const map = indexData.find((map) => map.MapUUID === mapUUID);
+    if (map) {
+        map.downloadCount = (map.downloadCount || 0) + 1;
+        fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+        res.json({ message: "Download count updated", downloadCount: map.downloadCount });
+    } else {
+        res.status(404).json({ message: "Map not found" });
+    }
+});
+
+app.post("/api/maps/:mapUUID/like", isAuthenticated, (req, res) => {
+    const { mapUUID } = req.params;
+    const indexData = fs.existsSync(indexPath)
+        ? JSON.parse(fs.readFileSync(indexPath))
+        : [];
+    
+    const user = req.user;
+    const map = indexData.find((map) => map.MapUUID === mapUUID);
+
+    if (map) {
+        if (!user.likedMaps.includes(mapUUID)) {
+            map.likeCount = (map.likeCount || 0) + 1;
+            user.likedMaps.push(mapUUID); // Add to liked maps
+            fs.writeFileSync(usersDir + `/${user.username}.json`, JSON.stringify(user, null, 2)); // Update user data
+            fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+            return res.json({ message: "Like count updated", likeCount: map.likeCount });
+        } else {
+            return res.status(400).json({ message: "You have already liked this map." });
+        }
+    } else {
+        res.status(404).json({ message: "Map not found" });
+    }
+});
+
+app.get("/api/maps/:mapUUID/user-like", isAuthenticated, (req, res) => {
+    const { mapUUID } = req.params;
+    const user = req.user;
+
+    const hasLiked = user.likedMaps.includes(mapUUID);
+    res.json({ hasLiked });
 });
 
 app.post(
@@ -214,9 +265,35 @@ app.post(
     }
 );
 
-app.get("/api/user", isAuthenticated, (req, res) => {
-    res.json({ message: "User data", user: req.user });
+// Admin
+app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
+    const users = fs
+        .readdirSync(usersDir)
+        .map((file) => readUser(file.replace(".json", "")));
+    res.json(users);
 });
+
+// Deploy
+app.post("/admin/deploy", (req, res) => {
+    const { deployToken } = req.body; 
+    const expectedToken = process.env.DEPLOY_TOKEN;
+
+    if (deployToken === expectedToken) {
+        const updateCommand = 'cd ../ && git pull && npm run update';
+
+        exec(updateCommand, { cwd: __dirname }, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`exec error: ${error}`);
+                return res.status(500).json({ message: "Failed to run update", error: stderr });
+            }
+            console.log(`stdout: ${stdout}`);
+            res.json({ message: "Update command executed successfully", output: stdout });
+        });
+    } else {
+        res.status(403).json({ message: "Forbidden: Invalid deploy token" });
+    }
+});
+
 
 // Serve static files from the frontend dist directory
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
