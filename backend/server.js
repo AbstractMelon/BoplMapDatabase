@@ -274,7 +274,7 @@ app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
 });
 
 // Deploy
-app.post("/admin/deploy", (req, res) => {
+app.post("/api/admin/deploy", (req, res) => {
     const { deployToken } = req.body; 
     const expectedToken = process.env.DEPLOY_TOKEN;
 
