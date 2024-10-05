@@ -32,10 +32,7 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    position:relative;
-    bottom:0;
-    width: 100%;
-    left:0;
+    margin-top: auto;
   }
   
   .footer-content {

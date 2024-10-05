@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Home from "../components/Homepage.vue";
-import Login from "../components/Login.vue";
-import Signup from "../components/Signup.vue";
-import NotFound from "../components/NotFound.vue";
-import Showcase from "../components/Showcase.vue";
-import AdminPanel from "../components/AdminPanel.vue";
-import store from "../store";
+import Home from "../views/Homepage.vue";
+import Login from "../views/auth/Login.vue";
+import Signup from "../views/auth/Signup.vue";
+import NotFound from "../components/common/NotFound.vue";
+import Showcase from "../views/Showcase.vue";
+import AdminPanel from "../views/admin/AdminPanel.vue";
+import authUtils from '../utils/auth'; 
 
 const routes = [
     {
@@ -47,9 +47,9 @@ const router = createRouter({
 });
 
 // Navigation Guard
-router.beforeEach((to, from, next) => {
-    const isAuthenticated = !!store.state.user; // Check if the user is authenticated
-    const isAdmin = isAuthenticated && store.state.user.isAdmin; // Check if the user is admin
+router.beforeEach(async (to, from, next) => {
+    const isAuthenticated = await authUtils.isLoggedIn(); // Check if the user is logged in
+    const isAdmin = isAuthenticated ? await authUtils.isAdmin() : false; // Check if the user is admin if authenticated
 
     if (to.meta.requiresAuth && !isAuthenticated) {
         next({ name: "Login" }); // Redirect to login if not authenticated

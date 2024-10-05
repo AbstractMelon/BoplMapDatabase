@@ -13,7 +13,7 @@
   
   <script>
 
-  import MapGallery from './/MapGallery.vue';
+  import MapGallery from '../components/MapGallery.vue';
   
   export default {
     components: { MapGallery },
