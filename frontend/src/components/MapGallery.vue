@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import MapCard from './MapCard.vue';
+import MapCard from './gallery/MapCard.vue';
 
 export default {
   components: { MapCard },

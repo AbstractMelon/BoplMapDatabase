@@ -66,6 +66,12 @@ a:visited {
     flex-wrap: wrap;
 }
 
+.multi-use-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
 .search-bar input,
 .search-bar button {
     padding: 10px;
@@ -146,13 +152,12 @@ a:visited {
 }
 
 .heart-icon.liked {
-    color: red; 
+    color: red;
 }
 
 .like-count {
     font-weight: bold;
 }
-
 
 /* Popup Form */
 .popup {

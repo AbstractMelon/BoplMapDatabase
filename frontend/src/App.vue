@@ -1,16 +1,18 @@
 <template>
   <div id="app">
-    <Header @toggle-upload-popup="showUploadPopup" />
-    <router-view />
-    <Footer />
-    <UploadPopup :show="uploadPopupVisible" :close="closeUploadPopup" @upload-success="fetchMaps" />
+    <div class="multi-use-container">
+        <Header @toggle-upload-popup="showUploadPopup" />
+        <router-view />
+        <Footer />
+        <UploadPopup :show="uploadPopupVisible" :close="closeUploadPopup" @upload-success="fetchMaps" />
+    </div>
   </div>
 </template>
 
 <script>
-import Header from './components/Header.vue';
+import Header from './components/common/Header.vue';
 import UploadPopup from './components/UploadPopup.vue';
-import Footer from './components/Footer.vue';
+import Footer from './components/common/Footer.vue';
 
 export default {
   components: { Header, UploadPopup, Footer },  
