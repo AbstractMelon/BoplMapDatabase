@@ -14,7 +14,6 @@ body {
     color: var(--textcol);
     margin: 0;
     padding: 0;
-    
 }
 
 header {
@@ -68,7 +67,7 @@ a:visited {
 }
 
 .multi-use-container {
-    min-height: 100vh;    
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
@@ -153,13 +152,12 @@ a:visited {
 }
 
 .heart-icon.liked {
-    color: red; 
+    color: red;
 }
 
 .like-count {
     font-weight: bold;
 }
-
 
 /* Popup Form */
 .popup {

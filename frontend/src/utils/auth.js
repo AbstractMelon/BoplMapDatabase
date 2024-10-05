@@ -1,4 +1,4 @@
-import userUtils from './user';
+import userUtils from "./user";
 
 /**
  * Check if the user is logged in by fetching user data.

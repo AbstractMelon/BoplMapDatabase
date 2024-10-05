@@ -4,8 +4,9 @@ import Login from "../views/auth/Login.vue";
 import Signup from "../views/auth/Signup.vue";
 import NotFound from "../components/common/NotFound.vue";
 import Showcase from "../views/Showcase.vue";
+import Download from "../views/Download.vue";
 import AdminPanel from "../views/admin/AdminPanel.vue";
-import authUtils from '../utils/auth'; 
+import authUtils from "../utils/auth";
 
 const routes = [
     {
@@ -27,6 +28,11 @@ const routes = [
         path: "/map-creator",
         name: "Map Creator",
         component: Showcase,
+    },
+    {
+        path: "/download",
+        name: "Download",
+        component: Download,
     },
     {
         path: "/admin",

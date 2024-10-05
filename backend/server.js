@@ -72,17 +72,17 @@ function updateIndex(metadata) {
         (map) => map.MapUUID === metadata.MapUUID
     );
     if (mapIndex >= 0) {
-        indexData[mapIndex].downloadCount = (indexData[mapIndex].downloadCount || 0);
-        indexData[mapIndex].likeCount = (indexData[mapIndex].likeCount || 0);
+        indexData[mapIndex].downloadCount =
+            indexData[mapIndex].downloadCount || 0;
+        indexData[mapIndex].likeCount = indexData[mapIndex].likeCount || 0;
         indexData[mapIndex] = metadata;
     } else {
-        metadata.downloadCount = 0; 
+        metadata.downloadCount = 0;
         metadata.likeCount = 0;
         indexData.push(metadata);
     }
     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
 }
-
 
 function isAdmin(req, res, next) {
     if (req.user && req.user.isAdmin) {
@@ -185,7 +185,10 @@ app.get("/api/maps/download/:mapid", (req, res) => {
                 const map = indexData.find((map) => map.MapUUID === mapid);
                 if (map) {
                     map.downloadCount = (map.downloadCount || 0) + 1;
-                    fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+                    fs.writeFileSync(
+                        indexPath,
+                        JSON.stringify(indexData, null, 2)
+                    );
                 }
             }
         });
@@ -194,13 +197,12 @@ app.get("/api/maps/download/:mapid", (req, res) => {
     }
 });
 
-
 app.post("/api/maps/:mapUUID/like", isAuthenticated, (req, res) => {
     const { mapUUID } = req.params;
     const indexData = fs.existsSync(indexPath)
         ? JSON.parse(fs.readFileSync(indexPath))
         : [];
-    
+
     const user = req.user;
     const map = indexData.find((map) => map.MapUUID === mapUUID);
 
@@ -208,11 +210,19 @@ app.post("/api/maps/:mapUUID/like", isAuthenticated, (req, res) => {
         if (!user.likedMaps.includes(mapUUID)) {
             map.likeCount = (map.likeCount || 0) + 1;
             user.likedMaps.push(mapUUID); // Add to liked maps
-            fs.writeFileSync(usersDir + `/${user.username}.json`, JSON.stringify(user, null, 2)); // Update user data
+            fs.writeFileSync(
+                usersDir + `/${user.username}.json`,
+                JSON.stringify(user, null, 2)
+            ); // Update user data
             fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
-            return res.json({ message: "Like count updated", likeCount: map.likeCount });
+            return res.json({
+                message: "Like count updated",
+                likeCount: map.likeCount,
+            });
         } else {
-            return res.status(400).json({ message: "You have already liked this map." });
+            return res
+                .status(400)
+                .json({ message: "You have already liked this map." });
         }
     } else {
         res.status(404).json({ message: "Map not found" });
@@ -253,7 +263,11 @@ app.post(
                 }
 
                 const mapFileName = `${metadata.MapUUID}.zip`;
-                const mapStorageDir = path.join(__dirname, "../database", "maps");
+                const mapStorageDir = path.join(
+                    __dirname,
+                    "../database",
+                    "maps"
+                );
                 const mapStoragePath = path.join(mapStorageDir, mapFileName);
 
                 if (!fs.existsSync(mapStorageDir)) {
@@ -289,25 +303,29 @@ app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
 
 // Deploy
 app.post("/api/admin/deploy", (req, res) => {
-    const { deployToken } = req.body; 
+    const { deployToken } = req.body;
     const expectedToken = process.env.DEPLOY_TOKEN;
 
     if (deployToken === expectedToken) {
-        const updateCommand = 'cd ../ && git pull && npm run update';
+        const updateCommand = "cd ../ && git pull && npm run update";
 
         exec(updateCommand, { cwd: __dirname }, (error, stdout, stderr) => {
             if (error) {
                 console.error(`exec error: ${error}`);
-                return res.status(500).json({ message: "Failed to run update", error: stderr });
+                return res
+                    .status(500)
+                    .json({ message: "Failed to run update", error: stderr });
             }
             console.log(`stdout: ${stdout}`);
-            res.json({ message: "Update command executed successfully", output: stdout });
+            res.json({
+                message: "Update command executed successfully",
+                output: stdout,
+            });
         });
     } else {
         res.status(403).json({ message: "Forbidden: Invalid deploy token" });
     }
 });
-
 
 // Serve static files from the frontend dist directory
 app.use(express.static(path.join(__dirname, "../frontend/dist")));

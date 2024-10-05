@@ -5,8 +5,8 @@
                 <h1 class="title">Bopl Battle Map Creator</h1>
                 <p class="description">Create dynamic, custom battle maps for your Bopl adventures. Design, strategize, and conquer with ease.</p>
                 <div class="action-button-container">
-                    <button class="action-button">Get Started</button>
-                    <button class="secondary-button">Learn More</button>
+                    <a class="action-button" href="/download">Download</a>
+                    <a class="secondary-button" href="#">Learn More</a>
                 </div>
             </div>
 
@@ -25,35 +25,36 @@
             <section class="download-section">
                 <h2 class="section-title">Download</h2>
                 <p class="section-content">Ready to get started? Download the latest version of Bopl Battle Map Creator and jump into building your battle maps.</p>
-                <button class="section-button">Download Now</button>
+                <a class="section-button" href="/download">Download Now</a>
             </section>
 
             <section class="wiki-section">
                 <h2 class="section-title">Wiki</h2>
                 <p class="section-content">Need help? Check out the official wiki for tutorials, tips, and detailed documentation on how to use Bopl Battle Map Creator.</p>
-                <button class="section-button">Visit Wiki</button>
+                <a class="section-button" href="/docs/">Visit Wiki</a>
             </section>
 
             <section class="devlog-section">
                 <h2 class="section-title">Devlog</h2>
                 <p class="section-content">Follow the development of Bopl Battle Map Creator through our devlog. Stay up-to-date on the latest features, fixes, and improvements.</p>
-                <button class="section-button">View Devlog</button>
+                <a class="section-button" href="/devlog">View Devlog</a>
             </section>
 
             <section class="map-loader-info-section">
                 <h2 class="section-title">Map Loader</h2>
                 <p class="section-content">Learn how to load, manage, and customize maps using our powerful map loader. Discover advanced tips for handling your maps.</p>
-                <button class="section-button">Learn More</button>
+                <a class="section-button" href="/docs/map-loader/">Learn More</a>
             </section>
 
             <section class="thunderstore-section">
                 <h2 class="section-title">Thunderstore</h2>
                 <p class="section-content">Find community-created maps and tools for Bopl Battle Map Creator on Thunderstore. Share your own creations with the community.</p>
-                <button class="section-button">Visit Thunderstore</button>
+                <a class="section-button" href="https://thunderstore.io/c/bopl-battle/">Visit Thunderstore</a>
             </section>
         </div>
     </div>
 </template>
+
 
   <script>
   export default {
