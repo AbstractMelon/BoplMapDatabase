@@ -26,25 +26,34 @@
       };
     },
     methods: {
-      async signup() {
-        try {
-          const response = await fetch('/api/signup', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: this.username, password: this.password })
-          });
-          const data = await response.json();
-          
-          if (response.ok) {
-
-            //this.login()
-            
-            this.$router.push('/');
-          }
-        } catch (error) {
-          this.errorMessage = 'Signup failed: ' + error.message;
+        async signup() {
+            try {
+                const response = await fetch('/api/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: this.username, password: this.password })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                // Check if errors is an array (multipart errors)
+                if (Array.isArray(data.errors) && data.errors.length > 0) {
+                    this.errorMessage = data.errors.map(err => err.msg).join(', ');
+                } else {
+                    // Fallback for single error message
+                    this.errorMessage = data.message || 'Signup failed. Error system also failed';
+                }
+                return;
+                }
+                
+                // On successful signup, redirect to home
+                this.$router.push('/');
+            } catch (error) {
+                this.errorMessage = 'Signup failed: ' + error.message;
         }
-      },
+    },
+
       closeAlert() {
         this.errorMessage = '';
       },
