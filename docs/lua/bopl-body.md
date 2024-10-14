@@ -1,7 +1,7 @@
 # Bopl
 
 Basically every object present on the map:
-Arrow, RocketEngine, Mine, Tesla, AbilityPickup, Missile, MatchoBoulder, Spike, Rock, Smoke, Smoke Grenade, Grenade, Platform, Unknown/Modded.
+Arrow, RocketEngine, Mine, Tesla, AbilityPickup, Missile, MachoBoulder, Spike, Rock, Smoke, Smoke Grenade, Grenade, Platform, Unknown/Modded.
 
 ## Base Properties
 
@@ -76,7 +76,7 @@ bool IsDisappeared()
 
 ### Get Object Type
 Returns the type of the bopl body.
-**valid types:** Arrow, RocketEngine, Mine, Telsa, AbilityPickup, Missile, MatchoBoulder, Spike, Rock, Smoke, Smoke Grenade, Grenade, Platform, Unknown/Modded.
+**valid types:** Arrow, RocketEngine, Mine, Tesla, AbilityPickup, Missile, MachoBoulder, Spike, Rock, Smoke, Smoke Grenade, Grenade, Platform, Unknown/Modded.
 
 ```lua
 string GetObjectType()

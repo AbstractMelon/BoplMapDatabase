@@ -174,7 +174,7 @@ end
 
 ### Get Ability
 Returns the ability at `index` of the player as string
-index: 1 - left, 2 - up, 3 - right
+index: 1 - left, 2 - right, 3 - up
 
 ```
 string Player.GetAbility(number index)
@@ -182,12 +182,12 @@ string Player.GetAbility(number index)
 
 Example:
 ```lua
-ability = player1.GetAbility(2) -- gets the center ability
+ability = player1.GetAbility(3) -- gets the center ability
 ```
 
 ### Set Ability
 Sets the ability at `index` of the player to given ability
-index: 1 - left, 2 - up, 3 - right
+index: 1 - left, 2 - right, 3 - up
 ~ if theres less than 3 abilities it just adds one
 
 valid ability names:

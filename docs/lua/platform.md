@@ -36,6 +36,16 @@ number Platform.GetScale()
 Platform.SetScale(number scale)
 ```
 
+### Base Scale
+The scale the platform will shrink to after some time
+```lua
+number Platform.GetBaseScale()
+```
+
+```lua
+Platform.SetBaseScale(number baseScale)
+```
+
 ## Info Functions
 
 ### Get Bopl Body

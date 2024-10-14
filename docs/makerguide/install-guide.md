@@ -2,7 +2,7 @@
 
 ## Step 1: Install Map Maker
 
-First you will need to actually install the program, click this link to download it: [Download Map Maker](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+First you will need to actually install the program, click this link to download it: [Download Map Maker](https://map-maker.abstractmelon.net/download/)
 
 ## Step 2: Open Map Maker
 
