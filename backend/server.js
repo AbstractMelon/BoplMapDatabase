@@ -103,9 +103,16 @@ function updateIndex(metadata) {
     let indexData = fs.existsSync(indexPath)
         ? JSON.parse(fs.readFileSync(indexPath))
         : [];
+    
+    // Make sure new flags are set to false by default
+    metadata.isMotw = metadata.isMotw || false;
+    metadata.isFeatured = metadata.isFeatured || false;
+    metadata.isHandpicked = metadata.isHandpicked || false;
+
     const mapIndex = indexData.findIndex(
         (map) => map.MapUUID === metadata.MapUUID
     );
+    
     if (mapIndex >= 0) {
         indexData[mapIndex].downloadCount =
             indexData[mapIndex].downloadCount || 0;
@@ -116,7 +123,32 @@ function updateIndex(metadata) {
         metadata.likeCount = 0;
         indexData.push(metadata);
     }
+    
     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+}
+
+// Function to update users and maps to latest structure
+function updateToLatest() {
+    const indexData = fs.existsSync(indexPath) ? JSON.parse(fs.readFileSync(indexPath)) : [];
+    
+    // Update maps to include new flags
+    indexData.forEach(map => {
+        map.isMotw = map.isMotw || false;
+        map.isFeatured = map.isFeatured || false;
+        map.isHandpicked = map.isHandpicked || false;
+    });
+    
+    fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+
+    // Update user data
+    const users = fs.readdirSync(usersDir);
+    users.forEach(file => {
+        const user = readUser(file.replace(".json", ""));
+        if (user) {
+            user.likedMaps = user.likedMaps || [];
+            writeUser(user.username, user);
+        }
+    });
 }
 
 // Function to check if user is an admin
@@ -216,7 +248,6 @@ app.get("/api/maps", (req, res) => {
         fs.existsSync(indexPath) ? JSON.parse(fs.readFileSync(indexPath)) : []
     );
 });
-
 app.get("/api/user", isAuthenticated, (req, res) => {
     res.json({ message: "User data", user: req.user });
 });
@@ -355,6 +386,11 @@ app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
     res.json(users);
 });
 
+app.get("/api/admin/update", isAuthenticated, isAdmin, (req, res) => {
+    updateToLatest()
+    res.json("Updated Probably");
+});
+
 // Deploy
 app.post("/api/admin/deploy", (req, res) => {
     const { deployToken } = req.body;
@@ -426,6 +462,55 @@ app.delete("/api/maps/:mapUUID", isAuthenticated, isAdmin, (req, res) => {
         res.status(404).json({ message: "Map not found" });
     }
 });
+
+// Update Map
+app.put("/api/maps/:MapUUID", isAuthenticated, isAdmin, (req, res) => {
+    const mapUUID = req.params.MapUUID;
+    const updatedMapData = req.body;
+    const indexData = fs.existsSync(indexPath)
+        ? JSON.parse(fs.readFileSync(indexPath))
+        : [];
+
+    const mapIndex = indexData.findIndex((map) => map.MapUUID === mapUUID);
+    if (mapIndex === -1) {
+        return res.status(404).json({ message: "Map not found" });
+    }
+
+    // Update map data
+    indexData[mapIndex] = { ...indexData[mapIndex], ...updatedMapData };
+
+    // Save the updated index data back to file
+    fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+
+    // Log the update action
+    logLogs("Updated map", { mapUUID, updatedMapData });
+
+    res.json({ message: "Map updated successfully" });
+});
+
+// Update User
+app.put("/api/admin/users/:username", isAuthenticated, isAdmin, (req, res) => {
+    const username = req.params.username;
+    const updatedUserData = req.body;
+    
+    // Fetch the existing user data
+    const user = readUser(username);
+    if (!user) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update the user data
+    const updatedUser = { ...user, ...updatedUserData };
+
+    // Save the updated user data to the filesystem
+    writeUser(username, updatedUser);
+
+    // Log the update action
+    logLogs("Updated user", { username, updatedUserData });
+
+    res.json({ message: "User updated successfully" });
+});
+
 
 
 // Serve static files from the frontend dist directory

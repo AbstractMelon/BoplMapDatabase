@@ -1,6 +1,8 @@
 <template>
     <div class="admin-panel">
         <h1>Admin Panel</h1>
+        
+        <button @click="updateToLatest">Update to Latest</button>
 
         <section class="section">
             <h2>User List</h2>
@@ -9,10 +11,8 @@
                 <div v-for="user in users" :key="user.username" class="card user-card">
                     <div class="card-content">
                         <h3>{{ user.username }}</h3>
-                        <div class="button-group">
-                            <button @click="viewUser(user.username)">View</button>
-                            <button @click="deleteUser(user.username)">Delete</button>
-                        </div>
+                        <button @click="openEditModal('user', user)">Edit</button>
+                        <button @click="deleteUser(user.username)">Delete</button>
                     </div>
                 </div>
             </div>
@@ -26,14 +26,41 @@
                     <div class="card-content">
                         <h3>{{ map.MapName }}</h3>
                         <p>{{ map.MapUUID }}</p>
-                        <div class="button-group">
-                            <button @click="viewMap(map.MapUUID)">View</button>
-                            <button @click="deleteMap(map.MapUUID)">Delete</button>
-                        </div>
+                        <button @click="openEditModal('map', map)">Edit</button>
+                        <button @click="deleteMap(map.MapUUID)">Delete</button>
                     </div>
                 </div>
             </div>
         </section>
+
+        <!-- Edit Modal -->
+        <div v-if="isEditModalOpen" class="edit-modal">
+            <h2>Edit {{ editType }}</h2>
+            <div v-if="editType === 'user'">
+                <label>
+                    <input type="checkbox" v-model="selectedUser.isAdmin" />
+                    Admin
+                </label>
+                <textarea v-model="rawUserJson" rows="5" @blur="updateUserFromJson"></textarea>
+            </div>
+            <div v-if="editType === 'map'">
+                <label>
+                    <input type="checkbox" v-model="selectedMap.isMotw" />
+                    Map of the Week
+                </label>
+                <label>
+                    <input type="checkbox" v-model="selectedMap.isFeatured" />
+                    Featured
+                </label>
+                <label>
+                    <input type="checkbox" v-model="selectedMap.isHandpicked" />
+                    Handpicked
+                </label>
+                <textarea v-model="rawMapJson" rows="5" @blur="updateMapFromJson"></textarea>
+            </div>
+            <button @click="saveChanges">Save Changes</button>
+            <button @click="closeEditModal">Close</button>
+        </div>
 
         <section class="section">
             <h2>Logs</h2>
@@ -55,6 +82,12 @@ export default {
             users: [],
             maps: [],
             logs: [],
+            isEditModalOpen: false,
+            editType: '',
+            selectedUser: null,
+            selectedMap: null,
+            rawUserJson: '',
+            rawMapJson: '',
         };
     },
     created() {
@@ -64,47 +97,91 @@ export default {
     },
     methods: {
         async fetchUsers() {
-            try {
-                const response = await fetch("/api/admin/users", {
-                    credentials: "include",
-                });
-                if (!response.ok) throw new Error("Not authorized");
-                this.users = await response.json();
-            } catch (error) {
-                console.error("Failed to fetch users:", error);
-            }
+            const response = await fetch("/api/admin/users", { credentials: "include" });
+            this.users = await response.json();
         },
         async fetchMaps() {
-            try {
-                const response = await fetch("/api/maps", {
-                    credentials: "include",
-                });
-                if (!response.ok) throw new Error("Failed to fetch maps");
-                this.maps = await response.json();
-            } catch (error) {
-                console.error("Failed to fetch maps:", error);
-            }
+            const response = await fetch("/api/maps", { credentials: "include" });
+            this.maps = await response.json();
         },
         async fetchLogs() {
-            try {
-                const response = await fetch("/api/admin/logs", {
+            const response = await fetch("/api/admin/logs", { credentials: "include" });
+            this.logs = await response.json();
+        },
+        async updateToLatest() {
+            const response = await fetch("/api/admin/update", { credentials: "include" });
+            this.logs = await response.json();
+        },
+        openEditModal(type, item) {
+            this.editType = type;
+            if (type === 'user') {
+                this.selectedUser = { ...item };
+                this.rawUserJson = JSON.stringify(this.selectedUser, null, 2);
+            } else if (type === 'map') {
+                this.selectedMap = { ...item };
+                this.rawMapJson = JSON.stringify(this.selectedMap, null, 2);
+            }
+            this.isEditModalOpen = true;
+        },
+        closeEditModal() {
+            this.isEditModalOpen = false;
+            this.selectedUser = null;
+            this.selectedMap = null;
+        },
+        async saveChanges() {
+            if (this.editType === 'user') {
+                await fetch(`/api/admin/users/${this.selectedUser.username}`, {
+                    method: 'PUT',
                     credentials: "include",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(this.selectedUser),
                 });
-                if (!response.ok) throw new Error("Failed to fetch logs");
-                this.logs = await response.json();
+                this.fetchUsers(); // Refresh user list
+            } else if (this.editType === 'map') {
+                await fetch(`/api/maps/${this.selectedMap.MapUUID}`, {
+                    method: 'PUT',
+                    credentials: "include",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(this.selectedMap),
+                });
+                this.fetchMaps(); // Refresh map list
+            }
+            this.closeEditModal();
+        },
+        async updateUserFromJson() {
+            try {
+                const updatedUser = JSON.parse(this.rawUserJson);
+                await fetch(`/api/admin/users/${updatedUser.username}`, {
+                    method: 'PUT',
+                    credentials: "include",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedUser),
+                });
+                this.fetchUsers(); // Refresh user list
             } catch (error) {
-                console.error("Failed to fetch logs:", error);
+                console.error("Error updating user:", error);
             }
         },
-        async viewUser(username) {
+        async updateMapFromJson() {
             try {
-                const response = await fetch(`/api/admin/users/${username}`, {
+                const updatedMap = JSON.parse(this.rawMapJson);
+                await fetch(`/api/maps/${updatedMap.MapUUID}`, {
+                    method: 'PUT',
                     credentials: "include",
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedMap),
                 });
-                const user = await response.json();
-                console.log(user);
+                this.fetchMaps(); // Refresh map list
             } catch (error) {
-                console.error("Failed to view user:", error);
+                console.error("Error updating map:", error);
             }
         },
         async deleteUser(username) {
@@ -119,17 +196,6 @@ export default {
                 } catch (error) {
                     console.error("Failed to delete user:", error);
                 }
-            }
-        },
-        async viewMap(mapUUID) {
-            try {
-                const response = await fetch(`/api/maps/${mapUUID}`, {
-                    credentials: "include",
-                });
-                const map = await response.json();
-                console.log(map);
-            } catch (error) {
-                console.error("Failed to view map:", error);
             }
         },
         async deleteMap(mapUUID) {
@@ -242,5 +308,17 @@ button:hover {
     font-size: 12px;
     white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+.edit-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--bgcol2);
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    border-radius: 20px;
 }
 </style>
