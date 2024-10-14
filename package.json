@@ -15,7 +15,7 @@
         "setup": "npm install && cd ./frontend && npm install && cd .. && cd backend && npm install",
         "docs:dev": "vitepress dev docs",
         "docs:preview": "vitepress preview docs",
-        "docs:build": "vitepress build docs",
+        "docs:build": "cd docs && npm run build",
         "frontend:build": "cd ./frontend && npm run build",
         "update": "npm run docs:build && npm run frontend:build && pm2 restart bopl-map-database"
     },
