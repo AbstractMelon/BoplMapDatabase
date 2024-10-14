@@ -1,11 +1,10 @@
 <template>
     <div id="map-gallery">
-      <div class="top-container">
+      <div class="top-container" :class="{ hidden: showSections }">
         <div class="motw-container">
           <h2>Map of the Week</h2>
           <MapCard :map="motw" class="motw-card" />
         </div>
-  
         <div class="side-container">
           <div class="handpicked">
             <h2>Handpicked Maps</h2>
@@ -30,21 +29,23 @@
         </div>
       </div>
   
-      <div class="main-map-list">
-        <h2>Main List of Maps</h2>
-        <div class="map-grid">
-          <MapCard v-for="map in mainMaps" :key="map.MapUUID" :map="map" />
+      <transition name="slide">
+        <div class="main-map-list">
+          <h2>Main List of Maps</h2>
+          <div class="map-grid">
+            <MapCard v-for="map in mainMaps" :key="map.MapUUID" :map="map" />
+          </div>
         </div>
-      </div>
+      </transition>
     </div>
-  </template>  
+  </template>
   
   <script>
   import MapCard from './gallery/MapCard.vue';
   
   export default {
     components: { MapCard },
-    props: ['maps'],
+    props: ['maps', 'showSections'],
     computed: {
       motw() {
         return this.maps.find(map => map.isMotw);
@@ -56,12 +57,14 @@
         return this.maps.filter(map => map.isFeatured);
       },
       mainMaps() {
+        return this.maps;
+      },
+      mainMapsSearchable() {
         return this.maps.filter(map => !map.isMotw && !map.isHandpicked && !map.isFeatured);
       }
     }
   }
   </script>
-  
   
 <style scoped>
 #map-gallery {
@@ -145,5 +148,17 @@ width: 90%;
 h2 {
   margin-bottom: 15px;
   color: var(--textcol);
+}
+
+.top-container.hidden {
+  display: none; 
+}
+
+.slide-enter-active, .slide-leave-active {
+  transition: all 0.5s ease; 
+}
+.slide-enter, .slide-leave-to {
+  transform: translateY(-20px); 
+  opacity: 1; 
 }
 </style>
