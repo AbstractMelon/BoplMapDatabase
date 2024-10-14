@@ -49,7 +49,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 90vh;
+  height: 80vh;
   color: rgb(255, 255, 255);
 }
 

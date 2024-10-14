@@ -163,6 +163,12 @@ app.post(
         };
         writeUser(username, userData);
 
+        res.cookie("token", userData.token, {
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            sameSite: "strict",
+        });
+
         logLogs("signup", { username });
 
         res.json({ message: "Signup successful" });
