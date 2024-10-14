@@ -27,24 +27,25 @@ export default {
   },
   methods: {
     async signup() {
-      try {
+        try {
         const response = await fetch('/api/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: this.username, password: this.password })
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: this.username, password: this.password })
         });
         const data = await response.json();
         if (response.ok) {
-          this.$router.push('/login');
+            this.$router.push('/login');
         } else {
-          this.errorMessage = data.message;
+            // Collect error messages
+            this.errorMessage = data.errors.map(error => `${error.msg}`).join(' ');
         }
-      } catch (error) {
+        } catch (error) {
         this.errorMessage = 'Signup failed. Please try again.';
-      }
+        }
     },
     closeAlert() {
-      this.errorMessage = '';
+        this.errorMessage = '';
     }
   }
 }
