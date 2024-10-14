@@ -17,6 +17,7 @@ const PORT = process.env.PORT || 3002;
 
 const usersDir = path.join(__dirname, "../database/users");
 const mapsDir = path.join(__dirname, "../database/maps");
+const miscDir = path.join(__dirname, "../database/misc");
 
 if (!fs.existsSync(mapsDir)) {
     fs.mkdirSync(mapsDir, { recursive: true });
@@ -26,6 +27,35 @@ if (!fs.existsSync(usersDir)) {
     fs.mkdirSync(usersDir, { recursive: true });
 }
 
+if (!fs.existsSync(miscDir)) {
+    fs.mkdirSync(miscDir, { recursive: true });
+}
+
+const LogsPath = path.join(miscDir, "Logs.json");
+
+// Function to read Logs
+function readLogs() {
+    return fs.existsSync(LogsPath) ? JSON.parse(fs.readFileSync(LogsPath)) : [];
+}
+
+// Function to write Logs data to file
+function writeLogs(data) {
+    fs.writeFileSync(LogsPath, JSON.stringify(data, null, 2));
+}
+
+// Logs logging function
+function logLogs(action, data) {
+    const Logs = readLogs();
+    const logEntry = {
+        action,
+        data,
+        timestamp: new Date().toISOString(),
+    };
+    Logs.push(logEntry);
+    writeLogs(Logs);
+}
+
+// Function to read user data
 function readUser(username) {
     const userFilePath = path.join(usersDir, `${username}.json`);
     return fs.existsSync(userFilePath)
@@ -33,6 +63,7 @@ function readUser(username) {
         : null;
 }
 
+// Function to write user data
 function writeUser(username, userData) {
     const userFilePath = path.join(usersDir, `${username}.json`);
     fs.writeFileSync(userFilePath, JSON.stringify(userData, null, 2));
@@ -46,6 +77,7 @@ app.use(cookieParser());
 const upload = multer({ dest: "uploads/" });
 const indexPath = path.join(__dirname, "../database", "maps", "index.json");
 
+// Function to check if user is authenticated
 function isAuthenticated(req, res, next) {
     const { token } = req.cookies;
     if (token) {
@@ -64,6 +96,7 @@ function isAuthenticated(req, res, next) {
     return res.status(401).json({ message: "Unauthorized, please log in." });
 }
 
+// Function to update map index
 function updateIndex(metadata) {
     let indexData = fs.existsSync(indexPath)
         ? JSON.parse(fs.readFileSync(indexPath))
@@ -84,6 +117,7 @@ function updateIndex(metadata) {
     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
 }
 
+// Function to check if user is an admin
 function isAdmin(req, res, next) {
     if (req.user && req.user.isAdmin) {
         return next();
@@ -117,7 +151,6 @@ app.post(
         }
 
         const isAdmin = false;
-
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         const token = uuidv4();
         const userData = {
@@ -129,6 +162,8 @@ app.post(
             likedMaps: [],
         };
         writeUser(username, userData);
+
+        logLogs("signup", { username });
 
         res.json({ message: "Signup successful" });
     }
@@ -148,6 +183,9 @@ app.post("/api/login", async (req, res) => {
             httpOnly: true,
             sameSite: "strict",
         });
+
+        logLogs("login", { username });
+
         res.json({ message: "Login successful" });
     } else {
         res.status(401).json({ message: "Invalid credentials" });
@@ -155,7 +193,13 @@ app.post("/api/login", async (req, res) => {
 });
 
 app.post("/api/logout", (req, res) => {
+    const { token } = req.cookies;
     res.clearCookie("token");
+
+    if (token) {
+        logLogs("logout", { token });
+    }
+
     res.json({ message: "Logout successful" });
 });
 
@@ -168,7 +212,6 @@ app.get("/api/maps", (req, res) => {
 app.get("/api/user", isAuthenticated, (req, res) => {
     res.json({ message: "User data", user: req.user });
 });
-
 app.get("/api/maps/download/:mapid", (req, res) => {
     const { mapid } = req.params;
     const mapFilePath = path.join(mapsDir, `${mapid}.zip`);
@@ -190,6 +233,8 @@ app.get("/api/maps/download/:mapid", (req, res) => {
                         JSON.stringify(indexData, null, 2)
                     );
                 }
+
+                logLogs("map_download", { mapUUID: mapid });
             }
         });
     } else {
@@ -278,6 +323,8 @@ app.post(
                 updateIndex(metadata);
                 fs.rmSync(extractedPath, { recursive: true, force: true });
 
+                logLogs("map_upload", { mapUUID: metadata.MapUUID });
+
                 res.json({ message: "Map uploaded successfully" });
             } else {
                 res.status(400).json({
@@ -292,7 +339,6 @@ app.post(
         }
     }
 );
-
 // Admin
 app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
     const users = fs
