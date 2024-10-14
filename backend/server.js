@@ -9,6 +9,8 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const saltRounds = 10;
+const { exec } = require('child_process');
+
 
 require("dotenv").config();
 
