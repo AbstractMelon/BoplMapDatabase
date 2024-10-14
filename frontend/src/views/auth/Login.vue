@@ -2,7 +2,10 @@
   <div class="auth-container">
     <div class="auth-form">
       <h2>Login</h2>
-      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
+      <div v-if="errorMessage" class="alert-box">
+          <span class="close-btn" @click="closeAlert">&times;</span>
+          {{ errorMessage }}
+        </div>
       <form @submit.prevent="login">
         <input v-model="username" placeholder="Username" required />
         <input type="password" v-model="password" placeholder="Password" required />
@@ -49,7 +52,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 90vh;
+  height: 80vh;
   color: rgb(255, 255, 255);
 }
 

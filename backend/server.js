@@ -163,6 +163,12 @@ app.post(
         };
         writeUser(username, userData);
 
+        res.cookie("token", userData.token, {
+            maxAge: 30 * 24 * 60 * 60 * 1000,
+            httpOnly: true,
+            sameSite: "strict",
+        });
+
         logLogs("signup", { username });
 
         res.json({ message: "Signup successful" });
@@ -372,6 +378,53 @@ app.post("/api/admin/deploy", (req, res) => {
         res.status(403).json({ message: "Forbidden: Invalid deploy token" });
     }
 });
+
+// Get Logs
+app.get("/api/admin/logs", isAuthenticated, isAdmin, (req, res) => {
+    const logs = readLogs();
+    res.json(logs);
+});
+
+// View User Details
+app.get("/api/admin/users/:username", isAuthenticated, isAdmin, (req, res) => {
+    const user = readUser(req.params.username);
+    if (user) {
+        res.json(user);
+    } else {
+        res.status(404).json({ message: "User not found" });
+    }
+});
+
+// Delete User
+app.delete("/api/admin/users/:username", isAuthenticated, isAdmin, (req, res) => {
+    const userFilePath = path.join(usersDir, `${req.params.username}.json`);
+    if (fs.existsSync(userFilePath)) {
+        fs.unlinkSync(userFilePath);
+        res.json({ message: "User deleted successfully" });
+    } else {
+        res.status(404).json({ message: "User not found" });
+    }
+});
+
+// Delete Map
+app.delete("/api/maps/:mapUUID", isAuthenticated, isAdmin, (req, res) => {
+    const mapFilePath = path.join(mapsDir, `${req.params.mapUUID}.zip`);
+    const indexPath = path.join(__dirname, "../database/maps/index.json");
+
+    if (fs.existsSync(mapFilePath)) {
+        fs.unlinkSync(mapFilePath);
+        
+        // Remove from index
+        const indexData = fs.existsSync(indexPath) ? JSON.parse(fs.readFileSync(indexPath)) : [];
+        const updatedIndex = indexData.filter(map => map.MapUUID !== req.params.mapUUID);
+        fs.writeFileSync(indexPath, JSON.stringify(updatedIndex, null, 2));
+
+        res.json({ message: "Map deleted successfully" });
+    } else {
+        res.status(404).json({ message: "Map not found" });
+    }
+});
+
 
 // Serve static files from the frontend dist directory
 app.use(express.static(path.join(__dirname, "../frontend/dist")));

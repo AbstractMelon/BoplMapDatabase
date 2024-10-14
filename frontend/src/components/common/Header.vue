@@ -3,31 +3,36 @@
       <div class="header-title"><a href="/">Bopl Map Database</a></div>
       <div class="header-buttons">
         <button @click="$emit('toggle-upload-popup')">Upload Map</button>
-        <button @click="handleAuthButton">{{ isLoggedIn ? 'Dashboard' : 'Signup/Login' }}</button>
+        <button @click="handleAuthButton">{{ isLoggedIn ? username : 'Signup/Login' }}</button>
       </div>
     </header>
   </template>
   
   <script>
+  import authUtils from '../../utils/auth'; 
+  import userUtils from '../../utils/user'; 
+  
   export default {
     data() {
-      return {
-        isLoggedIn: false, 
+      return {  
+        isLoggedIn: false,
+        username: null,
       };
-    },
+    },  
     methods: {
-      handleAuthButton() {
+      async handleAuthButton() {
         if (this.isLoggedIn) {
           window.location.href = "/dashboard";
         } else {
           window.location.href = "/signup";
         }
       },
-      checkLoginStatus() {
-        const token = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('token='));
-        this.isLoggedIn = !!token;
+      async checkLoginStatus() {
+        this.isLoggedIn = await authUtils.isLoggedIn();
+        if (this.isLoggedIn) {
+          const userData = await userUtils.fetchUserData();
+          this.username = userUtils.getUsername(userData);
+        }
       }
     },
     created() {

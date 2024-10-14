@@ -1,20 +1,31 @@
 <template>
     <div class="map-card" v-if="map">
-      <h2>{{ map.MapName }}</h2>
-      <p><strong>Developer:</strong> {{ map.MapDeveloper }}</p>
-      <p><strong>Type:</strong> {{ map.MapType }}</p>
-      <p><strong>Description:</strong> {{ map.MapDescription }}</p>
-      <button @click.stop="downloadMap">Download</button>
+        <h2>{{ truncatedTitle }}</h2>
+        <p><strong>Developer:</strong> {{ map.MapDeveloper }}</p>
+        <p><strong>Type:</strong> {{ map.MapType }}</p>
+        <p><strong>Description:</strong> {{ truncatedDescription }}</p>
+        <button @click.stop="downloadMap">Download</button>
     </div>
     <div v-else>
-      <p>Loading map details...</p>
+        <p>Loading map details...</p>
     </div>
-  </template>
-  
+</template>
 
 <script>
 export default {
     props: ['map'],
+    computed: {
+        truncatedTitle() {
+            return this.map.MapName.length > 20 
+                ? this.map.MapName.slice(0, 20) + '...' 
+                : this.map.MapName;
+        },
+        truncatedDescription() {
+            return this.map.MapDescription.length > 75 
+                ? this.map.MapDescription.slice(0, 75) + '...' 
+                : this.map.MapDescription;
+        }
+    },
     methods: {
         downloadMap() {
             window.location.href = `/api/maps/download/${this.map.MapUUID}`; // /api/maps/download/:mapid
@@ -70,20 +81,5 @@ export default {
 
 .map-card button:hover {
     background-color: #2f5dbb;
-}
-
-.heart-icon {
-    cursor: pointer;
-    font-size: 24px;
-    margin-left: 5px;
-    transition: color 0.3s;
-}
-
-.heart-icon.liked {
-    color: red;
-}
-
-.like-count {
-    font-weight: bold;
 }
 </style>

@@ -6,8 +6,19 @@
           <div v-if="!downloaded">
             <p class="description">Select your operating system to download the latest version.</p>
             <div class="os-selection">
-                <button @click="download('windows')" class="os-button">Windows</button>
-                <button @click="download('linux')" class="os-button">Linux</button>
+              <button @click="setOS('windows')" class="os-button">Windows</button>
+              <button @click="setOS('linux')" class="os-button">Linux</button>
+            </div>
+            <div v-if="os" class="file-selection">
+              <h3>Select a file to download:</h3>
+              <div v-if="os === 'windows'">
+                <button @click="download('Map Maker Extract.exe')" class="file-button">Map Maker Extract.exe</button>
+                <button @click="download('Map Maker Extract Windows.zip')" class="file-button">Map Maker Extract Windows.zip</button>
+              </div>
+              <div v-if="os === 'linux'">
+                <button @click="download('Map Maker Extract Linux.tar.zx')" class="file-button">Map Maker Extract Linux.tar.zx</button>
+                <button @click="download('Map Maker Extract Linux.zip')" class="file-button">Map Maker Extract Linux.zip</button>
+              </div>
             </div>
           </div>
         </transition>
@@ -36,13 +47,16 @@
       };
     },
     methods: {
-      download(selectedOS) {
+      setOS(selectedOS) {
         this.os = selectedOS;
-        console.log(`Downloading for ${this.os}...`);
+        this.downloaded = false; // Reset downloaded status for new OS selection
+      },
+      download(fileName) {
+        console.log(`Downloading ${fileName} for ${this.os}...`);
         this.downloaded = true;
         setTimeout(() => {
-          console.log(`Download completed for ${this.os}`);
-           window.location.href = `/download/map-creator/${this.os}.exe`
+          console.log(`Download completed for ${fileName}`);
+          window.location.href = `/download/map-creator/${fileName}`;
         }, 1000);
       },
     },
@@ -139,5 +153,25 @@
     from { opacity: 0; }
     to { opacity: 1; }
   }
+
+  .file-selection {
+  margin-top: 20px;
+  text-align: center;
+}
+.file-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  border-radius: 15px;
+  background-color: #00c9ff;
+  color: white;
+  margin: 5px;
+  transition: all 0.3s ease;
+}
+.file-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5);
+}
   </style>
   
