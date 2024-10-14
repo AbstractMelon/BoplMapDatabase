@@ -25,9 +25,9 @@ Alternatively, you can hold `ctrl` and drag a platform to clone it into the worl
 
 Okay lets say you created a platform which you don't want anymore, there are two simple ways to remove it completely:
 
-* Drag it back into the sidebar
+-   Drag it back into the sidebar
 
-* Click it, and press `del`
+-   Click it, and press `del`
 
 ## Moving Platforms
 
@@ -62,7 +62,7 @@ Hover over your platform with the mouse, see that box in the middle? that's the 
 If it's white that means you are in **scaling mode**,
 if it's black, you are in **rotating mode**.
 
-::: info switching between them is easy, just press `s` to enter scaling mode and `r` for rotating mode. 
+::: info switching between them is easy, just press `s` to enter scaling mode and `r` for rotating mode.
 :::
 
 ## Scaling Platforms
@@ -73,8 +73,9 @@ if it's black, you are in **rotating mode**.
 </video>
 
 To scale a platform, just hover it and drag the marker to resize.
-* **upwards** = increase scale
-* **downwards** = decrease scale
+
+-   **upwards** = increase scale
+-   **downwards** = decrease scale
 
 ::: tip
 If you want to scale the platform not arbitrarily, just hold down `shift` while scaling and the scale will increase/decrease by multiples of 0.1
@@ -114,7 +115,7 @@ Spawn points are the items that decide where the players will spawn on the map, 
 Spawn points can be accessed by clicking the yellow button on the left of the sidebar, with numbers representing the player they spawn (except for spawn all which contains a bopl)
 
 ::: tip
-cloning a spawn point will create *the next* spawn point (except for spawn all)
+cloning a spawn point will create _the next_ spawn point (except for spawn all)
 
 <video autoplay loop muted playsinline style="border-radius: 10px;">
   <source src="./gifs/clone-spawn.mp4" type="video/mp4">
@@ -128,4 +129,4 @@ cloning a spawn point will create *the next* spawn point (except for spawn all)
 
 The spawn-all spawn point is an item that when placed on the map, automatically spawns every player in the spot it is in.
 
-* much easier than dragging 4 spawn points to the same position.
+-   much easier than dragging 4 spawn points to the same position.

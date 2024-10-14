@@ -3,6 +3,7 @@
 Here I gathered a list of very useful lua code snippets to incorporate in your map:
 
 ## First Frame
+
 Here's a simple way of making code that runs only on the first frame:
 
 ```lua
@@ -24,6 +25,7 @@ end
 ```
 
 ## Moving Platform (linear back and forth)
+
 If you want to move a platform `plat` linearly (up -> down or left -> right) back and forth, you can use this code:
 
 ```lua
@@ -50,6 +52,7 @@ plat.SetHome(newX, y)
 ```
 
 ## Picking Abilities
+
 If you want to choose the abilities of a specific player `player` use this code **on first frame**:
 
 ```lua
@@ -61,7 +64,7 @@ for j = 1, count do
 end
 ```
 
-However if you want to choos the abilities of *every* player, use this code **on first frame**:
+However if you want to choos the abilities of _every_ player, use this code **on first frame**:
 
 ```lua
 count, players = GetAllPlayers()

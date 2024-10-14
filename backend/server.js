@@ -35,9 +35,7 @@ const LogsPath = path.join(miscDir, "Logs.json");
 
 // Function to read Logs
 function readLogs() {
-    return fs.existsSync(LogsPath)
-        ? JSON.parse(fs.readFileSync(LogsPath))
-        : [];
+    return fs.existsSync(LogsPath) ? JSON.parse(fs.readFileSync(LogsPath)) : [];
 }
 
 // Function to write Logs data to file
@@ -130,42 +128,46 @@ function isAdmin(req, res, next) {
 }
 
 // API Routes
-app.post("/api/signup", [
-    body("username")
-        .isLength({ min: 5 })
-        .withMessage("Username must be at least 5 characters long"),
-    body("password")
-        .isLength({ min: 6 })
-        .withMessage("Password must be at least 6 characters long"),
-], async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+app.post(
+    "/api/signup",
+    [
+        body("username")
+            .isLength({ min: 5 })
+            .withMessage("Username must be at least 5 characters long"),
+        body("password")
+            .isLength({ min: 6 })
+            .withMessage("Password must be at least 6 characters long"),
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { username, password } = req.body;
+
+        if (fs.existsSync(path.join(usersDir, `${username}.json`))) {
+            return res.status(400).json({ message: "User already exists" });
+        }
+
+        const isAdmin = false;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const token = uuidv4();
+        const userData = {
+            username,
+            password: hashedPassword,
+            accountCreationDate: new Date().toISOString(),
+            token,
+            isAdmin,
+            likedMaps: [],
+        };
+        writeUser(username, userData);
+
+        logLogs("signup", { username });
+
+        res.json({ message: "Signup successful" });
     }
-
-    const { username, password } = req.body;
-
-    if (fs.existsSync(path.join(usersDir, `${username}.json`))) {
-        return res.status(400).json({ message: "User already exists" });
-    }
-
-    const isAdmin = false;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const token = uuidv4();
-    const userData = {
-        username,
-        password: hashedPassword,
-        accountCreationDate: new Date().toISOString(),
-        token,
-        isAdmin,
-        likedMaps: [],
-    };
-    writeUser(username, userData);
-
-    logLogs("signup", { username });
-
-    res.json({ message: "Signup successful" });
-});
+);
 
 app.post("/api/login", async (req, res) => {
     const { username, password } = req.body;
@@ -280,58 +282,63 @@ app.get("/api/maps/:mapUUID/user-like", isAuthenticated, (req, res) => {
     res.json({ hasLiked });
 });
 
-app.post("/api/upload", isAuthenticated, upload.single("map"), async (req, res) => {
-    try {
-        const extractedPath = path.join(__dirname, "uploads", uuidv4());
-        await fs
-            .createReadStream(req.file.path)
-            .pipe(unzipper.Extract({ path: extractedPath }))
-            .promise();
-        const metadataPath = path.join(extractedPath, "MetaData.json");
+app.post(
+    "/api/upload",
+    isAuthenticated,
+    upload.single("map"),
+    async (req, res) => {
+        try {
+            const extractedPath = path.join(__dirname, "uploads", uuidv4());
+            await fs
+                .createReadStream(req.file.path)
+                .pipe(unzipper.Extract({ path: extractedPath }))
+                .promise();
+            const metadataPath = path.join(extractedPath, "MetaData.json");
 
-        if (fs.existsSync(metadataPath)) {
-            const metadata = JSON.parse(fs.readFileSync(metadataPath));
-            const indexData = fs.existsSync(indexPath)
-                ? JSON.parse(fs.readFileSync(indexPath))
-                : [];
+            if (fs.existsSync(metadataPath)) {
+                const metadata = JSON.parse(fs.readFileSync(metadataPath));
+                const indexData = fs.existsSync(indexPath)
+                    ? JSON.parse(fs.readFileSync(indexPath))
+                    : [];
 
-            if (indexData.some((map) => map.MapUUID === metadata.MapUUID)) {
-                return res
-                    .status(400)
-                    .json({ message: "Map already exists" });
+                if (indexData.some((map) => map.MapUUID === metadata.MapUUID)) {
+                    return res
+                        .status(400)
+                        .json({ message: "Map already exists" });
+                }
+
+                const mapFileName = `${metadata.MapUUID}.zip`;
+                const mapStorageDir = path.join(
+                    __dirname,
+                    "../database",
+                    "maps"
+                );
+                const mapStoragePath = path.join(mapStorageDir, mapFileName);
+
+                if (!fs.existsSync(mapStorageDir)) {
+                    fs.mkdirSync(mapStorageDir, { recursive: true });
+                }
+
+                fs.renameSync(req.file.path, mapStoragePath);
+                updateIndex(metadata);
+                fs.rmSync(extractedPath, { recursive: true, force: true });
+
+                logLogs("map_upload", { mapUUID: metadata.MapUUID });
+
+                res.json({ message: "Map uploaded successfully" });
+            } else {
+                res.status(400).json({
+                    message: "MetaData.json not found in the uploaded map",
+                });
             }
-
-            const mapFileName = `${metadata.MapUUID}.zip`;
-            const mapStorageDir = path.join(
-                __dirname,
-                "../database",
-                "maps"
-            );
-            const mapStoragePath = path.join(mapStorageDir, mapFileName);
-
-            if (!fs.existsSync(mapStorageDir)) {
-                fs.mkdirSync(mapStorageDir, { recursive: true });
-            }
-
-            fs.renameSync(req.file.path, mapStoragePath);
-            updateIndex(metadata);
-            fs.rmSync(extractedPath, { recursive: true, force: true });
-
-            logLogs("map_upload", { mapUUID: metadata.MapUUID });
-
-            res.json({ message: "Map uploaded successfully" });
-        } else {
-            res.status(400).json({
-                message: "MetaData.json not found in the uploaded map",
+        } catch (err) {
+            res.status(500).json({
+                message: "Upload failed",
+                error: err.message,
             });
         }
-    } catch (err) {
-        res.status(500).json({
-            message: "Upload failed",
-            error: err.message,
-        });
     }
-});
+);
 // Admin
 app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
     const users = fs
