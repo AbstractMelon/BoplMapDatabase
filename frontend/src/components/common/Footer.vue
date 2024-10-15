@@ -3,7 +3,7 @@
       <div class="footer-content">
         <div class="footer-links">
           <a href="/feedback" class="footer-link">Feedback</a>
-          <a href="https://discord.gg/TNHjPhsqmD" class="footer-link">Discord</a>
+          <a href="https://discord.gg/Fpbg8MpKnm" class="footer-link">Discord</a>
           <a href="/motw" class="footer-link">MOTW</a>
           <a href="/map-creator" class="footer-link">Map Creator</a>
           <a href="/map-downloader" class="footer-link">Map Downloader</a>
