@@ -434,7 +434,7 @@ app.post("/api/admin/deploy", (req, res) => {
     const expectedToken = process.env.DEPLOY_TOKEN;
 
     if (deployToken === expectedToken) {
-        const updateCommand = "cd ../ && git pull && npm run update";
+        const updateCommand = "cd ../ && git fetch origin && git reset --hard origin/main && npm run update";
 
         exec(updateCommand, { cwd: __dirname }, (error, stdout, stderr) => {
             if (error) {
