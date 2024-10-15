@@ -108,6 +108,7 @@ function updateIndex(metadata) {
     metadata.isMotw = metadata.isMotw || false;
     metadata.isFeatured = metadata.isFeatured || false;
     metadata.isHandpicked = metadata.isHandpicked || false;
+    metadata.MapUUID = String(metadata.MapUUID || null);
 
     const mapIndex = indexData.findIndex(
         (map) => map.MapUUID === metadata.MapUUID
@@ -136,6 +137,8 @@ function updateToLatest() {
         map.isMotw = map.isMotw || false;
         map.isFeatured = map.isFeatured || false;
         map.isHandpicked = map.isHandpicked || false;
+
+        map.MapUUID = String(map.MapUUID || null);
     });
     
     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
@@ -274,35 +277,44 @@ app.get('/api/maps', (req, res) => {
 app.get("/api/user", isAuthenticated, (req, res) => {
     res.json({ message: "User data", user: req.user });
 });
+
 app.get("/api/maps/download/:mapid", (req, res) => {
     const { mapid } = req.params;
     const mapFilePath = path.join(mapsDir, `${mapid}.zip`);
 
     if (fs.existsSync(mapFilePath)) {
-        res.download(mapFilePath, (err) => {
-            if (err) {
-                console.error(err);
-                res.status(500).json({ message: "Download failed" });
-            } else {
-                const indexData = fs.existsSync(indexPath)
-                    ? JSON.parse(fs.readFileSync(indexPath))
-                    : [];
-                const map = indexData.find((map) => map.MapUUID === mapid);
-                if (map) {
+        const indexData = fs.existsSync(indexPath)
+            ? JSON.parse(fs.readFileSync(indexPath))
+            : [];
+        const map = indexData.find((map) => map.MapUUID === mapid);
+
+        if (map) {
+            // Use the map name for the download
+            const mapName = map.MapName || 'download';
+            const fileName = `${mapName}.zip`;
+
+            res.download(mapFilePath, fileName, (err) => {
+                if (err) {
+                    console.error(err);
+                    res.status(500).json({ message: "Download failed" });
+                } else {
                     map.downloadCount = (map.downloadCount || 0) + 1;
                     fs.writeFileSync(
                         indexPath,
                         JSON.stringify(indexData, null, 2)
                     );
-                }
 
-                logLogs("map_download", { mapUUID: mapid });
-            }
-        });
+                    logLogs("map_download", { mapUUID: mapid });
+                }
+            });
+        } else {
+            res.status(404).json({ message: "Map not found" });
+        }
     } else {
         res.status(404).json({ message: "Map not found" });
     }
 });
+
 
 app.post("/api/maps/:mapUUID/like", isAuthenticated, (req, res) => {
     const { mapUUID } = req.params;

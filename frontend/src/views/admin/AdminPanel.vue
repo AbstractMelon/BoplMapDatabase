@@ -2,7 +2,7 @@
     <div class="admin-panel">
         <h1>Admin Panel</h1>
         
-        <button @click="updateToLatest">Update to Latest</button>
+        <button @click="updateToLatest" class="btn-primary">Update to Latest</button>
 
         <section class="section">
             <h2>User List</h2>
@@ -11,8 +11,10 @@
                 <div v-for="user in users" :key="user.username" class="card user-card">
                     <div class="card-content">
                         <h3>{{ user.username }}</h3>
-                        <button @click="openEditModal('user', user)">Edit</button>
-                        <button @click="deleteUser(user.username)">Delete</button>
+                        <div class="button-group">
+                            <button @click="openEditModal('user', user)" class="btn-secondary">Edit</button>
+                            <button @click="deleteUser(user.username)" class="btn-danger">Delete</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -26,41 +28,47 @@
                     <div class="card-content">
                         <h3>{{ map.MapName }}</h3>
                         <p>{{ map.MapUUID }}</p>
-                        <button @click="openEditModal('map', map)">Edit</button>
-                        <button @click="deleteMap(map.MapUUID)">Delete</button>
+                        <div class="button-group">
+                            <button @click="openEditModal('map', map)" class="btn-secondary">Edit</button>
+                            <button @click="deleteMap(map.MapUUID)" class="btn-danger">Delete</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Edit Modal -->
-        <div v-if="isEditModalOpen" class="edit-modal">
-            <h2>Edit {{ editType }}</h2>
-            <div v-if="editType === 'user'">
-                <label>
-                    <input type="checkbox" v-model="selectedUser.isAdmin" />
-                    Admin
-                </label>
-                <textarea v-model="rawUserJson" rows="5" @blur="updateUserFromJson"></textarea>
+        <transition name="fade">
+            <div v-if="isEditModalOpen" class="edit-modal">
+                <h2>Edit {{ editType }}</h2>
+                <div v-if="editType === 'user'">
+                    <label>
+                        <input type="checkbox" v-model="selectedUser.isAdmin" />
+                        Admin
+                    </label>
+                    <textarea v-model="rawUserJson" rows="5" @blur="updateUserFromJson" class="modal-textarea"></textarea>
+                </div>
+                <div v-if="editType === 'map'">
+                    <label>
+                        <input type="checkbox" v-model="selectedMap.isMotw" />
+                        Map of the Week
+                    </label>
+                    <label>
+                        <input type="checkbox" v-model="selectedMap.isFeatured" />
+                        Featured
+                    </label>
+                    <label>
+                        <input type="checkbox" v-model="selectedMap.isHandpicked" />
+                        Handpicked
+                    </label>
+                    <textarea v-model="rawMapJson" rows="5" @blur="updateMapFromJson" class="modal-textarea"></textarea>
+                </div>
+                <div class="modal-buttons">
+                    <button @click="saveChanges" class="btn-primary">Save Changes</button>
+                    <button @click="closeEditModal" class="btn-secondary">Close</button>
+                </div>
             </div>
-            <div v-if="editType === 'map'">
-                <label>
-                    <input type="checkbox" v-model="selectedMap.isMotw" />
-                    Map of the Week
-                </label>
-                <label>
-                    <input type="checkbox" v-model="selectedMap.isFeatured" />
-                    Featured
-                </label>
-                <label>
-                    <input type="checkbox" v-model="selectedMap.isHandpicked" />
-                    Handpicked
-                </label>
-                <textarea v-model="rawMapJson" rows="5" @blur="updateMapFromJson"></textarea>
-            </div>
-            <button @click="saveChanges">Save Changes</button>
-            <button @click="closeEditModal">Close</button>
-        </div>
+        </transition>
 
         <section class="section">
             <h2>Logs</h2>
@@ -74,6 +82,7 @@
         </section>
     </div>
 </template>
+
 
 <script>
 export default {
@@ -253,7 +262,8 @@ h2 {
     border-radius: 5px;
     background-color: var(--bgcol3);
     transition: box-shadow 0.3s;
-    max-width: 200px;
+    max-width: fit-content;
+    max-height: fit-content;
 }
 
 .card:hover {
@@ -281,6 +291,21 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+.btn-primary {
+    background-color: #007BFF;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #007BFF;
+    color: white;
+}
+
+.btn-danger {
+    background-color: #ff384c;
+    color: white;
 }
 
 .empty-message {
@@ -315,10 +340,36 @@ button:hover {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: var(--bgcol2);
+    background-color: var(--bgcol2); 
     padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
     z-index: 1000;
-    border-radius: 20px;
+    border-radius: 10px;
+    max-width: 400px;
+    width: 90%;
+}
+
+.modal-textarea {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    background-color: var(--bgcol2);
+    color: white;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+/* Fade transition for modal */
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to {
+    opacity: 0;
 }
 </style>
