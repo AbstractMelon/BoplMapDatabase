@@ -22,7 +22,7 @@
     methods: {
       async handleAuthButton() {
         if (this.isLoggedIn) {
-          window.location.href = "/dashboard";
+          window.location.href = `/profile/${this.username}`; // Updated line
         } else {
           window.location.href = "/signup";
         }
