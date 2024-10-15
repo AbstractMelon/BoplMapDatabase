@@ -190,9 +190,11 @@ app.post(
         const isAdmin = false;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         const token = uuidv4();
+        const userId = uuidv4(); 
         const userData = {
             username,
             password: hashedPassword,
+            userId,
             accountCreationDate: new Date().toISOString(),
             token,
             isAdmin,
@@ -245,6 +247,21 @@ app.post("/api/logout", (req, res) => {
 
     res.json({ message: "Logout successful" });
 });
+
+app.get("/api/users/:username", (req, res) => {
+    const user = Object.values(fs.readdirSync(usersDir)).map(file => readUser(file.replace(".json", "")))
+        .find(user => user.username === req.params.username);
+
+    if (user) {
+        // Create a new object excluding sensitive information
+        const { password, token, ...publicUserInfo } = user;
+        res.json(publicUserInfo);
+    } else {
+        res.status(404).json({ message: "User not found" });
+    }
+});
+
+
 
 app.get('/api/maps', (req, res) => {
     const maps = fs.existsSync(indexPath) ? JSON.parse(fs.readFileSync(indexPath)) : [];
@@ -396,6 +413,12 @@ app.post("/api/upload", isAuthenticated, upload.single("map"), async (req, res) 
             // Update the index with the modified metadata
             updateIndex(metadata); // This should now use the modified metadata
 
+            // Update user's uploadedMapUUIDs
+            const user = req.user;
+            user.uploadedMapUUIDs = user.uploadedMapUUIDs || []; // Initialize if undefined
+            user.uploadedMapUUIDs.push(metadata.MapUUID); // Add the new UUID
+            writeUser(user.username, user); // Save the updated user data
+
             fs.rmSync(extractedPath, { recursive: true, force: true });
 
             logLogs("map_upload", { mapUUID: metadata.MapUUID });
@@ -413,7 +436,6 @@ app.post("/api/upload", isAuthenticated, upload.single("map"), async (req, res) 
         });
     }
 });
-
 
 // Admin
 app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
@@ -434,7 +456,7 @@ app.post("/api/admin/deploy", (req, res) => {
     const expectedToken = process.env.DEPLOY_TOKEN;
 
     if (deployToken === expectedToken) {
-        const updateCommand = "cd ../ && git pull && npm run update";
+        const updateCommand = "cd ../ && git fetch origin && git reset --hard origin/main && npm run update";
 
         exec(updateCommand, { cwd: __dirname }, (error, stdout, stderr) => {
             if (error) {
@@ -547,8 +569,6 @@ app.put("/api/admin/users/:username", isAuthenticated, isAdmin, (req, res) => {
 
     res.json({ message: "User updated successfully" });
 });
-
-
 
 // Serve static files from the frontend dist directory
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
