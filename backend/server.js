@@ -108,6 +108,7 @@ function updateIndex(metadata) {
     metadata.isMotw = metadata.isMotw || false;
     metadata.isFeatured = metadata.isFeatured || false;
     metadata.isHandpicked = metadata.isHandpicked || false;
+    metadata.MapUUID = String(metadata.MapUUID || null);
 
     const mapIndex = indexData.findIndex(
         (map) => map.MapUUID === metadata.MapUUID
@@ -136,6 +137,8 @@ function updateToLatest() {
         map.isMotw = map.isMotw || false;
         map.isFeatured = map.isFeatured || false;
         map.isHandpicked = map.isHandpicked || false;
+
+        map.MapUUID = String(map.MapUUID || null);
     });
     
     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
