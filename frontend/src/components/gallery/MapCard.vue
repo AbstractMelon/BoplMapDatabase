@@ -1,7 +1,10 @@
 <template>
     <div class="map-card" v-if="map">
         <h2>{{ truncatedTitle }}</h2>
-        <p><strong>Developer:</strong> {{ map.MapDeveloper }}</p>
+        <p>
+            <strong>Developer: </strong>
+            <a :href="`/profile/${map.MapDeveloper}`" class="developer-link">{{ map.MapDeveloper }}</a>
+        </p>
         <p><strong>Type:</strong> {{ map.MapType }}</p>
         <p><strong>Description:</strong> {{ truncatedDescription }}</p>
         <button @click.stop="downloadMap">Download</button>
@@ -79,7 +82,12 @@ export default {
     background-color: #2f5dbb;
 }
 
-.map-card button:hover {
-    background-color: #2f5dbb;
+.developer-link {
+    color: var(--link-color); 
+    text-decoration: none;
+}
+
+.developer-link:hover {
+    text-decoration: underline; 
 }
 </style>

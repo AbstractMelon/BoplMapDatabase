@@ -8,7 +8,7 @@
         <section class="user-info">
             <h2>User Info</h2>
             <div class="bio">
-                <p>This section is comming soon</p>
+                <p>This section is coming soon</p>
             </div>
         </section>
 
@@ -55,16 +55,16 @@ export default {
         };
     },
     created() {
-        const userId = this.$route.params.userId;
-        this.fetchUserProfile(userId);
+        const username = this.$route.params.username; // Change userId to username
+        this.fetchUserProfile(username);
     },
     methods: {
-        async fetchUserProfile(userId) {
-            console.log(`Fetching user profile for user ID: ${userId}`);
+        async fetchUserProfile(username) {
+            console.log(`Fetching user profile for username: ${username}`);
 
             try {
-                const response = await fetch(`/api/users/${userId}`);
-                
+                const response = await fetch(`/api/users/${username}`); // Adjust the API endpoint
+
                 if (!response.ok) {
                     console.error(`HTTP error! Status: ${response.status}, Status Text: ${response.statusText}`);
                     throw new Error(`Failed to fetch user profile. HTTP status: ${response.status}`);

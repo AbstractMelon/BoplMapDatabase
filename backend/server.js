@@ -248,9 +248,9 @@ app.post("/api/logout", (req, res) => {
     res.json({ message: "Logout successful" });
 });
 
-app.get("/api/users/:userId", (req, res) => {
+app.get("/api/users/:username", (req, res) => {
     const user = Object.values(fs.readdirSync(usersDir)).map(file => readUser(file.replace(".json", "")))
-        .find(user => user.userId === req.params.userId);
+        .find(user => user.username === req.params.username);
 
     if (user) {
         // Create a new object excluding sensitive information
