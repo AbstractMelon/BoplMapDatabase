@@ -66,99 +66,88 @@
   }
   </script>
   
-<style scoped>
-#map-gallery {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding: 20px;
-}
-
-.top-container {
-    margin-top: 15px;
-  display: grid;
-  grid-template-columns: 2fr 3fr; /* MOTW takes 2/5 of the width, side container 3/5 */
-  gap: 20px;
-}
-
-.motw-container {
-  background-color: var(--bgcol3);
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  justify-content: stretch; 
-  width: 600px; 
-}
-
-.motw-container .motw-card {
-  flex-grow: 1;
-width: 90%;
-}
-
-.side-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.handpicked, .featured {
-  background-color: var(--bgcol3);
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.side-row {
-  display: flex;
-  overflow-x: auto; /* Enables horizontal scrolling */
-  padding: 10px 0;
-  gap: 20px;
-}
-
-.side-row::-webkit-scrollbar {
-  height: 8px; /* Customize scrollbar height */
-}
-
-.side-row::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-color); /* Customize scrollbar color */
-  border-radius: 10px;
-}
-
-.main-map-list {
-  background-color: var(--bgcol3);
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  margin-top: 40px;
-}
-
-.map-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: left;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-h2 {
-  margin-bottom: 15px;
-  color: var(--textcol);
-}
-
-.top-container.hidden {
-  display: none; 
-}
-
-.slide-enter-active, .slide-leave-active {
-  transition: all 0.5s ease; 
-}
-.slide-enter, .slide-leave-to {
-  transform: translateY(-20px); 
-  opacity: 1; 
-}
-</style>
+  <style scoped>
+  #map-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .top-container {
+    display: grid;
+    grid-template-columns: 1fr; /* Default to a single column on small screens */
+    gap: 20px;
+  } 
+  
+  @media (min-width: 600px) {
+    .top-container {
+      grid-template-columns: 2fr 3fr; /* MOTW takes 2/5 of the width, side container 3/5 */
+    }
+  }
+  
+  .motw-container {
+    background-color: var(--bgcol3);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .motw-container .motw-card {
+    width: 100%;
+  }
+  
+  .side-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .handpicked, .featured {
+    background-color: var(--bgcol3);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .side-row {
+    display: flex;
+    overflow-x: auto; /* Enables horizontal scrolling */
+    padding: 10px 0;
+    gap: 20px;
+  }
+  
+  .main-map-list {
+    background-color: var(--bgcol3);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .map-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: left;
+    gap: 20px;
+  }
+  
+  h2 {
+    margin-bottom: 15px;
+    color: var(--textcol);
+  }
+  
+  .top-container.hidden {
+    display: none; 
+  }
+  
+  .slide-enter-active, .slide-leave-active {
+    transition: all 0.5s ease; 
+  }
+  .slide-enter, .slide-leave-to {
+    transform: translateY(-20px); 
+    opacity: 1; 
+  }
+  </style>
+  

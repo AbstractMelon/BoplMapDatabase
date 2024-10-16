@@ -1,12 +1,14 @@
 <template>
     <div>
-      <div class="search-bar">
-        <input v-model="searchParams.name" placeholder="Search by Name..." @input="onSearch" />
-        <input v-model="searchParams.developer" placeholder="Search by Developer..." @input="onSearch" />
-        <input v-model="searchParams.type" placeholder="Search by Type..." @input="onSearch" />
-        <input v-model="searchParams.date" type="date" @input="onSearch" />
-        <button @click="clearFilters">Clear Filters</button>
-      </div>
+        <div class="search-container">
+            <div class="search-bar">
+                <input v-model="searchParams.name" placeholder="Search by Name..." @input="onSearch" />
+                <input v-model="searchParams.developer" placeholder="Search by Developer..." @input="onSearch" />
+                <input v-model="searchParams.type" placeholder="Search by Type..." @input="onSearch" />
+                <input v-model="searchParams.date" type="date" @input="onSearch" />
+                <button @click="clearFilters">Clear Filters</button>
+            </div>
+        </div>
       <MapGallery :maps="filteredMaps" :showSections="hasActiveSearch" />
     </div>
   </template>
@@ -67,3 +69,15 @@
   }
   </script>
   
+<style scoped>
+  .search-container {
+    background-color: var(--bgcol3);
+    padding: 5px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 97%;
+    margin: auto;
+    margin-top: 20px;
+    align-content: top;
+  }
+</style>

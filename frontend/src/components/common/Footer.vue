@@ -32,7 +32,6 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    margin-top: auto;
   }
   
   .footer-content {
@@ -65,6 +64,18 @@
     color: var(--textcol);
     font-size: 14px;
     margin-top: 10px;
+  }
+  
+  @media (max-width: 768px) {
+    .footer-links {
+      flex-direction: row;
+      align-items: center; 
+      gap: 10px;
+    }
+  
+    .footer-link {
+      font-size: 14px;
+    }
   }
   </style>
   
