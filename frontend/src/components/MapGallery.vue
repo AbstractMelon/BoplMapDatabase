@@ -167,11 +167,15 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
   
+  .main-map-list .map-card {
+    flex-grow: 1
+  }
+
   .map-grid {
     display: flex;
     flex-wrap: wrap;
-    justify-content: left;
-    gap: 20px;
+    justify-content: space-between;
+    gap: 20px 20px;
   }
   
   h2 {
