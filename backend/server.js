@@ -485,6 +485,25 @@ app.get("/api/maps/:mapUUID/user-like", isAuthenticated, (req, res) => {
     res.json({ hasLiked });
 });
 
+
+app.get('/api/assets/mods/:uuid', (req, res) => {
+    const { uuid } = req.params;
+    const imagePath = path.join(__dirname, '../database/assets/mod-icons', `${uuid}.png`);
+    const fallbackImagePath = path.join(__dirname, '../assets/fallback/mod-icon.png');
+
+    // Check if the requested file exists
+    fs.access(imagePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            // If the requested file does not exist, send the fallback image
+            return res.sendFile(fallbackImagePath);
+        }
+        
+        // Send the image file
+        res.sendFile(imagePath);
+    });
+});
+
+
 app.post(
     "/api/upload",
     isAuthenticated,
