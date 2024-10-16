@@ -19,6 +19,7 @@ const PORT = process.env.PORT || 3002;
 const usersDir = path.join(__dirname, "../database/users");
 const mapsDir = path.join(__dirname, "../database/maps");
 const miscDir = path.join(__dirname, "../database/misc");
+const modIconsDir = path.join(__dirname, "../database/assets/mod-icons"); 
 
 if (!fs.existsSync(mapsDir)) {
     fs.mkdirSync(mapsDir, { recursive: true });
@@ -31,6 +32,11 @@ if (!fs.existsSync(usersDir)) {
 if (!fs.existsSync(miscDir)) {
     fs.mkdirSync(miscDir, { recursive: true });
 }
+
+if (!fs.existsSync(modIconsDir)) {
+    fs.mkdirSync(modIconsDir, { recursive: true });
+}
+
 
 const LogsPath = path.join(miscDir, "Logs.json");
 
@@ -135,7 +141,7 @@ function updateIndex(metadata) {
 }
 
 // Function to update users and maps to latest structure
-function updateToLatest() {
+async function updateToLatest() {
     const indexData = fs.existsSync(indexPath)
         ? JSON.parse(fs.readFileSync(indexPath))
         : [];
@@ -160,6 +166,45 @@ function updateToLatest() {
             writeUser(user.username, user);
         }
     });
+
+    // Extract images from zips in the index
+    if (!fs.existsSync(modIconsDir)) {
+        fs.mkdirSync(modIconsDir, { recursive: true });
+    }
+
+    for (const map of indexData) {
+        const zipPath = path.join(__dirname, "../database/maps", `${map.MapUUID}.zip`);
+
+        if (fs.existsSync(zipPath)) {
+            const tempDir = path.join(__dirname, "temp", map.MapUUID);
+
+            await fs.promises.mkdir(tempDir, { recursive: true });
+
+            // Extract the zip file
+            await fs.createReadStream(zipPath)
+                .pipe(unzipper.Extract({ path: tempDir }))
+                .promise();
+
+            // Find the PNG file
+            const files = await fs.promises.readdir(tempDir);
+            const pngFiles = files.filter(file => path.extname(file).toLowerCase() === '.png');
+
+            if (pngFiles.length === 1) {
+                const pngFilePath = path.join(tempDir, pngFiles[0]);
+                const targetPath = path.join(modIconsDir, `${map.MapUUID}.png`);
+
+                // Move the PNG file to the mod icons directory
+                fs.renameSync(pngFilePath, targetPath);
+            } else {
+                console.warn(`Expected one PNG file in ${zipPath}, found: ${pngFiles.length}`);
+            }
+
+            // Clean up the temporary directory
+            fs.rmSync(tempDir, { recursive: true, force: true });
+        } else {
+            console.warn(`Zip file not found for map UUID: ${map.MapUUID}`);
+        }
+    }
 }
 
 // Function to check if user is an admin
@@ -441,9 +486,7 @@ app.post(
 
                 // Check if map already exists
                 if (indexData.some((map) => map.MapUUID === metadata.MapUUID)) {
-                    return res
-                        .status(400)
-                        .json({ message: "Map already exists" });
+                    return res.status(400).json({ message: "Map already exists" });
                 }
 
                 // Replace the author field with the username of the uploader
@@ -453,11 +496,7 @@ app.post(
                 console.log("Uploading map with metadata:", metadata);
 
                 const mapFileName = `${metadata.MapUUID}.zip`;
-                const mapStorageDir = path.join(
-                    __dirname,
-                    "../database",
-                    "maps"
-                );
+                const mapStorageDir = path.join(__dirname, "../database", "maps");
                 const mapStoragePath = path.join(mapStorageDir, mapFileName);
 
                 if (!fs.existsSync(mapStorageDir)) {
@@ -466,6 +505,21 @@ app.post(
 
                 // Move the uploaded file to the maps directory
                 fs.renameSync(req.file.path, mapStoragePath);
+
+                // Move the PNG icon to the specified directory
+                const files = await fs.promises.readdir(extractedPath);
+                const pngFiles = files.filter(file => path.extname(file) === '.png');
+
+                if (pngFiles.length === 1) {
+                    const iconPath = path.join(extractedPath, pngFiles[0]);
+                    if (!fs.existsSync(modIconsDir)) {
+                        fs.mkdirSync(modIconsDir, { recursive: true });
+                    }
+                    const targetIconPath = path.join(modIconsDir, `mod-${metadata.MapUUID}.png`);
+                    fs.renameSync(iconPath, targetIconPath);
+                } else {
+                    console.warn(`Expected one PNG file, found: ${pngFiles.length}`);
+                }
 
                 // Update the index with the modified metadata
                 updateIndex(metadata); // This should now use the modified metadata
@@ -494,6 +548,7 @@ app.post(
         }
     }
 );
+
 
 // Admin
 app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
