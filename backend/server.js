@@ -592,23 +592,23 @@ app.post("/api/admin/deploy", (req, res) => {
         const updateCommand =
             "cd ../ && git fetch origin && git reset --hard origin/main && npm run update";
 
+        // Send a response immediately
+        res.json({ message: "Update command started executing" });
+
         exec(updateCommand, { cwd: __dirname }, (error, stdout, stderr) => {
             if (error) {
                 console.error(`exec error: ${error}`);
-                return res
-                    .status(500)
-                    .json({ message: "Failed to run update", error: stderr });
+                // Handle the error here, but do not send another response
+                console.error(`stderr: ${stderr}`);
+                return;
             }
             console.log(`stdout: ${stdout}`);
-            res.json({
-                message: "Update command executed successfully",
-                output: stdout,
-            });
         });
     } else {
         res.status(403).json({ message: "Forbidden: Invalid deploy token" });
     }
 });
+
 
 // Get Logs
 app.get("/api/admin/logs", isAuthenticated, isAdmin, (req, res) => {
