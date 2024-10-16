@@ -22,6 +22,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .header-title {
@@ -50,20 +51,14 @@ a {
 
 a:hover {
     color: #ffffff;
-    text-decoration: none;
-}
-
-a:visited {
-    color: #eee;
-    text-decoration: none;
 }
 
 .search-bar {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     gap: 10px;
-    margin-top: 20px;
-    flex-wrap: wrap;
+    margin: 10px;
 }
 
 .multi-use-container {
@@ -80,6 +75,8 @@ a:visited {
     border-radius: 5px;
     background-color: var(--bgcol2);
     color: var(--textcol);
+    width: 100%;
+    max-width: 300px;
 }
 
 .search-bar input::placeholder,
@@ -104,7 +101,8 @@ a:visited {
     margin: 15% auto;
     padding: 20px;
     border-radius: 10px;
-    width: 250px;
+    width: 90%;
+    max-width: 250px;
     text-align: center;
 }
 
@@ -150,4 +148,15 @@ a:visited {
     color: white;
     text-decoration: none;
     cursor: pointer;
+}
+
+@media (min-width: 768px) {
+    .search-bar {
+        flex-direction: row;
+    }
+
+    .search-bar input,
+    .search-bar button {
+        max-width: initial;
+    }
 }
