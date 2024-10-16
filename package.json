@@ -5,7 +5,7 @@
     "main": "index.js",
     "scripts": {
         "frontend:dev": "cd ./frontend && npm run dev",
-        "backend:dev": "nodemon ./backend/server.js",
+        "backend:dev": "nodemon --ext js ./backend/server.js",
         "dev": "concurrently \"npm run backend:dev\" \"npm run frontend:dev\"",
         "frontend:prod": "cd ./frontend && npm run build",
         "backend:prod": "pm2 start ./backend/server.js --name bopl-map-database",

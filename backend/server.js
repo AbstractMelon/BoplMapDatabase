@@ -10,6 +10,7 @@ const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const saltRounds = 10;
 const { exec } = require("child_process");
+const archiver = require('archiver');
 
 require("dotenv").config();
 
@@ -151,7 +152,6 @@ async function updateToLatest() {
         map.isMotw = map.isMotw || false;
         map.isFeatured = map.isFeatured || false;
         map.isHandpicked = map.isHandpicked || false;
-
         map.MapUUID = String(map.MapUUID || null);
     });
 
@@ -199,6 +199,26 @@ async function updateToLatest() {
                 console.warn(`Expected one PNG file in ${zipPath}, found: ${pngFiles.length}`);
             }
 
+            // Create a new ZIP without the PNG file
+            const outputZipPath = zipPath.replace('.zip', '_updated.zip');
+            const output = fs.createWriteStream(outputZipPath);
+            const archive = archiver('zip');
+
+            output.on('close', () => {
+                // Replace original zip with the new zip
+                fs.renameSync(outputZipPath, zipPath);
+            });
+
+            archive.pipe(output);
+
+            for (const file of files) {
+                const filePath = path.join(tempDir, file);
+                if (file !== pngFiles[0]) { // Exclude the PNG file
+                    archive.file(filePath, { name: file });
+                }
+            }
+
+            await archive.finalize();
             // Clean up the temporary directory
             fs.rmSync(tempDir, { recursive: true, force: true });
         } else {
