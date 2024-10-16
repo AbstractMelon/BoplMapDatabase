@@ -9,8 +9,7 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const saltRounds = 10;
-const { exec } = require('child_process');
-
+const { exec } = require("child_process");
 
 require("dotenv").config();
 
@@ -103,7 +102,7 @@ function updateIndex(metadata) {
     let indexData = fs.existsSync(indexPath)
         ? JSON.parse(fs.readFileSync(indexPath))
         : [];
-    
+
     // Make sure new flags are set to false by default
     metadata.isMotw = metadata.isMotw || false;
     metadata.isFeatured = metadata.isFeatured || false;
@@ -113,7 +112,7 @@ function updateIndex(metadata) {
     const mapIndex = indexData.findIndex(
         (map) => map.MapUUID === metadata.MapUUID
     );
-    
+
     if (mapIndex >= 0) {
         indexData[mapIndex].downloadCount =
             indexData[mapIndex].downloadCount || 0;
@@ -124,28 +123,30 @@ function updateIndex(metadata) {
         metadata.likeCount = 0;
         indexData.push(metadata);
     }
-    
+
     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
 }
 
 // Function to update users and maps to latest structure
 function updateToLatest() {
-    const indexData = fs.existsSync(indexPath) ? JSON.parse(fs.readFileSync(indexPath)) : [];
-    
+    const indexData = fs.existsSync(indexPath)
+        ? JSON.parse(fs.readFileSync(indexPath))
+        : [];
+
     // Update maps to include new flags
-    indexData.forEach(map => {
+    indexData.forEach((map) => {
         map.isMotw = map.isMotw || false;
         map.isFeatured = map.isFeatured || false;
         map.isHandpicked = map.isHandpicked || false;
 
         map.MapUUID = String(map.MapUUID || null);
     });
-    
+
     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
 
     // Update user data
     const users = fs.readdirSync(usersDir);
-    users.forEach(file => {
+    users.forEach((file) => {
         const user = readUser(file.replace(".json", ""));
         if (user) {
             user.likedMaps = user.likedMaps || [];
@@ -190,7 +191,7 @@ app.post(
         const isAdmin = false;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         const token = uuidv4();
-        const userId = uuidv4(); 
+        const userId = uuidv4();
         const userData = {
             username,
             password: hashedPassword,
@@ -249,8 +250,9 @@ app.post("/api/logout", (req, res) => {
 });
 
 app.get("/api/users/:username", (req, res) => {
-    const user = Object.values(fs.readdirSync(usersDir)).map(file => readUser(file.replace(".json", "")))
-        .find(user => user.username === req.params.username);
+    const user = Object.values(fs.readdirSync(usersDir))
+        .map((file) => readUser(file.replace(".json", "")))
+        .find((user) => user.username === req.params.username);
 
     if (user) {
         // Create a new object excluding sensitive information
@@ -261,11 +263,11 @@ app.get("/api/users/:username", (req, res) => {
     }
 });
 
+app.get("/api/maps", (req, res) => {
+    const maps = fs.existsSync(indexPath)
+        ? JSON.parse(fs.readFileSync(indexPath))
+        : [];
 
-
-app.get('/api/maps', (req, res) => {
-    const maps = fs.existsSync(indexPath) ? JSON.parse(fs.readFileSync(indexPath)) : [];
-    
     // Get query parameters
     const { developer, name, type, date } = req.query;
 
@@ -273,17 +275,25 @@ app.get('/api/maps', (req, res) => {
     let filteredMaps = maps;
 
     if (developer) {
-        filteredMaps = filteredMaps.filter(map => map.MapDeveloper.toLowerCase().includes(developer.toLowerCase()));
+        filteredMaps = filteredMaps.filter((map) =>
+            map.MapDeveloper.toLowerCase().includes(developer.toLowerCase())
+        );
     }
     if (name) {
-        filteredMaps = filteredMaps.filter(map => map.MapName.toLowerCase().includes(name.toLowerCase()));
+        filteredMaps = filteredMaps.filter((map) =>
+            map.MapName.toLowerCase().includes(name.toLowerCase())
+        );
     }
     if (type) {
-        filteredMaps = filteredMaps.filter(map => map.MapType.toLowerCase() === type.toLowerCase());
+        filteredMaps = filteredMaps.filter(
+            (map) => map.MapType.toLowerCase() === type.toLowerCase()
+        );
     }
     if (date) {
-        filteredMaps = filteredMaps.filter(map => {
-            const mapDate = new Date(map.DateCreated).toISOString().split('T')[0];
+        filteredMaps = filteredMaps.filter((map) => {
+            const mapDate = new Date(map.DateCreated)
+                .toISOString()
+                .split("T")[0];
             return mapDate === date;
         });
     }
@@ -307,7 +317,7 @@ app.get("/api/maps/download/:mapid", (req, res) => {
 
         if (map) {
             // Use the map name for the download
-            const mapName = map.MapName || 'download';
+            const mapName = map.MapName || "download";
             const fileName = `${mapName}.zip`;
 
             res.download(mapFilePath, fileName, (err) => {
@@ -331,7 +341,6 @@ app.get("/api/maps/download/:mapid", (req, res) => {
         res.status(404).json({ message: "Map not found" });
     }
 });
-
 
 app.post("/api/maps/:mapUUID/like", isAuthenticated, (req, res) => {
     const { mapUUID } = req.params;
@@ -373,69 +382,80 @@ app.get("/api/maps/:mapUUID/user-like", isAuthenticated, (req, res) => {
     res.json({ hasLiked });
 });
 
-app.post("/api/upload", isAuthenticated, upload.single("map"), async (req, res) => {
-    try {
-        const extractedPath = path.join(__dirname, "uploads", uuidv4());
-        await fs
-            .createReadStream(req.file.path)
-            .pipe(unzipper.Extract({ path: extractedPath }))
-            .promise();
-        const metadataPath = path.join(extractedPath, "MetaData.json");
+app.post(
+    "/api/upload",
+    isAuthenticated,
+    upload.single("map"),
+    async (req, res) => {
+        try {
+            const extractedPath = path.join(__dirname, "uploads", uuidv4());
+            await fs
+                .createReadStream(req.file.path)
+                .pipe(unzipper.Extract({ path: extractedPath }))
+                .promise();
+            const metadataPath = path.join(extractedPath, "MetaData.json");
 
-        if (fs.existsSync(metadataPath)) {
-            const metadata = JSON.parse(fs.readFileSync(metadataPath));
-            const indexData = fs.existsSync(indexPath)
-                ? JSON.parse(fs.readFileSync(indexPath))
-                : [];
+            if (fs.existsSync(metadataPath)) {
+                const metadata = JSON.parse(fs.readFileSync(metadataPath));
+                const indexData = fs.existsSync(indexPath)
+                    ? JSON.parse(fs.readFileSync(indexPath))
+                    : [];
 
-            // Check if map already exists
-            if (indexData.some((map) => map.MapUUID === metadata.MapUUID)) {
-                return res.status(400).json({ message: "Map already exists" });
+                // Check if map already exists
+                if (indexData.some((map) => map.MapUUID === metadata.MapUUID)) {
+                    return res
+                        .status(400)
+                        .json({ message: "Map already exists" });
+                }
+
+                // Replace the author field with the username of the uploader
+                metadata.MapDeveloper = req.user.username;
+
+                // Log the metadata being uploaded
+                console.log("Uploading map with metadata:", metadata);
+
+                const mapFileName = `${metadata.MapUUID}.zip`;
+                const mapStorageDir = path.join(
+                    __dirname,
+                    "../database",
+                    "maps"
+                );
+                const mapStoragePath = path.join(mapStorageDir, mapFileName);
+
+                if (!fs.existsSync(mapStorageDir)) {
+                    fs.mkdirSync(mapStorageDir, { recursive: true });
+                }
+
+                // Move the uploaded file to the maps directory
+                fs.renameSync(req.file.path, mapStoragePath);
+
+                // Update the index with the modified metadata
+                updateIndex(metadata); // This should now use the modified metadata
+
+                // Update user's uploadedMapUUIDs
+                const user = req.user;
+                user.uploadedMapUUIDs = user.uploadedMapUUIDs || []; // Initialize if undefined
+                user.uploadedMapUUIDs.push(metadata.MapUUID); // Add the new UUID
+                writeUser(user.username, user); // Save the updated user data
+
+                fs.rmSync(extractedPath, { recursive: true, force: true });
+
+                logLogs("map_upload", { mapUUID: metadata.MapUUID });
+
+                res.json({ message: "Map uploaded successfully" });
+            } else {
+                res.status(400).json({
+                    message: "MetaData.json not found in the uploaded map",
+                });
             }
-
-            // Replace the author field with the username of the uploader
-            metadata.MapDeveloper = req.user.username;
-
-            // Log the metadata being uploaded
-            console.log("Uploading map with metadata:", metadata);
-
-            const mapFileName = `${metadata.MapUUID}.zip`;
-            const mapStorageDir = path.join(__dirname, "../database", "maps");
-            const mapStoragePath = path.join(mapStorageDir, mapFileName);
-
-            if (!fs.existsSync(mapStorageDir)) {
-                fs.mkdirSync(mapStorageDir, { recursive: true });
-            }
-
-            // Move the uploaded file to the maps directory
-            fs.renameSync(req.file.path, mapStoragePath);
-            
-            // Update the index with the modified metadata
-            updateIndex(metadata); // This should now use the modified metadata
-
-            // Update user's uploadedMapUUIDs
-            const user = req.user;
-            user.uploadedMapUUIDs = user.uploadedMapUUIDs || []; // Initialize if undefined
-            user.uploadedMapUUIDs.push(metadata.MapUUID); // Add the new UUID
-            writeUser(user.username, user); // Save the updated user data
-
-            fs.rmSync(extractedPath, { recursive: true, force: true });
-
-            logLogs("map_upload", { mapUUID: metadata.MapUUID });
-
-            res.json({ message: "Map uploaded successfully" });
-        } else {
-            res.status(400).json({
-                message: "MetaData.json not found in the uploaded map",
+        } catch (err) {
+            res.status(500).json({
+                message: "Upload failed",
+                error: err.message,
             });
         }
-    } catch (err) {
-        res.status(500).json({
-            message: "Upload failed",
-            error: err.message,
-        });
     }
-});
+);
 
 // Admin
 app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
@@ -446,7 +466,7 @@ app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
 });
 
 app.get("/api/admin/update", isAuthenticated, isAdmin, (req, res) => {
-    updateToLatest()
+    updateToLatest();
     res.json("Updated Probably");
 });
 
@@ -456,7 +476,8 @@ app.post("/api/admin/deploy", (req, res) => {
     const expectedToken = process.env.DEPLOY_TOKEN;
 
     if (deployToken === expectedToken) {
-        const updateCommand = "cd ../ && git fetch origin && git reset --hard origin/main && npm run update";
+        const updateCommand =
+            "cd ../ && git fetch origin && git reset --hard origin/main && npm run update";
 
         exec(updateCommand, { cwd: __dirname }, (error, stdout, stderr) => {
             if (error) {
@@ -493,15 +514,20 @@ app.get("/api/admin/users/:username", isAuthenticated, isAdmin, (req, res) => {
 });
 
 // Delete User
-app.delete("/api/admin/users/:username", isAuthenticated, isAdmin, (req, res) => {
-    const userFilePath = path.join(usersDir, `${req.params.username}.json`);
-    if (fs.existsSync(userFilePath)) {
-        fs.unlinkSync(userFilePath);
-        res.json({ message: "User deleted successfully" });
-    } else {
-        res.status(404).json({ message: "User not found" });
+app.delete(
+    "/api/admin/users/:username",
+    isAuthenticated,
+    isAdmin,
+    (req, res) => {
+        const userFilePath = path.join(usersDir, `${req.params.username}.json`);
+        if (fs.existsSync(userFilePath)) {
+            fs.unlinkSync(userFilePath);
+            res.json({ message: "User deleted successfully" });
+        } else {
+            res.status(404).json({ message: "User not found" });
+        }
     }
-});
+);
 
 // Delete Map
 app.delete("/api/maps/:mapUUID", isAuthenticated, isAdmin, (req, res) => {
@@ -510,10 +536,14 @@ app.delete("/api/maps/:mapUUID", isAuthenticated, isAdmin, (req, res) => {
 
     if (fs.existsSync(mapFilePath)) {
         fs.unlinkSync(mapFilePath);
-        
+
         // Remove from index
-        const indexData = fs.existsSync(indexPath) ? JSON.parse(fs.readFileSync(indexPath)) : [];
-        const updatedIndex = indexData.filter(map => map.MapUUID !== req.params.mapUUID);
+        const indexData = fs.existsSync(indexPath)
+            ? JSON.parse(fs.readFileSync(indexPath))
+            : [];
+        const updatedIndex = indexData.filter(
+            (map) => map.MapUUID !== req.params.mapUUID
+        );
         fs.writeFileSync(indexPath, JSON.stringify(updatedIndex, null, 2));
 
         res.json({ message: "Map deleted successfully" });
@@ -551,7 +581,7 @@ app.put("/api/maps/:MapUUID", isAuthenticated, isAdmin, (req, res) => {
 app.put("/api/admin/users/:username", isAuthenticated, isAdmin, (req, res) => {
     const username = req.params.username;
     const updatedUserData = req.body;
-    
+
     // Fetch the existing user data
     const user = readUser(username);
     if (!user) {

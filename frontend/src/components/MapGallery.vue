@@ -33,12 +33,19 @@
         <div class="main-map-list">
           <h2>Main List of Maps</h2>
           <div class="map-grid">
-            <MapCard v-for="map in mainMaps" :key="map.MapUUID" :map="map" />
+            <MapCard v-for="map in paginatedMaps" :key="map.MapUUID" :map="map" />
+          </div>
+  
+          <div class="pagination">
+            <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+            <span>Page {{ currentPage }} of {{ totalPages }}</span>
+            <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
           </div>
         </div>
       </transition>
     </div>
   </template>
+  
   
   <script>
   import MapCard from './gallery/MapCard.vue';
@@ -46,6 +53,13 @@
   export default {
     components: { MapCard },
     props: ['maps', 'showSections'],
+    data() {
+      return {
+        currentPage: 1,
+        itemsPerRow: 5, // Number of columns
+        rowsPerPage: 5,  // Number of rows to display
+      };
+    },
     computed: {
       motw() {
         return this.maps.find(map => map.isMotw);
@@ -61,6 +75,26 @@
       },
       mainMapsSearchable() {
         return this.maps.filter(map => !map.isMotw && !map.isHandpicked && !map.isFeatured);
+      },
+      totalPages() {
+        const totalItems = this.mainMaps.length;
+        return Math.ceil(totalItems / (this.itemsPerRow * this.rowsPerPage));
+      },
+      paginatedMaps() {
+        const start = (this.currentPage - 1) * (this.itemsPerRow * this.rowsPerPage);
+        return this.mainMaps.slice(start, start + (this.itemsPerRow * this.rowsPerPage));
+      }
+    },
+    methods: {
+      nextPage() {
+        if (this.currentPage < this.totalPages) {
+          this.currentPage++;
+        }
+      },
+      prevPage() {
+        if (this.currentPage > 1) {
+          this.currentPage--;
+        }
       }
     }
   }
@@ -149,5 +183,23 @@
     transform: translateY(-20px); 
     opacity: 1; 
   }
+
+  .pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  margin: 0 10px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
   </style>
   

@@ -7,8 +7,7 @@ import Showcase from "../views/Showcase.vue";
 import Download from "../views/Download.vue";
 import AdminPanel from "../views/admin/AdminPanel.vue";
 import authUtils from "../utils/auth";
-import Profile from '../views/Profile.vue';
-
+import Profile from "../views/Profile.vue";
 
 const routes = [
     {
@@ -17,9 +16,9 @@ const routes = [
         component: Home,
     },
     {
-        path: '/profile/:username',
-        name: 'Profile',
-        component: Profile
+        path: "/profile/:username",
+        name: "Profile",
+        component: Profile,
     },
     {
         path: "/login",
