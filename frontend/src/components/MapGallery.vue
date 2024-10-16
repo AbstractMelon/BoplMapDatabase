@@ -37,10 +37,14 @@
           </div>
   
           <div class="pagination">
-            <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
+                <button @click="prevPage" :disabled="currentPage === 1">
+                    &#8592;  <!-- Left arrow -->
+                </button>
             <span>Page {{ currentPage }} of {{ totalPages }}</span>
-            <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
-          </div>
+                <button @click="nextPage" :disabled="currentPage === totalPages">
+                    &#8594;  <!-- Right arrow -->
+                </button>
+            </div>
         </div>
       </transition>
     </div>
@@ -127,10 +131,13 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
+    justify-content: stretch; 
+    width: 600px; 
   }
   
   .motw-container .motw-card {
-    width: 100%;
+    flex-grow: 1;
+    width: 90%;
   }
   
   .side-container {
