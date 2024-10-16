@@ -10,6 +10,7 @@ const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const saltRounds = 10;
 const { exec } = require("child_process");
+const archiver = require('archiver');
 
 require("dotenv").config();
 
@@ -19,6 +20,7 @@ const PORT = process.env.PORT || 3002;
 const usersDir = path.join(__dirname, "../database/users");
 const mapsDir = path.join(__dirname, "../database/maps");
 const miscDir = path.join(__dirname, "../database/misc");
+const modIconsDir = path.join(__dirname, "../database/assets/mod-icons"); 
 
 if (!fs.existsSync(mapsDir)) {
     fs.mkdirSync(mapsDir, { recursive: true });
@@ -31,6 +33,11 @@ if (!fs.existsSync(usersDir)) {
 if (!fs.existsSync(miscDir)) {
     fs.mkdirSync(miscDir, { recursive: true });
 }
+
+if (!fs.existsSync(modIconsDir)) {
+    fs.mkdirSync(modIconsDir, { recursive: true });
+}
+
 
 const LogsPath = path.join(miscDir, "Logs.json");
 
@@ -69,6 +76,13 @@ function writeUser(username, userData) {
     const userFilePath = path.join(usersDir, `${username}.json`);
     fs.writeFileSync(userFilePath, JSON.stringify(userData, null, 2));
 }
+
+const getUsers = () => {
+    const users = Object.values(fs.readdirSync(usersDir))
+        .map((file) => readUser(file.replace(".json", "")));
+
+    return users;
+};
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -128,7 +142,7 @@ function updateIndex(metadata) {
 }
 
 // Function to update users and maps to latest structure
-function updateToLatest() {
+async function updateToLatest() {
     const indexData = fs.existsSync(indexPath)
         ? JSON.parse(fs.readFileSync(indexPath))
         : [];
@@ -138,7 +152,6 @@ function updateToLatest() {
         map.isMotw = map.isMotw || false;
         map.isFeatured = map.isFeatured || false;
         map.isHandpicked = map.isHandpicked || false;
-
         map.MapUUID = String(map.MapUUID || null);
     });
 
@@ -153,6 +166,65 @@ function updateToLatest() {
             writeUser(user.username, user);
         }
     });
+
+    // Extract images from zips in the index
+    if (!fs.existsSync(modIconsDir)) {
+        fs.mkdirSync(modIconsDir, { recursive: true });
+    }
+
+    for (const map of indexData) {
+        const zipPath = path.join(__dirname, "../database/maps", `${map.MapUUID}.zip`);
+
+        if (fs.existsSync(zipPath)) {
+            const tempDir = path.join(__dirname, "temp", map.MapUUID);
+
+            await fs.promises.mkdir(tempDir, { recursive: true });
+
+            // Extract the zip file
+            await fs.createReadStream(zipPath)
+                .pipe(unzipper.Extract({ path: tempDir }))
+                .promise();
+
+            // Find the PNG file
+            const files = await fs.promises.readdir(tempDir);
+            const pngFiles = files.filter(file => path.extname(file).toLowerCase() === '.png');
+
+            if (pngFiles.length === 1) {
+                const pngFilePath = path.join(tempDir, pngFiles[0]);
+                const targetPath = path.join(modIconsDir, `${map.MapUUID}.png`);
+
+                // Move the PNG file to the mod icons directory
+                fs.renameSync(pngFilePath, targetPath);
+            } else {
+                console.warn(`Expected one PNG file in ${zipPath}, found: ${pngFiles.length}`);
+            }
+
+            // Create a new ZIP without the PNG file
+            const outputZipPath = zipPath.replace('.zip', '_updated.zip');
+            const output = fs.createWriteStream(outputZipPath);
+            const archive = archiver('zip');
+
+            output.on('close', () => {
+                // Replace original zip with the new zip
+                fs.renameSync(outputZipPath, zipPath);
+            });
+
+            archive.pipe(output);
+
+            for (const file of files) {
+                const filePath = path.join(tempDir, file);
+                if (file !== pngFiles[0]) { // Exclude the PNG file
+                    archive.file(filePath, { name: file });
+                }
+            }
+
+            await archive.finalize();
+            // Clean up the temporary directory
+            fs.rmSync(tempDir, { recursive: true, force: true });
+        } else {
+            console.warn(`Zip file not found for map UUID: ${map.MapUUID}`);
+        }
+    }
 }
 
 // Function to check if user is an admin
@@ -249,19 +321,50 @@ app.post("/api/logout", (req, res) => {
     res.json({ message: "Logout successful" });
 });
 
-app.get("/api/users/:username", (req, res) => {
-    const user = Object.values(fs.readdirSync(usersDir))
-        .map((file) => readUser(file.replace(".json", "")))
-        .find((user) => user.username === req.params.username);
+app.post("/api/logout/all", isAuthenticated, (req, res) => {
+    const { username } = req.user; // Get username from authenticated user
+    const users = fs.readdirSync(usersDir);
+    
+    users.forEach(file => {
+        const user = readUser(file.replace(".json", ""));
+        if (user.username === username) {
+            user.token = null; // Clear the token
+            writeUser(user.username, user);
+        }
+    });
+
+    res.clearCookie("token");
+    res.json({ message: "Logged out of all accounts successfully." });
+});
+
+app.get("/api/user/:username", (req, res) => {
+    const users = getUsers();
+    const user = users.find((user) => user.username === req.params.username);
 
     if (user) {
-        // Create a new object excluding sensitive information
         const { password, token, ...publicUserInfo } = user;
         res.json(publicUserInfo);
     } else {
         res.status(404).json({ message: "User not found" });
     }
 });
+
+app.get("/api/users/search", (req, res) => {
+    const searchTerm = req.query.q; 
+    
+    if (!searchTerm) {
+        return res.status(400).json({ message: "Search term is required" });
+    }
+
+    const users = getUsers();
+    const filteredUsers = users.filter((user) => 
+        user.username.includes(searchTerm)
+    );
+
+    const publicUsersInfo = filteredUsers.map(({ password, token, ...publicUserInfo }) => publicUserInfo);
+    res.json(publicUsersInfo);
+});
+
 
 app.get("/api/maps", (req, res) => {
     const maps = fs.existsSync(indexPath)
@@ -382,6 +485,25 @@ app.get("/api/maps/:mapUUID/user-like", isAuthenticated, (req, res) => {
     res.json({ hasLiked });
 });
 
+
+app.get('/api/assets/mods/:uuid', (req, res) => {
+    const { uuid } = req.params;
+    const imagePath = path.join(__dirname, '../database/assets/mod-icons', `${uuid}.png`);
+    const fallbackImagePath = path.join(__dirname, '../assets/fallback/mod-icon.png');
+
+    // Check if the requested file exists
+    fs.access(imagePath, fs.constants.F_OK, (err) => {
+        if (err) {
+            // If the requested file does not exist, send the fallback image
+            return res.sendFile(fallbackImagePath);
+        }
+        
+        // Send the image file
+        res.sendFile(imagePath);
+    });
+});
+
+
 app.post(
     "/api/upload",
     isAuthenticated,
@@ -403,9 +525,7 @@ app.post(
 
                 // Check if map already exists
                 if (indexData.some((map) => map.MapUUID === metadata.MapUUID)) {
-                    return res
-                        .status(400)
-                        .json({ message: "Map already exists" });
+                    return res.status(400).json({ message: "Map already exists" });
                 }
 
                 // Replace the author field with the username of the uploader
@@ -415,11 +535,7 @@ app.post(
                 console.log("Uploading map with metadata:", metadata);
 
                 const mapFileName = `${metadata.MapUUID}.zip`;
-                const mapStorageDir = path.join(
-                    __dirname,
-                    "../database",
-                    "maps"
-                );
+                const mapStorageDir = path.join(__dirname, "../database", "maps");
                 const mapStoragePath = path.join(mapStorageDir, mapFileName);
 
                 if (!fs.existsSync(mapStorageDir)) {
@@ -428,6 +544,21 @@ app.post(
 
                 // Move the uploaded file to the maps directory
                 fs.renameSync(req.file.path, mapStoragePath);
+
+                // Move the PNG icon to the specified directory
+                const files = await fs.promises.readdir(extractedPath);
+                const pngFiles = files.filter(file => path.extname(file) === '.png');
+
+                if (pngFiles.length === 1) {
+                    const iconPath = path.join(extractedPath, pngFiles[0]);
+                    if (!fs.existsSync(modIconsDir)) {
+                        fs.mkdirSync(modIconsDir, { recursive: true });
+                    }
+                    const targetIconPath = path.join(modIconsDir, `mod-${metadata.MapUUID}.png`);
+                    fs.renameSync(iconPath, targetIconPath);
+                } else {
+                    console.warn(`Expected one PNG file, found: ${pngFiles.length}`);
+                }
 
                 // Update the index with the modified metadata
                 updateIndex(metadata); // This should now use the modified metadata
@@ -457,6 +588,7 @@ app.post(
     }
 );
 
+
 // Admin
 app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
     const users = fs
@@ -479,23 +611,23 @@ app.post("/api/admin/deploy", (req, res) => {
         const updateCommand =
             "cd ../ && git fetch origin && git reset --hard origin/main && npm run update";
 
+        // Send a response immediately
+        res.json({ message: "Update command started executing" });
+
         exec(updateCommand, { cwd: __dirname }, (error, stdout, stderr) => {
             if (error) {
                 console.error(`exec error: ${error}`);
-                return res
-                    .status(500)
-                    .json({ message: "Failed to run update", error: stderr });
+                // Handle the error here, but do not send another response
+                console.error(`stderr: ${stderr}`);
+                return;
             }
             console.log(`stdout: ${stdout}`);
-            res.json({
-                message: "Update command executed successfully",
-                output: stdout,
-            });
         });
     } else {
         res.status(403).json({ message: "Forbidden: Invalid deploy token" });
     }
 });
+
 
 // Get Logs
 app.get("/api/admin/logs", isAuthenticated, isAdmin, (req, res) => {

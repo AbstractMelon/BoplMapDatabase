@@ -1,5 +1,11 @@
 <template>
     <div class="map-card" v-if="map">
+        <img 
+            :src="imageUrl" 
+            alt="Map Image" 
+            class="map-image" 
+            @error="setFallbackImage"
+        />
         <h2>{{ truncatedTitle }}</h2>
         <p>
             <strong>Developer: </strong>
@@ -17,6 +23,12 @@
 <script>
 export default {
     props: ['map'],
+    data() {
+        return {
+            fallbackImage: '/api/assets/mods/placeholder', 
+            currentImage: ''
+        };
+    },
     computed: {
         truncatedTitle() {
             return this.map.MapName.length > 20 
@@ -27,13 +39,26 @@ export default {
             return this.map.MapDescription.length > 75 
                 ? this.map.MapDescription.slice(0, 75) + '...' 
                 : this.map.MapDescription;
+        },
+        imageUrl() {
+            return this.currentImage || `/api/assets/mods/${this.map.MapUUID}`;
         }
     },
     methods: {
         downloadMap() {
-            window.location.href = `/api/maps/download/${this.map.MapUUID}`; // /api/maps/download/:mapid
+            window.location.href = `/api/maps/download/${this.map.MapUUID}`;
+        },
+        setFallbackImage() {
+            this.currentImage = this.fallbackImage;
         }
+    },
+    mounted() {
+    if (this.map) {
+        this.currentImage = `/api/assets/mods/${this.map.MapUUID}`;
+    } else {
+        this.currentImage = this.fallbackImage; 
     }
+}
 }
 </script>
 
@@ -43,10 +68,18 @@ export default {
     padding: 15px;
     border-radius: 10px;
     width: 250px;
-    height: 180px;
+    height: auto; 
+    padding-bottom: 75px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
     transition: transform 0.2s;
+}
+
+.map-image {
+    width: 100%; /* Makes image responsive */
+    height: auto; /* Keeps aspect ratio */
+    border-radius: 10px 10px 0 0; /* Rounds top corners */
+    margin-bottom: 10px;
 }
 
 .map-card:hover {

@@ -3,6 +3,11 @@
         <header class="profile-header">
             <h1>{{ user.username }}</h1>
             <p class="join-date">Joined on: {{ user.accountCreationDate }}</p>
+            <div v-if="isOwnProfile" class="settings-gear">
+                <router-link to="/dashboard/settings">
+                    <font-awesome-icon icon="cog" />
+                </router-link>
+            </div>
         </header>
         
         <section class="user-info">
@@ -18,11 +23,7 @@
             <h2>Uploaded Maps:</h2>
             <div class="map-list">
                 <div v-if="uploadedMaps.length">
-                    <div v-for="map in uploadedMaps" :key="map.MapUUID" class="map-card">
-                        <h3>{{ map.MapName }}</h3>
-                        <p>Developer: {{ map.MapDeveloper }}</p>
-                        <button @click="downloadMap(map.MapUUID)">Download</button>
-                    </div>
+                    <MapCard v-for="map in uploadedMaps" :key="map.MapUUID" :map="map" />
                 </div>
                 <p v-else>No uploaded maps found.</p>
             </div>
@@ -44,26 +45,33 @@
     </div>
 </template>
 
+
 <script>
+import userUtils from "../utils/user"; 
+import MapCard from '../components/gallery/MapCard.vue';
+
 export default {
+    components: { MapCard },
     data() {
         return {
             user: {},
             likedMaps: [],
             uploadedMaps: [],
-            allMaps: {}
+            allMaps: {},
+            isOwnProfile: false,
         };
     },
     created() {
-        const username = this.$route.params.username; // Change userId to username
+        const username = this.$route.params.username;
         this.fetchUserProfile(username);
+        this.checkIfOwnProfile(username); 
     },
     methods: {
         async fetchUserProfile(username) {
             console.log(`Fetching user profile for username: ${username}`);
 
             try {
-                const response = await fetch(`/api/users/${username}`); // Adjust the API endpoint
+                const response = await fetch(`/api/user/${username}`);
 
                 if (!response.ok) {
                     console.error(`HTTP error! Status: ${response.status}, Status Text: ${response.statusText}`);
@@ -73,10 +81,7 @@ export default {
                 const userData = await response.json();
                 this.user = userData || {};
 
-                // Fetch all maps first
                 await this.fetchAllMaps();
-
-                // Filter liked and uploaded maps using fetched maps
                 this.likedMaps = this.getMapsByUUIDs(this.user.likedMaps || []);
                 this.uploadedMaps = this.getMapsByUUIDs(this.user.uploadedMapUUIDs || []);
                 
@@ -92,7 +97,7 @@ export default {
                 }
                 const maps = await response.json();
                 this.allMaps = maps.reduce((acc, map) => {
-                    acc[map.MapUUID] = map; // Create a map of UUIDs to map objects
+                    acc[map.MapUUID] = map;
                     return acc;
                 }, {});
             } catch (error) {
@@ -107,14 +112,37 @@ export default {
             return Promise.all(mapPromises);
         },
         getMapsByUUIDs(mapUUIDs) {
-            return mapUUIDs.map(uuid => this.allMaps[uuid]).filter(map => map); 
+            return mapUUIDs.map(uuid => this.allMaps[uuid]).filter(map => map);
         },
         downloadMap(mapUUID) {
             window.location.href = `/api/maps/download/${mapUUID}`;
+        },
+        async checkIfOwnProfile(username) {
+            try {
+                // Await the promise to get the current user data
+                const response = await userUtils.fetchUserData(); 
+                const currentUser = response.user; // Access the user object
+
+                // Log the current user and the username being checked
+                console.log('Current user:', currentUser);
+                console.log('Checking profile for username:', username);
+                
+                if (currentUser && currentUser.username) {
+                    this.isOwnProfile = currentUser.username === username;
+                    console.log('Is own profile:', this.isOwnProfile);
+                } else {
+                    console.warn('No current user found. Cannot determine if this is the own profile.');
+                    this.isOwnProfile = false; 
+                }
+            } catch (error) {
+                console.error('Error checking if own profile:', error);
+                this.isOwnProfile = false;
+            }
         }
     }
 };
 </script>
+
 
 <style scoped>
 .profile {
@@ -196,4 +224,22 @@ h2 {
 .map-card button:hover {
     background-color: #2f5dbb;
 }
+
+.settings-gear {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+.settings-gear i {
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--accent);
+    transition: transform 0.2s;
+}
+
+.settings-gear i:hover {
+    transform: rotate(90deg);
+}
+
 </style>

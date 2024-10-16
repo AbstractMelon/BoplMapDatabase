@@ -8,6 +8,8 @@ import Download from "../views/Download.vue";
 import AdminPanel from "../views/admin/AdminPanel.vue";
 import authUtils from "../utils/auth";
 import Profile from "../views/Profile.vue";
+import Dashboard from "../views/user/Dashboard.vue"; 
+import Settings from "../views/user/Settings.vue"; 
 
 const routes = [
     {
@@ -45,6 +47,18 @@ const routes = [
         name: "Admin",
         component: AdminPanel,
         meta: { requiresAuth: true, isAdmin: true },
+    },
+    {
+        path: "/user/dashboard",
+        name: "Dashboard",
+        component: Dashboard,
+        meta: { requiresAuth: true },
+    },
+    {
+        path: "/user/settings",
+        name: "Settings",
+        component: Settings,
+        meta: { requiresAuth: true },
     },
     {
         path: "/:catchAll(.*)",
