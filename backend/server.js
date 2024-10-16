@@ -70,6 +70,13 @@ function writeUser(username, userData) {
     fs.writeFileSync(userFilePath, JSON.stringify(userData, null, 2));
 }
 
+const getUsers = () => {
+    const users = Object.values(fs.readdirSync(usersDir))
+        .map((file) => readUser(file.replace(".json", "")));
+
+    return users;
+};
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
@@ -249,19 +256,50 @@ app.post("/api/logout", (req, res) => {
     res.json({ message: "Logout successful" });
 });
 
-app.get("/api/users/:username", (req, res) => {
-    const user = Object.values(fs.readdirSync(usersDir))
-        .map((file) => readUser(file.replace(".json", "")))
-        .find((user) => user.username === req.params.username);
+app.post("/api/logout/all", isAuthenticated, (req, res) => {
+    const { username } = req.user; // Get username from authenticated user
+    const users = fs.readdirSync(usersDir);
+    
+    users.forEach(file => {
+        const user = readUser(file.replace(".json", ""));
+        if (user.username === username) {
+            user.token = null; // Clear the token
+            writeUser(user.username, user);
+        }
+    });
+
+    res.clearCookie("token");
+    res.json({ message: "Logged out of all accounts successfully." });
+});
+
+app.get("/api/user/:username", (req, res) => {
+    const users = getUsers();
+    const user = users.find((user) => user.username === req.params.username);
 
     if (user) {
-        // Create a new object excluding sensitive information
         const { password, token, ...publicUserInfo } = user;
         res.json(publicUserInfo);
     } else {
         res.status(404).json({ message: "User not found" });
     }
 });
+
+app.get("/api/users/search", (req, res) => {
+    const searchTerm = req.query.q; 
+    
+    if (!searchTerm) {
+        return res.status(400).json({ message: "Search term is required" });
+    }
+
+    const users = getUsers();
+    const filteredUsers = users.filter((user) => 
+        user.username.includes(searchTerm)
+    );
+
+    const publicUsersInfo = filteredUsers.map(({ password, token, ...publicUserInfo }) => publicUserInfo);
+    res.json(publicUsersInfo);
+});
+
 
 app.get("/api/maps", (req, res) => {
     const maps = fs.existsSync(indexPath)
