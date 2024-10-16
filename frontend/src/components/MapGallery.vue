@@ -116,6 +116,7 @@
     display: grid;
     grid-template-columns: 1fr; /* Default to a single column on small screens */
     gap: 20px;
+    overflow-x: scroll; /* This was killing me */
   } 
   
   @media (min-width: 600px) {
