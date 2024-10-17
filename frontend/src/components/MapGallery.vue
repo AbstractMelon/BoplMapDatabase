@@ -169,7 +169,7 @@
   }
   
   .main-map-list .map-card {
-    flex-grow: 1
+    flex-grow: 0.2
   }
 
   .map-grid {
