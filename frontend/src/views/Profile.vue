@@ -1,15 +1,20 @@
 <template>
     <div class="profile">
-        <header class="profile-header">
-            <h1>{{ user.username }}</h1>
-            <p class="join-date">Joined on: {{ user.accountCreationDate }}</p>
-            <div v-if="isOwnProfile" class="settings-gear">
+
+        <div v-if="isOwnProfile" class="settings-container">
+            <p class="settings-message">This is your page! Click the settings button to edit it</p>
+            <div class="settings-gear">
                 <router-link to="/dashboard/settings">
                     <font-awesome-icon icon="cog" />
                 </router-link>
             </div>
+        </div>
+
+        <header class="profile-header">
+            <h1>{{ user.username }}</h1>
+            <p class="join-date">Joined on: {{ formattedJoinDate }}</p>
         </header>
-        
+
         <section class="user-info">
             <h2>User Info</h2>
             <div class="bio">
@@ -66,6 +71,12 @@ export default {
         this.fetchUserProfile(username);
         this.checkIfOwnProfile(username); 
     },
+    computed: {
+        formattedJoinDate() {
+            const date = new Date(this.user.accountCreationDate);
+            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+    },
     methods: {
         async fetchUserProfile(username) {
             console.log(`Fetching user profile for username: ${username}`);
@@ -119,19 +130,12 @@ export default {
         },
         async checkIfOwnProfile(username) {
             try {
-                // Await the promise to get the current user data
                 const response = await userUtils.fetchUserData(); 
-                const currentUser = response.user; // Access the user object
+                const currentUser = response.user; 
 
-                // Log the current user and the username being checked
-                console.log('Current user:', currentUser);
-                console.log('Checking profile for username:', username);
-                
                 if (currentUser && currentUser.username) {
                     this.isOwnProfile = currentUser.username === username;
-                    console.log('Is own profile:', this.isOwnProfile);
                 } else {
-                    console.warn('No current user found. Cannot determine if this is the own profile.');
                     this.isOwnProfile = false; 
                 }
             } catch (error) {
@@ -142,7 +146,6 @@ export default {
     }
 };
 </script>
-
 
 <style scoped>
 .profile {
@@ -156,14 +159,33 @@ export default {
     margin-bottom: 40px;
 }
 
+.settings-container {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; 
+    border-radius: 5px;
+    background-color: var(--bgcol4);
+    padding: 10px 10px;
+    margin-bottom: 20px;
+}
+
+.settings-message {
+    font-size: 16px;
+    color: var(--text-color);
+}
+
 .profile-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 10px; 
     border-radius: 20px;
 }
 
 .join-date {
     color: #ffffff;
+}
+
+.settings-gear {
+    text-align: right; /* Aligns the gear to the right */
 }
 
 .maps-section, .uploads-section {
@@ -182,57 +204,8 @@ h2 {
     gap: 15px;
 }
 
-.map-card {
-    background-color: var(--bgcol2);
-    padding: 15px;
-    border-radius: 10px;
-    width: 250px;
-    height: 180px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    position: relative;
-    transition: transform 0.2s;
-}
-
-.map-card:hover {
-    transform: scale(1.05);
-}
-
-.map-card h3 {
-    font-size: 18px;
-    margin: 0 0 10px 0;
-}
-
-.map-card p {
-    margin: 5px 0;
-}
-
-.map-card button {
-    padding: 10px;
-    background-color: var(--accent);
-    color: var(--textcol);
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-    position: absolute;
-    bottom: 15px;
-    left: 0;
-    right: 0;
-    margin: auto;
-}
-
-.map-card button:hover {
-    background-color: #2f5dbb;
-}
-
-.settings-gear {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-}
-
 .settings-gear i {
-    font-size: 24px;
+    font-size: 48px;
     cursor: pointer;
     color: var(--accent);
     transition: transform 0.2s;
@@ -241,5 +214,4 @@ h2 {
 .settings-gear i:hover {
     transform: rotate(90deg);
 }
-
 </style>

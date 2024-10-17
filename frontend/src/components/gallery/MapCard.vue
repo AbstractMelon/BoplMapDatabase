@@ -13,6 +13,7 @@
         </p>
         <p><strong>Type:</strong> {{ map.MapType }}</p>
         <p><strong>Description:</strong> {{ truncatedDescription }}</p>
+        <p class="download-count"><strong>Downloads:</strong> {{ map.downloadCount }}</p>
         <button @click.stop="downloadMap">Download</button>
     </div>
     <div v-else>
@@ -25,7 +26,7 @@ export default {
     props: ['map'],
     data() {
         return {
-            fallbackImage: '/api/assets/mods/placeholder', 
+            fallbackImage: '/api/maps/assets/mods/placeholder', 
             currentImage: ''
         };
     },
@@ -41,11 +42,13 @@ export default {
                 : this.map.MapDescription;
         },
         imageUrl() {
-            return this.currentImage || `/api/assets/mods/${this.map.MapUUID}`;
+            return this.currentImage || `/api/maps/assets/mods/${this.map.MapUUID}`;
         }
     },
     methods: {
         downloadMap() {
+            // Increment the download count (could also be done on the server)
+            this.map.downloadCount++;
             window.location.href = `/api/maps/download/${this.map.MapUUID}`;
         },
         setFallbackImage() {
@@ -53,12 +56,12 @@ export default {
         }
     },
     mounted() {
-    if (this.map) {
-        this.currentImage = `/api/assets/mods/${this.map.MapUUID}`;
-    } else {
-        this.currentImage = this.fallbackImage; 
+        if (this.map) {
+            this.currentImage = `/api/assets/mods/${this.map.MapUUID}`;
+        } else {
+            this.currentImage = this.fallbackImage; 
+        }
     }
-}
 }
 </script>
 
@@ -76,9 +79,9 @@ export default {
 }
 
 .map-image {
-    width: 100%; /* Makes image responsive */
-    height: auto; /* Keeps aspect ratio */
-    border-radius: 10px 10px 0 0; /* Rounds top corners */
+    width: 100%;
+    height: auto;
+    border-radius: 10px 10px 0 0;
     margin-bottom: 10px;
 }
 
@@ -94,6 +97,12 @@ export default {
 
 .map-card p {
     margin: 5px 0;
+}
+
+.download-count {
+    margin-top: 5px;
+    font-weight: bold;
+    color: var(--accent);
 }
 
 .map-card button {

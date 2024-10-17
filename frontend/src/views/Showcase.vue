@@ -11,11 +11,11 @@
             </div>
 
             <div class="map-preview">
-                <img src="../assets/map.webp" alt="Map Preview" class="map-image" />
+                <img src="/map-maker-art.png" alt="Map Preview" class="map-image" />
                 <div class="floating-battles">
-                    <div class="battle battle-1"></div>
-                    <div class="battle battle-2"></div>
-                    <div class="battle battle-3"></div>
+                    <img src="/icon1.png" alt="Tool Icon 1" class="battle battle-1" />
+                    <img src="/icon2.png" alt="Tool Icon 2" class="battle battle-2" />
+                    <!-- <img src="/icon3.png" alt="Tool Icon 3" class="battle battle-3" /> -->
                 </div>
             </div>
         </div>
@@ -177,12 +177,9 @@ export default {
 
 .battle {
     position: absolute;
-    width: 50px;
-    height: 50px;
-    background-color: #ff4c4c;
-    border-radius: 50%;
+    width: 50px;  /* Adjust size based on your icon */
+    height: 50px; /* Adjust size based on your icon */
     animation: float 4s ease-in-out infinite;
-    box-shadow: 0 4px 15px rgba(255, 76, 76, 0.6);
 }
 
 .battle-1 { top: 15%; left: 25%; }
