@@ -555,7 +555,7 @@ app.post(
                     if (!fs.existsSync(modIconsDir)) {
                         fs.mkdirSync(modIconsDir, { recursive: true });
                     }
-                    const targetIconPath = path.join(modIconsDir, `mod-${metadata.MapUUID}.png`);
+                    const targetIconPath = path.join(modIconsDir, `${metadata.MapUUID}.png`);
                     fs.renameSync(iconPath, targetIconPath);
                 } else {
                     console.warn(`Expected one PNG file, found: ${pngFiles.length}`);
