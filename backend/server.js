@@ -515,6 +515,7 @@ app.post(
                 .createReadStream(req.file.path)
                 .pipe(unzipper.Extract({ path: extractedPath }))
                 .promise();
+
             const metadataPath = path.join(extractedPath, "MetaData.json");
 
             if (fs.existsSync(metadataPath)) {
@@ -531,9 +532,7 @@ app.post(
                 // Replace the author field with the username of the uploader
                 metadata.MapDeveloper = req.user.username;
 
-                // Log the metadata being uploaded
-                console.log("Uploading map with metadata:", metadata);
-
+                // Move the uploaded file to the maps directory
                 const mapFileName = `${metadata.MapUUID}.zip`;
                 const mapStorageDir = path.join(__dirname, "../database", "maps");
                 const mapStoragePath = path.join(mapStorageDir, mapFileName);
@@ -542,15 +541,17 @@ app.post(
                     fs.mkdirSync(mapStorageDir, { recursive: true });
                 }
 
-                // Move the uploaded file to the maps directory
+                // Move the original uploaded ZIP to the maps directory
                 fs.renameSync(req.file.path, mapStoragePath);
 
-                // Move the PNG icon to the specified directory
+                // Handle PNG icon extraction
                 const files = await fs.promises.readdir(extractedPath);
-                const pngFiles = files.filter(file => path.extname(file) === '.png');
+                const pngFiles = files.filter(file => path.extname(file).toLowerCase() === '.png');
 
                 if (pngFiles.length === 1) {
                     const iconPath = path.join(extractedPath, pngFiles[0]);
+                    
+                    // Move the PNG icon to the specified directory
                     if (!fs.existsSync(modIconsDir)) {
                         fs.mkdirSync(modIconsDir, { recursive: true });
                     }
@@ -560,15 +561,36 @@ app.post(
                     console.warn(`Expected one PNG file, found: ${pngFiles.length}`);
                 }
 
+                // Create a new ZIP without the PNG icon
+                const outputZipPath = mapStoragePath.replace('.zip', '_updated.zip');
+                const output = fs.createWriteStream(outputZipPath);
+                const archive = archiver('zip');
+
+                output.on('close', () => {
+                    fs.renameSync(outputZipPath, mapStoragePath);
+                });
+
+                archive.pipe(output);
+
+                for (const file of files) {
+                    const filePath = path.join(extractedPath, file);
+                    if (file !== pngFiles[0]) { // Exclude the PNG file
+                        archive.file(filePath, { name: file });
+                    }
+                }
+
+                await archive.finalize();
+
                 // Update the index with the modified metadata
-                updateIndex(metadata); // This should now use the modified metadata
+                updateIndex(metadata);
 
                 // Update user's uploadedMapUUIDs
                 const user = req.user;
-                user.uploadedMapUUIDs = user.uploadedMapUUIDs || []; // Initialize if undefined
-                user.uploadedMapUUIDs.push(metadata.MapUUID); // Add the new UUID
-                writeUser(user.username, user); // Save the updated user data
+                user.uploadedMapUUIDs = user.uploadedMapUUIDs || [];
+                user.uploadedMapUUIDs.push(metadata.MapUUID);
+                writeUser(user.username, user);
 
+                // Clean up
                 fs.rmSync(extractedPath, { recursive: true, force: true });
 
                 logLogs("map_upload", { mapUUID: metadata.MapUUID });
@@ -587,7 +609,6 @@ app.post(
         }
     }
 );
-
 
 // Admin
 app.get("/api/admin/users", isAuthenticated, isAdmin, (req, res) => {
