@@ -47,7 +47,6 @@ export default {
     },
     methods: {
         downloadMap() {
-            // Increment the download count (could also be done on the server)
             this.map.downloadCount++;
             window.location.href = `/api/maps/download/${this.map.MapUUID}`;
         },
@@ -57,7 +56,7 @@ export default {
     },
     mounted() {
         if (this.map) {
-            this.currentImage = `/api/assets/mods/${this.map.MapUUID}`;
+            this.currentImage = `/api/maps/assets/mods/${this.map.MapUUID}`;
         } else {
             this.currentImage = this.fallbackImage; 
         }
