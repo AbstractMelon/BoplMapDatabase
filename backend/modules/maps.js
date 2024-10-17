@@ -84,7 +84,12 @@ router.get('/assets/mods/:uuid', (req, res) => {
 
     fs.access(imagePath, fs.constants.F_OK, (err) => {
         if (err) {
-            return res.sendFile(fallbackImagePath);
+            console.error(`Image not found: ${imagePath}`);
+            return res.status(404).json({
+                message: 'Image not found',
+                attemptedPath: imagePath,
+                fallbackImage: fallbackImagePath
+            });
         }
         res.sendFile(imagePath);
     });
