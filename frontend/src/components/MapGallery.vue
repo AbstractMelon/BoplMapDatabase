@@ -65,29 +65,30 @@
       };
     },
     computed: {
-      motw() {
-        return this.maps.find(map => map.isMotw);
-      },
-      handpickedMaps() {
-        return this.maps.filter(map => map.isHandpicked);
-      },
-      featuredMaps() {
-        return this.maps.filter(map => map.isFeatured);
-      },
-      mainMaps() {
-        return this.maps;
-      },
-      mainMapsSearchable() {
-        return this.maps.filter(map => !map.isMotw && !map.isHandpicked && !map.isFeatured);
-      },
-      totalPages() {
-        const totalItems = this.mainMaps.length;
-        return Math.ceil(totalItems / (this.itemsPerRow * this.rowsPerPage));
-      },
-      paginatedMaps() {
-        const start = (this.currentPage - 1) * (this.itemsPerRow * this.rowsPerPage);
-        return this.mainMaps.slice(start, start + (this.itemsPerRow * this.rowsPerPage));
-      }
+        motw() {
+            return this.maps.find(map => map.isMotw);
+        },
+        handpickedMaps() {
+            return this.maps.filter(map => map.isHandpicked);
+        },
+        featuredMaps() {
+            return this.maps.filter(map => map.isFeatured);
+        },
+        mainMaps() {
+            // Sort maps by DateCreated in descending order
+            return this.maps.sort((a, b) => new Date(b.DateCreated) - new Date(a.DateCreated));
+        },
+        mainMapsSearchable() {
+            return this.mainMaps.filter(map => !map.isMotw && !map.isHandpicked && !map.isFeatured);
+        },
+        totalPages() {
+            const totalItems = this.mainMaps.length;
+            return Math.ceil(totalItems / (this.itemsPerRow * this.rowsPerPage));
+        },
+        paginatedMaps() {
+            const start = (this.currentPage - 1) * (this.itemsPerRow * this.rowsPerPage);
+            return this.mainMaps.slice(start, start + (this.itemsPerRow * this.rowsPerPage));
+        }
     },
     methods: {
       nextPage() {
