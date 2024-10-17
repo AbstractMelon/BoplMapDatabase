@@ -28,25 +28,28 @@
           </div>
         </div>
       </div>
-  
+      
+
       <transition name="slide">
-        <div class="main-map-list">
-          <h2>Main List of Maps</h2>
-          <div class="map-grid">
-            <MapCard v-for="map in paginatedMaps" :key="map.MapUUID" :map="map" />
-          </div>
-  
-          <div class="pagination">
-                <button @click="prevPage" :disabled="currentPage === 1">
-                    &#8592;  <!-- Left arrow -->
-                </button>
-            <span>Page {{ currentPage }} of {{ totalPages }}</span>
-                <button @click="nextPage" :disabled="currentPage === totalPages">
-                    &#8594;  <!-- Right arrow -->
-                </button>
+            <div>
+                <div class="main-map-list">
+                <h2>Main List of Maps</h2>
+                <div class="map-grid">
+                    <MapCard v-for="map in paginatedMaps" :key="map.MapUUID" :map="map" />
+                </div>
+        
+                <div class="pagination">
+                        <button @click="prevPage" :disabled="currentPage === 1">
+                            &#8592;  <!-- Left arrow -->
+                        </button>
+                    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+                        <button @click="nextPage" :disabled="currentPage === totalPages">
+                            &#8594;  <!-- Right arrow -->
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
-      </transition>
+        </transition>
     </div>
   </template>
   
@@ -75,8 +78,7 @@
             return this.maps.filter(map => map.isFeatured);
         },
         mainMaps() {
-            // Sort maps by DateCreated in descending order
-            return this.maps.sort((a, b) => new Date(b.DateCreated) - new Date(a.DateCreated));
+            return this.maps
         },
         mainMapsSearchable() {
             return this.mainMaps.filter(map => !map.isMotw && !map.isHandpicked && !map.isFeatured);

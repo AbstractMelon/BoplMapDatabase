@@ -52,37 +52,12 @@ a {
 a:hover {
     color: #ffffff;
 }
-
-.search-bar {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin: 10px;
-}
-
 .multi-use-container {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
-.search-bar input,
-.search-bar button {
-    padding: 10px;
-    font-size: 1em;
-    border: 1px solid var(--textcol);
-    border-radius: 5px;
-    background-color: var(--bgcol2);
-    color: var(--textcol);
-    width: 100%;
-    max-width: 300px;
-}
-
-.search-bar input::placeholder,
-.search-bar button {
-    color: #999;
-}
 
 /* Popup Form */
 .popup {
@@ -150,13 +125,3 @@ a:hover {
     cursor: pointer;
 }
 
-@media (min-width: 768px) {
-    .search-bar {
-        flex-direction: row;
-    }
-
-    .search-bar input,
-    .search-bar button {
-        max-width: initial;
-    }
-}
