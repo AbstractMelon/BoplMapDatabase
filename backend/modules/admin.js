@@ -23,7 +23,7 @@ router.post('/deploy', (req, res) => {
 
     if (deployToken === expectedToken) {
         const updateCommand =
-            "cd ../ && git fetch origin && git reset --hard origin/main && npm run update";
+            "cd ../ && git fetch origin && git reset --hard origin/main && cd .. && npm run update";
 
         res.json({ message: "Update command started executing" });
 
