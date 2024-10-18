@@ -202,6 +202,7 @@ h2 {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
+    flex-direction: row;
 }
 
 .settings-gear i {
