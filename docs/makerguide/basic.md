@@ -41,16 +41,16 @@ To move your platform, just drag it and plop it wherever you want it to be. That
 If you want to you can also just modify the platform's position from the Inspector (more on that later)
 
 ::: tip
-If you want to move your platform only on the x/y axis, just move it while pressing `shift` and it will clamp to the closest axis!
+- If you want to move your platform only on the x/y axis, just move it while pressing `shift` and it will clamp to the closest axis!
 
 <video autoplay loop muted playsinline style="border-radius: 10px;">
   <source src="./gifs/move-shift.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
-:::
 
-::: tip
-If you want to clamp your platform to an integer position - move it while pressing `alt`, it will also display the item's position on a small window!
+<br>
+
+- If you want to clamp your platform to an integer position - move it while pressing `alt`, it will also display the item's position on a small window!
 
 <video autoplay loop muted playsinline style="border-radius: 10px;">
   <source src="./gifs/move-alt.mp4" type="video/mp4">
