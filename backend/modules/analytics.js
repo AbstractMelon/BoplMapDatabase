@@ -36,7 +36,7 @@ function updateAnalytics(event) {
 // Track visits
 function trackVisits(req, res, next) {
     if (!req.path.startsWith('/assets/') || !req.path.startsWith('/api')) {
-        updateAnalytics('visits');
+        trackEvent('visits');
     }
     next();
 }

@@ -5,6 +5,7 @@ const multer = require('multer');
 
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
 const { mapMakerDir } = require('../database');
+const trackEvent  = require('./analytics');
 
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
@@ -25,7 +26,7 @@ router.get('/download/:versionId', (req, res) => {
     }
 
     res.download(versionDir);
-    updateAnalytics('mapMakerDownload');
+    trackEvent('mapMakerDownload');
 });
 
 // Route to upload files

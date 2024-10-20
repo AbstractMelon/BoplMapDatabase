@@ -8,6 +8,7 @@ const archiver = require('archiver');
 const { v4: uuidv4 } = require('uuid');
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
 const { updateIndex, mapsDir, modIconsDir, indexPath, logLogs, writeUser } = require('../database');
+const trackEvent  = require('./analytics');
 
 const upload = multer({ dest: 'uploads/' });
 
@@ -67,7 +68,7 @@ router.get('/download/:mapid', (req, res) => {
                 } else {
                     map.downloadCount = (map.downloadCount || 0) + 1;
                     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
-                    updateAnalytics('mapDownload');
+                    trackEvent('mapDownload');
                     logLogs("map_download", { mapUUID: mapid });
                 }
             });
