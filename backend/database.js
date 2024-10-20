@@ -3,17 +3,25 @@ const path = require('path');
 
 const usersDir = path.join(__dirname, "../database/users");
 const mapsDir = path.join(__dirname, "../database/maps");
+const mapMakerDir = path.join(__dirname, "../database/map-maker");
 const miscDir = path.join(__dirname, "../database/misc");
 const modIconsDir = path.join(__dirname, "../database/assets/mod-icons");
+// const analyticsPath = path.join(__dirname, '../datbase/misc/analytics.json');
 const LogsPath = path.join(miscDir, "Logs.json");
 const indexPath = path.join(__dirname, "../database/maps", "index.json");
 
 // Create directories if they don't exist
-[usersDir, mapsDir, miscDir, modIconsDir].forEach(dir => {
+[usersDir, mapsDir, miscDir, modIconsDir, mapMakerDir].forEach(dir => {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
 });
+
+/*
+if (!fs.existsSync(analyticsPath)) {
+    fs.writeFileSync(analyticsPath, JSON.stringify({ visits: 0, mapDownloads: 0, mapMakerDownloads: 0, accounts: 0 }, null, 2));
+}
+*/
 
 // Logs functions
 function readLogs() {
@@ -84,6 +92,7 @@ function updateIndex(metadata) {
 module.exports = {
     usersDir,
     mapsDir,
+    mapMakerDir,
     miscDir,
     modIconsDir,
     indexPath,

@@ -67,6 +67,7 @@ router.get('/download/:mapid', (req, res) => {
                 } else {
                     map.downloadCount = (map.downloadCount || 0) + 1;
                     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+                    updateAnalytics('mapDownload');
                     logLogs("map_download", { mapUUID: mapid });
                 }
             });
