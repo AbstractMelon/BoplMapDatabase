@@ -4,93 +4,48 @@
         
         <button @click="updateToLatest" class="btn-primary">Update to Latest</button>
 
-        <section class="section">
-            <h2>User List</h2>
-            <div class="card-container">
-                <div v-if="!users.length" class="empty-message">No users found.</div>
-                <div v-for="user in users" :key="user.username" class="card user-card">
-                    <div class="card-content">
-                        <h3>{{ user.username }}</h3>
-                        <div class="button-group">
-                            <button @click="openEditModal('user', user)" class="btn-secondary">Edit</button>
-                            <button @click="deleteUser(user.username)" class="btn-danger">Delete</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <UserList :users="users" @delete-user="deleteUser" @open-edit-modal="openEditModal" />
+        <MapList :maps="maps" @delete-map="deleteMap" @open-edit-modal="openEditModal" />
+        <UploadVersion />
+        <Logs :logs="paginatedLogs" :current-page="currentPage" :total-pages="totalPages" 
+              @next-page="nextPage" @previous-page="previousPage" />
+              <EditModal 
+                v-if="isEditModalOpen" 
+                :edit-type="editType" 
+                :selected-user="selectedUser" 
+                :selected-map="selectedMap" 
+                :raw-user-json.sync="rawUserJson" 
+                :raw-map-json.sync="rawMapJson" 
+                @close="closeEditModal" 
+                @save="saveChanges" 
+                @update-user-from-json="updateUserFromJson" 
+                @update-map-from-json="updateMapFromJson" 
+            />
 
-        <section class="section">
-            <h2>Map List</h2>
-            <div class="card-container">
-                <div v-if="!maps.length" class="empty-message">No maps found.</div>
-                <div v-for="map in maps" :key="map.MapUUID" class="card map-card">
-                    <div class="card-content">
-                        <h3>{{ map.MapName }}</h3>
-                        <p>{{ map.MapUUID }}</p>
-                        <div class="button-group">
-                            <button @click="openEditModal('map', map)" class="btn-secondary">Edit</button>
-                            <button @click="deleteMap(map.MapUUID)" class="btn-danger">Delete</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Edit Modal -->
-        <transition name="fade">
-            <div v-if="isEditModalOpen" class="edit-modal">
-                <h2>Edit {{ editType }}</h2>
-                <div v-if="editType === 'user'">
-                    <label>
-                        <input type="checkbox" v-model="selectedUser.isAdmin" />
-                        Admin
-                    </label>
-                    <textarea v-model="rawUserJson" rows="5" @blur="updateUserFromJson" class="modal-textarea"></textarea>
-                </div>
-                <div v-if="editType === 'map'">
-                    <label>
-                        <input type="checkbox" v-model="selectedMap.isMotw" />
-                        Map of the Week
-                    </label>
-                    <label>
-                        <input type="checkbox" v-model="selectedMap.isFeatured" />
-                        Featured
-                    </label>
-                    <label>
-                        <input type="checkbox" v-model="selectedMap.isHandpicked" />
-                        Handpicked
-                    </label>
-                    <textarea v-model="rawMapJson" rows="5" @blur="updateMapFromJson" class="modal-textarea"></textarea>
-                </div>
-                <div class="modal-buttons">
-                    <button @click="saveChanges" class="btn-primary">Save Changes</button>
-                    <button @click="closeEditModal" class="btn-secondary">Close</button>
-                </div>
-            </div>
-        </transition>
-
-        <section class="section">
-            <h2>Logs</h2>
-            <div class="log-viewer">
-                <div v-if="!logs.length" class="empty-message">No logs available.</div>
-                <div v-for="log in logs" :key="log.timestamp" class="log-entry">
-                    <strong>{{ log.action }}</strong> - <em>{{ log.timestamp }}</em>
-                    <pre>{{ JSON.stringify(log.data, null, 2) }}</pre>
-                </div>
-            </div>
-        </section>
     </div>
 </template>
 
-
 <script>
+import UserList from './UserList.vue';
+import MapList from './MapList.vue';
+import Logs from './Logs.vue';
+import EditModal from './EditModal.vue';
+import UploadVersion from './UploadVersion.vue';
+
 export default {
+    components: {
+        UserList,
+        MapList,
+        Logs,
+        EditModal,
+        UploadVersion,
+    },
     data() {
         return {
             users: [],
             maps: [],
             logs: [],
+            logsPerPage: 10,
             isEditModalOpen: false,
             editType: '',
             selectedUser: null,
@@ -98,6 +53,19 @@ export default {
             rawUserJson: '',
             rawMapJson: '',
         };
+    },
+    computed: {
+        paginatedLogs() {
+            const start = (this.currentPage - 1) * this.logsPerPage;
+            const end = start + this.logsPerPage;
+            return this.sortedLogs.slice(start, end);
+        },
+        sortedLogs() {
+            return this.logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        },
+        totalPages() {
+            return Math.ceil(this.logs.length / this.logsPerPage);
+        },
     },
     created() {
         this.fetchUsers();
@@ -221,6 +189,20 @@ export default {
                 }
             }
         },
+        formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleString(); 
+        },
+        nextPage() {
+            if (this.currentPage < this.totalPages) {
+                this.currentPage++;
+            }
+        },
+        previousPage() {
+            if (this.currentPage > 1) {
+                this.currentPage--;
+            }
+        },
     },
 };
 </script>
@@ -232,50 +214,6 @@ export default {
     font-family: Arial, sans-serif;
     margin-right: 50px;
     margin-left: 50px;
-}
-
-.section {
-    margin-bottom: 40px;
-}
-
-h1 {
-    text-align: center;
-    color: #ffffff;
-}
-
-h2 {
-    color: #ffffff;
-    border-bottom: 2px solid #007BFF;
-    padding-bottom: 5px;
-}
-
-.card-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    justify-content: center;
-}
-
-.card {
-    flex: 1 1 200px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: var(--bgcol3);
-    transition: box-shadow 0.3s;
-    max-width: fit-content;
-    max-height: fit-content;
-}
-
-.card:hover {
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.card-content {
-    padding: 15px;
-}
-
-.button-group {
-    margin-top: 10px;
 }
 
 button {
@@ -292,84 +230,14 @@ button {
 button:hover {
     background-color: #0056b3;
 }
-
-.btn-primary {
-    background-color: #007BFF;
-    color: white;
-}
-
-.btn-secondary {
-    background-color: #007BFF;
-    color: white;
-}
-
-.btn-danger {
-    background-color: #ff384c;
-    color: white;
-}
-
-.empty-message {
-    color: #777;
+h1 {
     text-align: center;
+    color: #ffffff;
 }
 
-.log-viewer {
-    background-color: var(--bgcol3);
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 5px;
-}
-
-.log-entry {
-    margin-bottom: 10px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: var(--bgcol3);
-}
-
-.log-entry pre {
-    margin: 5px 0 0 0;
-    font-size: 12px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-}
-
-.edit-modal {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: var(--bgcol2); 
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
-    z-index: 1000;
-    border-radius: 10px;
-    max-width: 400px;
-    width: 90%;
-}
-
-.modal-textarea {
-    width: 100%;
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    background-color: var(--bgcol2);
-    color: white;
-}
-
-.modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
-}
-
-/* Fade transition for modal */
-.fade-enter-active, .fade-leave-active {
-    transition: opacity 0.5s;
-}
-.fade-enter, .fade-leave-to {
-    opacity: 0;
+h2 {
+    color: #ffffff;
+    border-bottom: 2px solid #007BFF;
+    padding-bottom: 5px;
 }
 </style>

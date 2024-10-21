@@ -18,7 +18,7 @@ export default {
     async uploadMap() {
       const formData = new FormData();
       formData.append('map', this.$refs.fileInput.files[0]);
-      const response = await fetch('/api/upload', { method: 'POST', body: formData });
+      const response = await fetch('/api/maps/upload', { method: 'POST', body: formData });
       const data = await response.json();
       alert(data.message);
       this.$emit('upload-success');

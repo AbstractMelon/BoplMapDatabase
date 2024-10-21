@@ -28,7 +28,8 @@
           </div>
         </div>
       </div>
-  
+      
+
       <transition name="slide">
         <div class="main-map-list">
           <h2>Main List of {{ currentView === 'maps' ? 'Maps' : 'Bundles' }}</h2>
