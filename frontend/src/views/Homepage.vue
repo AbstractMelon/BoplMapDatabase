@@ -53,58 +53,67 @@
     },
     computed: {
         hasActiveSearch() {
-            return Object.values(this.searchParams).some(param => param) || this.sortBy !== 'mostRecent';
+            return Object.values(this.searchParams).some(param => param) || this.sortBy !== 'mostRecent' || this.currentView != 'maps'
         }
     },
     methods: {
-        async fetchMaps() {
-            const response = await fetch('/api/maps');
-            const maps = await response.json();
-            
-            // Add relevance scoring instead of filtering
-            this.filteredMaps = maps.map(map => {
-            let score = 0;
+      async fetchMaps() {
+        const response = await fetch('/api/maps');
+        this.maps = await response.json();
+        this.updateFilteredItems();
+      },
+      async fetchBundles() {
+        const response = await fetch('/api/bundles');
+        this.bundles = await response.json();
+        this.updateFilteredItems();
+      },
+      updateFilteredItems() {
+        const source = this.currentView === 'maps' ? this.maps : this.bundles;
+        this.filteredItems = source.map(item => {
+          let score = 0;
+  
+          // Scoring logic for maps and bundles
+          if (this.searchParams.name && item.MapName.toLowerCase().includes(this.searchParams.name.toLowerCase())) {
+            score += item.MapName.toLowerCase() === this.searchParams.name.toLowerCase() ? 2 : 1;
+          }
+          if (this.searchParams.developer && item.MapDeveloper.toLowerCase().includes(this.searchParams.developer.toLowerCase())) {
+            score += item.MapDeveloper.toLowerCase() === this.searchParams.developer.toLowerCase() ? 2 : 1;
+          }
+          if (this.searchParams.type && item.MapType.toLowerCase().includes(this.searchParams.type.toLowerCase())) {
+            score += item.MapType.toLowerCase() === this.searchParams.type.toLowerCase() ? 2 : 1;
+          }
+          if (this.searchParams.date && item.DateCreated.startsWith(this.searchParams.date)) {
+            score += 2;
+          }
+  
+          return { ...item, relevanceScore: score };
+        })
+        .sort((a, b) => b.relevanceScore - a.relevanceScore)
 
-            // Score by name
-            if (this.searchParams.name) {
-                if (map.MapName.toLowerCase().includes(this.searchParams.name.toLowerCase())) {
-                score += map.MapName.toLowerCase() === this.searchParams.name.toLowerCase() ? 2 : 1;
+        .sort((a, b) => {
+                switch (this.sortBy) {
+                    case 'mostRecent':
+                    return new Date(b.DateCreated) - new Date(a.DateCreated);
+                    case 'mostDownloaded':
+                    return b.downloadCount - a.downloadCount;
+                    case 'oldest':
+                    return new Date(a.DateCreated) - new Date(b.DateCreated);
+                    default:
+                    return 0;
                 }
-            }
-
-            // Score by developer
-            if (this.searchParams.developer) {
-                if (map.MapDeveloper.toLowerCase().includes(this.searchParams.developer.toLowerCase())) {
-                score += map.MapDeveloper.toLowerCase() === this.searchParams.developer.toLowerCase() ? 2 : 1;
-                }
-            }
-
-            // Score by type
-            if (this.searchParams.type) {
-                if (map.MapType.toLowerCase().includes(this.searchParams.type.toLowerCase())) {
-                score += map.MapType.toLowerCase() === this.searchParams.type.toLowerCase() ? 2 : 1;
-                }
-            }
-
-            // Score by date
-            if (this.searchParams.date && map.DateCreated.startsWith(this.searchParams.date)) {
-                score += 2;
-            }
-
-            return { ...map, relevanceScore: score };
-            })
-            // Sort maps by relevance score in descending order
-            .sort((a, b) => b.relevanceScore - a.relevanceScore);
-        },
-        
-        clearFilters() {
-            this.searchParams = { name: '', developer: '', type: '', date: '' };
-            this.fetchMaps();
-        },
-        
-        onSearch() {
-            this.fetchMaps();
-        },
+        });
+      },
+      clearFilters() {
+        this.searchParams = { name: '', developer: '', type: '', date: '' };
+        this.updateFilteredItems();
+      },
+      onSearch() {
+        this.updateFilteredItems();
+      },
+      toggleView(view) {
+        this.currentView = view;
+        this.updateFilteredItems();
+      },
       showUploadPopup() {
         console.log('Upload popup triggered');
         this.uploadPopupVisible = true;
@@ -118,7 +127,7 @@
       this.fetchBundles();
     }
   }
-  </script>  
+  </script> 
   
   <style scoped>
   .toggle-wrapper {
