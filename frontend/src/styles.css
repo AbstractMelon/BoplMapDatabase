@@ -6,6 +6,9 @@
     --bgcol4: #363636;
     --textcol: #ffffff;
     --textcol2: #ffffff;
+    --inactiveColor: #555555; 
+    --activeColor: #3975e5;   
+    --activeColorDark: #1a5bb8; 
 }
 
 body {
