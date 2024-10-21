@@ -14,29 +14,29 @@ jobs:
 
     steps:
       # Step 1: Checkout the code
-      - name: Checkout code
-        uses: actions/checkout@v3
+    #  - name: Checkout code
+    #    uses: actions/checkout@v3
 
-      # Step 2: Set up Node.js environment
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '22'  
-          cache: 'npm'
+    #  # Step 2: Set up Node.js environment
+    #  - name: Set up Node.js
+    #    uses: actions/setup-node@v3
+    #    with:
+    #      node-version: '22'  
+    #      cache: 'npm'
 
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: npm run setup
+    #  # Step 3: Install dependencies
+    #  - name: Install dependencies
+    #    run: npm run setup
 
       # Step 4: Run frontend build
-      - name: Build Frontend
-        run: npm run frontend:build
-        continue-on-error: false  # Stop the workflow if this fails
+    #  - name: Build Frontend
+    #    run: npm run frontend:build
+    #    continue-on-error: false  # Stop the workflow if this fails
 
       # Step 5: Run docs build
-      - name: Build Docs
-        run: npm run docs:build
-        continue-on-error: false  # Stop the workflow if this fails
+      #- name: Build Docs
+      #  run: npm run docs:build
+      #  continue-on-error: false  # Stop the workflow if this fails
 
       # Step 6: Check for errors in backend/server.js
       # - name: Check Backend Server

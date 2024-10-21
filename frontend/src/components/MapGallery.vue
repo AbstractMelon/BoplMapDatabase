@@ -28,25 +28,28 @@
           </div>
         </div>
       </div>
-  
+      
+
       <transition name="slide">
-        <div class="main-map-list">
-          <h2>Main List of Maps</h2>
-          <div class="map-grid">
-            <MapCard v-for="map in paginatedMaps" :key="map.MapUUID" :map="map" />
-          </div>
-  
-          <div class="pagination">
-                <button @click="prevPage" :disabled="currentPage === 1">
-                    &#8592;  <!-- Left arrow -->
-                </button>
-            <span>Page {{ currentPage }} of {{ totalPages }}</span>
-                <button @click="nextPage" :disabled="currentPage === totalPages">
-                    &#8594;  <!-- Right arrow -->
-                </button>
+            <div>
+                <div class="main-map-list">
+                <h2>Main List of Maps</h2>
+                <div class="map-grid">
+                    <MapCard v-for="map in paginatedMaps" :key="map.MapUUID" :map="map" />
+                </div>
+        
+                <div class="pagination">
+                        <button @click="prevPage" :disabled="currentPage === 1">
+                            &#8592;  <!-- Left arrow -->
+                        </button>
+                    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+                        <button @click="nextPage" :disabled="currentPage === totalPages">
+                            &#8594;  <!-- Right arrow -->
+                        </button>
+                    </div>
+                </div>
             </div>
-        </div>
-      </transition>
+        </transition>
     </div>
   </template>
   
@@ -65,29 +68,29 @@
       };
     },
     computed: {
-      motw() {
-        return this.maps.find(map => map.isMotw);
-      },
-      handpickedMaps() {
-        return this.maps.filter(map => map.isHandpicked);
-      },
-      featuredMaps() {
-        return this.maps.filter(map => map.isFeatured);
-      },
-      mainMaps() {
-        return this.maps;
-      },
-      mainMapsSearchable() {
-        return this.maps.filter(map => !map.isMotw && !map.isHandpicked && !map.isFeatured);
-      },
-      totalPages() {
-        const totalItems = this.mainMaps.length;
-        return Math.ceil(totalItems / (this.itemsPerRow * this.rowsPerPage));
-      },
-      paginatedMaps() {
-        const start = (this.currentPage - 1) * (this.itemsPerRow * this.rowsPerPage);
-        return this.mainMaps.slice(start, start + (this.itemsPerRow * this.rowsPerPage));
-      }
+        motw() {
+            return this.maps.find(map => map.isMotw);
+        },
+        handpickedMaps() {
+            return this.maps.filter(map => map.isHandpicked);
+        },
+        featuredMaps() {
+            return this.maps.filter(map => map.isFeatured);
+        },
+        mainMaps() {
+            return this.maps
+        },
+        mainMapsSearchable() {
+            return this.mainMaps.filter(map => !map.isMotw && !map.isHandpicked && !map.isFeatured);
+        },
+        totalPages() {
+            const totalItems = this.mainMaps.length;
+            return Math.ceil(totalItems / (this.itemsPerRow * this.rowsPerPage));
+        },
+        paginatedMaps() {
+            const start = (this.currentPage - 1) * (this.itemsPerRow * this.rowsPerPage);
+            return this.mainMaps.slice(start, start + (this.itemsPerRow * this.rowsPerPage));
+        }
     },
     methods: {
       nextPage() {
@@ -169,7 +172,7 @@
   }
   
   .main-map-list .map-card {
-    flex-grow: 1
+    flex-grow: 0.2
   }
 
   .map-grid {

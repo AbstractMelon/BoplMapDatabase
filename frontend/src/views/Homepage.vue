@@ -5,13 +5,22 @@
           <input v-model="searchParams.name" placeholder="Search by Name..." @input="onSearch" />
           <input v-model="searchParams.developer" placeholder="Search by Developer..." @input="onSearch" />
           <input v-model="searchParams.type" placeholder="Search by Type..." @input="onSearch" />
-          <input v-model="searchParams.date" type="date" @input="onSearch" />
+          <!-- <input v-model="searchParams.date" type="date" @input="onSearch" /> -->
+          
+          <label for="sort" class="sort-label">Sort by:</label>
+          <select v-model="sortBy" @change="onSearch" class="sort-dropdown">
+            <option value="mostRecent">Most Recent</option>
+            <option value="mostDownloaded">Most Downloaded</option>
+            <option value="oldest">Oldest</option>
+          </select>
+  
           <button @click="clearFilters">Clear Filters</button>
         </div>
       </div>
       <MapGallery :maps="filteredMaps" :showSections="hasActiveSearch" />
     </div>
   </template>
+  
   
   <script>
   import MapGallery from '../components/MapGallery.vue';
@@ -28,13 +37,14 @@
           type: '',
           date: ''
         },
+        sortBy: 'mostRecent',
         uploadPopupVisible: false,
       };
     },
     computed: {
-      hasActiveSearch() {
-        return Object.values(this.searchParams).some(param => param);
-      }
+        hasActiveSearch() {
+            return Object.values(this.searchParams).some(param => param) || this.sortBy !== 'mostRecent';
+        }
     },
     methods: {
         async fetchMaps() {
@@ -74,11 +84,26 @@
             return { ...map, relevanceScore: score };
             })
             // Sort maps by relevance score in descending order
-            .sort((a, b) => b.relevanceScore - a.relevanceScore);
+            .sort((a, b) => b.relevanceScore - a.relevanceScore)
+
+            
+            .sort((a, b) => {
+                switch (this.sortBy) {
+                    case 'mostRecent':
+                    return new Date(b.DateCreated) - new Date(a.DateCreated);
+                    case 'mostDownloaded':
+                    return b.downloadCount - a.downloadCount;
+                    case 'oldest':
+                    return new Date(a.DateCreated) - new Date(b.DateCreated);
+                    default:
+                    return 0;
+                }
+            });
         },
         
         clearFilters() {
             this.searchParams = { name: '', developer: '', type: '', date: '' };
+            his.sortBy = 'mostRecent'
             this.fetchMaps();
         },
         
@@ -100,15 +125,67 @@
   </script>
   
   <style scoped>
-  .search-container {
-    background-color: var(--bgcol3);
-    padding: 5px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    max-width: 97%;
-    margin: auto;
-    margin-top: 20px;
-    align-content: top;
+.search-container {
+  background-color: var(--bgcol3);
+  padding: 5px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 97%;
+  margin: auto;
+  margin-top: 20px;
+  align-content: top;
+}
+
+.search-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 10px;
+}
+
+.search-bar input,
+.search-bar button,
+.search-bar select {
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid var(--textcol);
+  border-radius: 5px;
+  background-color: var(--bgcol2);
+  color: var(--textcol);
+  width: 100%;
+  max-width: 300px;
+}
+
+.search-bar input::placeholder,
+.search-bar button {
+  color: #999;
+}
+
+.sort-label {
+  margin-bottom: 5px; /* Adjusts space above the dropdown */
+}
+
+.sort-dropdown {
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid var(--textcol);
+  border-radius: 5px;
+  background-color: var(--bgcol2);
+  color: var(--textcol);
+  width: 100%;
+  max-width: 300px;
+}
+
+@media (min-width: 768px) {
+  .search-bar {
+    flex-direction: row;
   }
-  </style>
-  
+
+  .search-bar input,
+  .search-bar button,
+  .search-bar select {
+    max-width: initial;
+  }
+}
+</style>
