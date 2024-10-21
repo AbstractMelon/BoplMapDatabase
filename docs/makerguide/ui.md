@@ -39,8 +39,8 @@ Currently the only existing component is [_"Resizable"_](#resizable).
 
 The resizable component is automatically applied to every platform in game, it contains these attributes:
 
--   rotation (a float)
--   scale (a float)
+- rotation (a float)
+- scale (a float)
 
 The resizable component handles rotating and scaling of items, thats why it isnt applied to spawn points for example.
 
@@ -80,9 +80,9 @@ Opens the lua editor (a simple text editor), if you want a more sophisticated ID
 
 Opens the settings dialogue, the settings currently support configuration of:
 
--   Theme: currently the only themes that exist are _'Light'_ (default), _'Dark'_, and _'Bopl'_.
--   Scale + Rotate: modify the key needed to swtich to the corresponding mode
--   Default Dev: allows the user to pick a name that will automatically be used for the _Developer_ field in [save dialogue](/makerguide/finish.md#save-dialogue)
+- Theme: currently the only themes that exist are _'Light'_ (default), _'Dark'_, and _'Bopl'_.
+- Scale + Rotate: modify the key needed to swtich to the corresponding mode
+- Default Dev: allows the user to pick a name that will automatically be used for the _Developer_ field in [save dialogue](/makerguide/finish.md#save-dialogue)
 
 ### Buy Us a Coffee
 

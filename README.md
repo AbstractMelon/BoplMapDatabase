@@ -12,15 +12,15 @@ Bopl Map Database is a user friendly, map hosting server for the bopl battle map
 
 ## Features
 
--   **User-friendly Interface**: Simple design for easy navigation.
+- **User-friendly Interface**: Simple design for easy navigation.
 
 ## Table of Contents
 
--   [Setup](#setup)
--   [Usage](#usage)
--   [Contributing](#contributing)
--   [License](#license)
--   [Contact](#contact)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+- [Contact](#contact)
 
 ## Setup
 
