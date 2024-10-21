@@ -1,28 +1,23 @@
 <template>
     <div v-if="show" class="popup">
       <div class="popup-content">
-        <span class="close" @click="close">&times;</span>
+        <span class="close" @click="close" aria-label="Close Popup">&times;</span>
   
-        <!-- Toggle Switch -->
         <div class="upload-type-toggle">
-          <label>
-            <input type="radio" value="map" v-model="uploadType" aria-label="Upload a New Map" />
-            Upload a New Map
+          <label class="switch">
+            <input type="checkbox" v-model="isMapUpload" />
+            <span class="slider"></span>
           </label>
-          <label>
-            <input type="radio" value="bundle" v-model="uploadType" aria-label="Upload a New Bundle" />
-            Upload a New Bundle
-          </label>
+          <span class="toggle-label">{{ isMapUpload ? 'Upload a New Map' : 'Create a Bundle' }}</span>
         </div>
   
-        <h2 v-if="uploadType === 'map'">Upload a New Map</h2>
-        <h2 v-else>Upload a New Bundle</h2>
+        <h2>{{ isMapUpload ? 'Upload a New Map' : 'Create a Bundle' }}</h2>
   
         <!-- Map Upload Form -->
-        <form v-if="uploadType === 'map'" @submit.prevent="uploadMap">
-          <label>
+        <form v-if="isMapUpload" @submit.prevent="uploadMap">
+          <label class="file-label">
             <input type="file" ref="fileInput" accept=".zip,.rar" required aria-label="Select Map File" />
-            <span class="file-label">Choose a file</span>
+            Choose a file
           </label>
           <button type="submit">Upload Map</button>
         </form>
@@ -33,13 +28,22 @@
             <label for="bundleName">Bundle Name:</label>
             <input type="text" v-model="bundleName" placeholder="Enter Bundle Name" required />
   
+            <label for="mapSearch">Search Maps:</label>
+            <input type="text" v-model="mapSearch" placeholder="Search..." @input="filterMaps" />
+  
             <fieldset>
               <legend>Select Maps for Bundle:</legend>
-              <div v-for="map in availableMaps" :key="map.MapUUID" class="map-checkbox">
+              <div v-for="map in paginatedMaps" :key="map.MapUUID" class="map-checkbox">
                 <input type="checkbox" :value="map.MapUUID" v-model="selectedMaps" aria-label="Select Map" />
                 <span>{{ map.MapName }}</span>
               </div>
             </fieldset>
+  
+            <div class="pagination">
+              <button type="button" @click="prevPage" :disabled="currentPage === 1">Previous</button>
+              <span>Page {{ currentPage }} of {{ totalPages }}</span>
+              <button type="button" @click="nextPage" :disabled="currentPage === totalPages">Next</button>
+            </div>
           </div>
           <button type="submit">Create Bundle</button>
         </form>
@@ -54,30 +58,59 @@
     props: ['show', 'close'],
     data() {
       return {
-        uploadType: 'map',
+        isMapUpload: true,
         bundleName: '',
         availableMaps: [],
+        filteredMaps: [],
         selectedMaps: [],
         isLoading: false,
+        mapSearch: '',
+        currentPage: 1,
+        itemsPerPage: 10,
       };
+    },
+    computed: {
+      totalPages() {
+        return Math.ceil(this.filteredMaps.length / this.itemsPerPage);
+      },
+      paginatedMaps() {
+        const start = (this.currentPage - 1) * this.itemsPerPage;
+        const end = start + this.itemsPerPage;
+        return this.filteredMaps.slice(start, end);
+      },
     },
     mounted() {
       this.fetchMaps();
     },
     methods: {
       async fetchMaps() {
-        const response = await fetch('/api/maps');
-        this.availableMaps = await response.json();
+        try {
+          const response = await fetch('/api/maps');
+          this.availableMaps = await response.json();
+          this.filteredMaps = this.availableMaps; // Initialize with all maps
+        } catch (error) {
+          console.error("Error fetching maps:", error);
+        }
+      },
+      filterMaps() {
+        const search = this.mapSearch.toLowerCase();
+        this.filteredMaps = this.availableMaps.filter(map => map.MapName.toLowerCase().includes(search));
+        this.currentPage = 1; // Reset to the first page on search
       },
       async uploadMap() {
         this.isLoading = true;
         const formData = new FormData();
         formData.append('map', this.$refs.fileInput.files[0]);
   
-        const response = await fetch('/api/maps/upload', { method: 'POST', body: formData });
-        const data = await response.json();
-        alert(data.message);
-        this.resetForm();
+        try {
+          const response = await fetch('/api/maps/upload', { method: 'POST', body: formData });
+          const data = await response.json();
+          alert(data.message);
+        } catch (error) {
+          console.error("Error uploading map:", error);
+        } finally {
+          this.resetForm();
+        }
       },
       async uploadBundle() {
         if (this.selectedMaps.length === 0) {
@@ -91,22 +124,39 @@
           mapUUIDs: this.selectedMaps,
         };
   
-        const response = await fetch('/api/bundles/create', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(bundleData),
-        });
-  
-        const data = await response.json();
-        alert(data.message);
-        this.resetForm();
+        try {
+          const response = await fetch('/api/bundles/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(bundleData),
+          });
+          const data = await response.json();
+          alert(data.message);
+        } catch (error) {
+          console.error("Error creating bundle:", error);
+        } finally {
+          this.resetForm();
+        }
       },
       resetForm() {
         this.isLoading = false;
-        this.uploadType = 'map';
+        this.isMapUpload = true;
         this.bundleName = '';
         this.selectedMaps = [];
+        this.mapSearch = '';
+        this.filteredMaps = this.availableMaps;
+        this.currentPage = 1; // Reset to the first page
         this.close();
+      },
+      nextPage() {
+        if (this.currentPage < this.totalPages) {
+          this.currentPage++;
+        }
+      },
+      prevPage() {
+        if (this.currentPage > 1) {
+          this.currentPage--;
+        }
       },
     },
   };
@@ -128,10 +178,10 @@
   
   .popup-content {
     background-color: var(--bgcol2);
-    padding: 20px;
+    padding: 30px;
     border-radius: 10px;
     width: 90%;
-    max-width: 400px;
+    max-width: 500px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     animation: fadeIn 0.3s;
   }
@@ -140,18 +190,19 @@
     margin-top: 0;
   }
   
-  .popup-content input[type="file"],
-.popup-content input[type="text"] {
-    width: 80%;
+  .file-label,
+  input[type="text"],
+  input[type="file"] {
+    width: 100%;
     padding: 10px;
     margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 4px;
     background-color: var(--bgcol3);
     color: var(--textcol);
-}
+  }
   
-  .popup-content button {
+  button {
     padding: 10px 20px;
     background-color: var(--accent);
     color: var(--textcol);
@@ -162,18 +213,18 @@
     transition: background-color 0.3s;
   }
   
-  .popup-content button:hover {
+  button:hover {
     background-color: #2f5dbb;
   }
   
-  .popup-content .close {
+  .close {
     color: #aaa;
     float: right;
     font-size: 28px;
     font-weight: bold;
   }
   
-  .popup-content .close:hover {
+  .close:hover {
     color: white;
   }
   
@@ -183,7 +234,68 @@
     color: var(--accent);
   }
   
-  /* Add fade-in animation */
+  /* Toggle Switch Styles */
+  .upload-type-toggle {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .toggle-label {
+    margin-left: 10px;
+  }
+  
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+  
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+  }
+  
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+  }
+  
+  input:checked + .slider {
+    background-color: #2196F3;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(26px);
+  }
+  
+  /* Pagination Styles */
+  .pagination {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+  }
+  
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }

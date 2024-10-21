@@ -89,6 +89,7 @@ module.exports = {
     mapsDir,
     mapMakerDir,
     miscDir,
+    bundlesDir,
     modIconsDir,
     indexPath,
     readLogs,

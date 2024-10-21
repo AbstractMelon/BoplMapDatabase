@@ -4,7 +4,6 @@ const path = require('path');
 const archiver = require('archiver');
 const router = express.Router();
 const { mapsDir, indexPath, logLogs, bundlesDir } = require('../database');
-
 // Endpoint to create a bundle
 router.post('/create', (req, res) => {
     const { mapUUIDs, bundleName } = req.body;
@@ -30,7 +29,6 @@ router.post('/create', (req, res) => {
         return res.status(500).json({ message: "Failed to read index file." });
     }
     
-    
     const mapsToBundle = indexData.filter((map) => mapUUIDs.includes(map.MapUUID));
 
     if (mapsToBundle.length !== mapUUIDs.length) {
@@ -39,6 +37,19 @@ router.post('/create', (req, res) => {
 
     const bundleDir = path.join(bundlesDir, `${bundleName}.zip`);
     console.log("Bundle Directory Path:", bundleDir);
+    
+    try {
+        if (!fs.existsSync(bundlesDir)) {
+            throw new Error(`Directory does not exist: ${bundlesDir}`);
+        }
+    
+        if (fs.existsSync(bundleDir)) {
+            console.warn(`Warning: The bundle already exists at ${bundleDir}.`);
+        }
+    } catch (error) {
+        console.error("An error occurred:", error.message);
+        return res.status(500).json({ message: "Error checking bundle directory." });
+    }
     
     const output = fs.createWriteStream(bundleDir);
     const archive = archiver('zip', {
@@ -56,7 +67,7 @@ router.post('/create', (req, res) => {
 
     archive.pipe(output);
 
-    mapsToBundle.forEach((map) => {
+    mapsToBundle.forEach((map) => { 
         const mapFilePath = path.join(mapsDir, `${map.MapUUID}.zip`);
         if (fs.existsSync(mapFilePath)) {
             archive.file(mapFilePath, { name: `${map.MapName}.zip` });

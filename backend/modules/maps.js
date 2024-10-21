@@ -8,7 +8,7 @@ const archiver = require('archiver');
 const { v4: uuidv4 } = require('uuid');
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
 const { updateIndex, mapsDir, modIconsDir, indexPath, logLogs, writeUser } = require('../database');
-const trackEvent  = require('./analytics');
+const { trackEvent }  = require('./analytics');
 
 const upload = multer({ dest: 'uploads/' });
 

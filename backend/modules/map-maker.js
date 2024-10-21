@@ -5,7 +5,7 @@ const multer = require('multer');
 
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
 const { mapMakerDir } = require('../database');
-const trackEvent  = require('./analytics');
+const { trackEvent }  = require('./analytics');
 
 const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
