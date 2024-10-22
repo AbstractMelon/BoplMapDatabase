@@ -75,13 +75,21 @@ export default {
     },
     computed: {
         motw() {
-            return this.items.find(item => item.isMotw);
+            const motwItem = this.items.find(item => item.isMotw);
+            if (!motwItem) {
+                console.warn('Map of the Week not found');
+            }
+            return motwItem;
         },
         handpickedMaps() {
-            return this.items.filter(item => item.isHandpicked);
+            const handpicked = this.filterMaps(item => item.isHandpicked);
+            console.log('Handpicked Maps:', handpicked);
+            return handpicked;
         },
         featuredMaps() {
-            return this.items.filter(item => item.isFeatured);
+            const featured = this.filterMaps(item => item.isFeatured);
+            console.log('Featured Maps:', featured);
+            return featured;
         },
         totalPages() {
             const totalItems = this.mainItems.length;
@@ -90,9 +98,13 @@ export default {
             );
         },
         mainItems() {
-            return this.currentView === 'maps'
-                ? this.items.filter(map => !map.isBundle)
-                : this.items.filter(bundle => bundle.isBundle);
+            const tempitems = this.items;
+            JSON.stringify(tempitems);
+            tempitems.forEach(item => {
+                console.log(item);
+            });
+            console.log('Items in Items: ' + tempitems.length);
+            return this.items;
         },
         paginatedItems() {
             const start =
@@ -107,11 +119,25 @@ export default {
         nextPage() {
             if (this.currentPage < this.totalPages) {
                 this.currentPage++;
+                console.log(`Navigated to page ${this.currentPage}`);
+            } else {
+                console.warn('Already on the last page');
             }
         },
         prevPage() {
             if (this.currentPage > 1) {
                 this.currentPage--;
+                console.log(`Navigated to page ${this.currentPage}`);
+            } else {
+                console.warn('Already on the first page');
+            }
+        },
+        filterMaps(predicate) {
+            try {
+                return this.items.filter(predicate);
+            } catch (error) {
+                console.error('Error filtering maps:', error);
+                return [];
             }
         },
     },
@@ -184,7 +210,7 @@ export default {
 }
 
 .main-map-list .map-card {
-    flex-grow: 1;
+    flex-grow: 0.2;
 }
 
 .map-grid {

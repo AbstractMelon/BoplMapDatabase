@@ -137,3 +137,5 @@ database
 # Vitepress
 docs/.vitepress/cache
 docs/.vitepress/dist
+
+/safe/

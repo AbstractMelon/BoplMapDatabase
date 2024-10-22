@@ -56,6 +56,8 @@
             :showSections="hasActiveSearch"
             :currentView="currentView"
         />
+
+        <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
     </div>
 </template>
 
@@ -67,17 +69,13 @@ export default {
     data() {
         return {
             maps: [],
-            bundles: [], // New data property for bundles
+            bundles: [],
             filteredItems: [],
-            currentView: 'maps', // Default view
-            searchParams: {
-                name: '',
-                developer: '',
-                type: '',
-                date: '',
-            },
+            currentView: 'maps',
+            searchParams: { name: '', developer: '', type: '', date: '' },
             sortBy: 'mostRecent',
             uploadPopupVisible: false,
+            errorMessage: null,
         };
     },
     computed: {
@@ -85,95 +83,95 @@ export default {
             return (
                 Object.values(this.searchParams).some(param => param) ||
                 this.sortBy !== 'mostRecent' ||
-                this.currentView != 'maps'
+                this.currentView !== 'maps'
             );
         },
     },
     methods: {
+        async fetchData(endpoint, key) {
+            try {
+                const response = await fetch(endpoint);
+                if (!response.ok)
+                    throw new Error(
+                        `Error fetching ${key}: ${response.statusText}`,
+                    );
+
+                const data = await response.json();
+                console.log(
+                    `${key.charAt(0).toUpperCase() + key.slice(1)} data:`,
+                    data,
+                );
+                this[key] = data;
+                this.updateFilteredItems();
+                console.log(
+                    `${
+                        key.charAt(0).toUpperCase() + key.slice(1)
+                    } fetched successfully`,
+                    this[key],
+                );
+            } catch (error) {
+                this.errorMessage = error.message;
+                console.error(`Fetch ${key} error:`, error);
+            }
+        },
+
         async fetchMaps() {
-            const response = await fetch('/api/maps');
-            this.maps = await response.json();
-            this.updateFilteredItems();
+            await this.fetchData('/api/maps', 'maps');
         },
         async fetchBundles() {
-            const response = await fetch('/api/bundles');
-            this.bundles = await response.json();
-            this.updateFilteredItems();
+            await this.fetchData('/api/bundles', 'bundles');
         },
         updateFilteredItems() {
             const source =
                 this.currentView === 'maps' ? this.maps : this.bundles;
-            this.filteredItems = source
-                .map(item => {
-                    let score = 0;
 
-                    // Scoring logic for maps and bundles
-                    if (
-                        this.searchParams.name &&
-                        item.MapName.toLowerCase().includes(
-                            this.searchParams.name.toLowerCase(),
-                        )
-                    ) {
-                        score +=
-                            item.MapName.toLowerCase() ===
-                            this.searchParams.name.toLowerCase()
-                                ? 2
-                                : 1;
-                    }
-                    if (
-                        this.searchParams.developer &&
-                        item.MapDeveloper.toLowerCase().includes(
-                            this.searchParams.developer.toLowerCase(),
-                        )
-                    ) {
-                        score +=
-                            item.MapDeveloper.toLowerCase() ===
-                            this.searchParams.developer.toLowerCase()
-                                ? 2
-                                : 1;
-                    }
-                    if (
-                        this.searchParams.type &&
-                        item.MapType.toLowerCase().includes(
-                            this.searchParams.type.toLowerCase(),
-                        )
-                    ) {
-                        score +=
-                            item.MapType.toLowerCase() ===
-                            this.searchParams.type.toLowerCase()
-                                ? 2
-                                : 1;
-                    }
-                    if (
-                        this.searchParams.date &&
-                        item.DateCreated.startsWith(this.searchParams.date)
-                    ) {
-                        score += 2;
-                    }
+            console.log('Current View:', this.currentView);
+            console.log('Source items before filtering:', source);
 
-                    return { ...item, relevanceScore: score };
-                })
-                .sort((a, b) => b.relevanceScore - a.relevanceScore)
+            if (this.currentView === 'maps') {
+                this.filteredItems = source
+                    .map(item => ({
+                        ...item,
+                        relevanceScore: [
+                            'name',
+                            'developer',
+                            'type',
+                            'date',
+                        ].reduce((score, key) => {
+                            if (this.searchParams[key]) {
+                                const value =
+                                    item[
+                                        `Map${
+                                            key.charAt(0).toUpperCase() +
+                                            key.slice(1)
+                                        }`
+                                    ].toLowerCase();
+                                const param =
+                                    this.searchParams[key].toLowerCase();
+                                if (value.includes(param))
+                                    score += value === param ? 2 : 1;
+                            }
+                            return score;
+                        }, 0),
+                    }))
+                    .sort(
+                        (a, b) =>
+                            b.relevanceScore - a.relevanceScore ||
+                            new Date(b.DateCreated) -
+                                new Date(a.DateCreated) *
+                                    (this.sortBy === 'mostRecent'
+                                        ? 1
+                                        : this.sortBy === 'mostDownloaded'
+                                        ? -1
+                                        : -1),
+                    );
+            } else {
+                this.filteredItems = this.bundles;
+            }
 
-                .sort((a, b) => {
-                    switch (this.sortBy) {
-                        case 'mostRecent':
-                            return (
-                                new Date(b.DateCreated) -
-                                new Date(a.DateCreated)
-                            );
-                        case 'mostDownloaded':
-                            return b.downloadCount - a.downloadCount;
-                        case 'oldest':
-                            return (
-                                new Date(a.DateCreated) -
-                                new Date(b.DateCreated)
-                            );
-                        default:
-                            return 0;
-                    }
-                });
+            console.log('Filtered items:', this.filteredItems);
         },
+
         clearFilters() {
             this.searchParams = { name: '', developer: '', type: '', date: '' };
             this.updateFilteredItems();
@@ -312,5 +310,10 @@ export default {
     .search-bar select {
         max-width: initial;
     }
+}
+.error-message {
+    color: red;
+    text-align: center;
+    margin-top: 10px;
 }
 </style>
