@@ -1,12 +1,13 @@
 :root {
-    --accent: #3975e5;
+    --accent: #2B6BE3;
     --bgcol: #292929;
     --bgcol2: #272727;
     --bgcol3: #0000003a;
     --bgcol4: #363636;
-    --textcol: #ffffff;
-    --textcol2: #ffffff;
+    --textcol: #E0E0E0;
+    --textcol2: #E0E0E0;
     --container: #00235c01;
+    --cyan: #00ddff;
 }
 
 body {
@@ -82,7 +83,7 @@ a:hover {
     text-align: center;
 }
 
-.popup-content h2 {
+.popup-content h2, .extra-content > * h2 {
     margin-top: 0;
 }
 
@@ -109,7 +110,7 @@ a:hover {
 }
 
 .popup-content button:hover {
-    background-color: #2f5dbb;
+    background-color: #2a57b1;
 }
 
 .popup-content .close {

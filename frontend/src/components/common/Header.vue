@@ -2,6 +2,7 @@
     <header>
       <div class="header-title"><a href="/">Bopl Map Database</a></div>
       <div class="header-buttons">
+        <a href="/map-creator"><button>Get the creator</button></a>
         <button @click="$emit('toggle-upload-popup')">Upload Map</button>
         <button @click="handleAuthButton">{{ isLoggedIn ? username : 'Signup/Login' }}</button>
       </div>
@@ -54,7 +55,7 @@
   
   <style scoped>
   header {
-    background-color: #3975e5;
+    background-color: var(--accent);
     padding: 15px;
     display: flex;
     justify-content: space-between;
@@ -75,7 +76,7 @@
   button {
     padding: 10px 20px;
     background-color: #ffffff;
-    color: #3975e5;
+    color: var(--accent);
     border: none;
     border-radius: 5px;
     cursor: pointer;
