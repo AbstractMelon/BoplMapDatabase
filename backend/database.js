@@ -2,14 +2,22 @@ const fs = require('fs');
 const path = require('path');
 
 const usersDir = path.join(__dirname, '../database/users');
-const mapsDir = path.join(__dirname, '../database/maps');
 const mapMakerDir = path.join(__dirname, '../database/map-maker');
 const miscDir = path.join(__dirname, '../database/misc');
+
+// Icons
 const modIconsDir = path.join(__dirname, '../database/assets/mod-icons');
-const bundlesDir = path.join(__dirname, '../database/bundles');
-// const analyticsPath = path.join(__dirname, '../datbase/misc/analytics.json');
-const LogsPath = path.join(miscDir, 'Logs.json');
+const bundleIconsDir = path.join(__dirname, '../database/assets/bundle-icons');
+
+// Maps
 const indexPath = path.join(__dirname, '../database/maps', 'index.json');
+const mapsDir = path.join(__dirname, '../database/maps');
+
+// Bundles
+const bundlesDir = path.join(__dirname, '../database/bundles');
+const bundleIndexPath = path.join(bundlesDir, 'bundleindex.json');
+
+const LogsPath = path.join(miscDir, 'Logs.json');
 
 // Create directories if they don't exist
 [usersDir, mapsDir, miscDir, modIconsDir, mapMakerDir, bundlesDir].forEach(

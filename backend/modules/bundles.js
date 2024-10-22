@@ -4,9 +4,11 @@ const path = require('path');
 const archiver = require('archiver');
 const router = express.Router();
 const { mapsDir, indexPath, logLogs, bundlesDir } = require('../database');
+const { v4: uuidv4 } = require('uuid');
+
 // Endpoint to create a bundle
 router.post('/create', (req, res) => {
-  const { mapUUIDs, bundleName } = req.body;
+  const { mapUUIDs, bundleName, description } = req.body;
 
   if (!mapUUIDs || mapUUIDs.length === 0 || !bundleName) {
     return res.status(400).json({ message: 'Invalid input data' });
@@ -59,6 +61,22 @@ router.post('/create', (req, res) => {
   });
 
   output.on('close', () => {
+    const bundleMetadata = {
+      BundleUUID: uuidv4(),
+      BundleName: bundleName,
+      Description: description || '',
+      Developer: req.user.username, // Assuming you have user info
+      CreationDate: new Date().toISOString(),
+      LikeCount: 0,
+      DownloadCount: 0,
+      MapList: mapUUIDs,
+      Icon: '', // This could be set later if needed
+    };
+
+    // Append bundle metadata to the index
+    indexData.push(bundleMetadata);
+    fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+
     logLogs('bundle_created', { bundleName, mapUUIDs });
     res.json({ message: 'Bundle created successfully', bundleName });
   });
@@ -88,6 +106,22 @@ router.get('/download/:bundleName', (req, res) => {
   const bundleFilePath = path.join(bundlesDir, `${bundleName}.zip`);
 
   if (fs.existsSync(bundleFilePath)) {
+    // Update download count
+    let indexData;
+    try {
+      const rawData = fs.readFileSync(indexPath);
+      indexData = JSON.parse(rawData);
+      const bundleIndex = indexData.findIndex(
+        bundle => bundle.BundleName === bundleName,
+      );
+      if (bundleIndex > -1) {
+        indexData[bundleIndex].DownloadCount += 1;
+        fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+      }
+    } catch (error) {
+      console.error('Error updating download count:', error);
+    }
+
     res.download(bundleFilePath, `${bundleName}.zip`, err => {
       if (err) {
         res.status(500).json({ message: 'Download failed' });
