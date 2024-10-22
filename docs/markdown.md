@@ -28,18 +28,18 @@ Combine them for **_bold italic_** or **_bold italic_**.
 
 ### Unordered List
 
-- Item 1
-- Item 2
-  - Subitem 2.1
-  - Subitem 2.2
-- Item 3
+-   Item 1
+-   Item 2
+    -   Subitem 2.1
+    -   Subitem 2.2
+-   Item 3
 
 ### Ordered List
 
 1. First item
 2. Second item
-   1. Subitem 2.1
-   2. Subitem 2.2
+    1. Subitem 2.1
+    2. Subitem 2.2
 3. Third item
 
 ## Blockquotes
@@ -82,9 +82,9 @@ print("Hello, VitePress!")
 
 ## Task Lists
 
-- [x] Task 1 (completed)
-- [ ] Task 2 (not completed)
-- [ ] Task 3 (not completed)
+-   [x] Task 1 (completed)
+-   [ ] Task 2 (not completed)
+-   [ ] Task 3 (not completed)
 
 ## Custom Containers
 

@@ -1,16 +1,16 @@
 <template>
-  <div id="app">
-    <div class="multi-use-container">
-      <Header @toggle-upload-popup="showUploadPopup" />
-      <router-view />
-      <Footer />
-      <UploadPopup
-        :show="uploadPopupVisible"
-        :close="closeUploadPopup"
-        @upload-success="fetchMaps"
-      />
+    <div id="app">
+        <div class="multi-use-container">
+            <Header @toggle-upload-popup="showUploadPopup" />
+            <router-view />
+            <Footer />
+            <UploadPopup
+                :show="uploadPopupVisible"
+                :close="closeUploadPopup"
+                @upload-success="fetchMaps"
+            />
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -19,21 +19,21 @@ import UploadPopup from './components/UploadPopup.vue';
 import Footer from './components/common/Footer.vue';
 
 export default {
-  components: { Header, UploadPopup, Footer },
-  data() {
-    return {
-      uploadPopupVisible: false,
-    };
-  },
-  methods: {
-    showUploadPopup() {
-      console.log('Upload popup triggered');
-      this.uploadPopupVisible = true;
+    components: { Header, UploadPopup, Footer },
+    data() {
+        return {
+            uploadPopupVisible: false,
+        };
     },
-    closeUploadPopup() {
-      this.uploadPopupVisible = false;
+    methods: {
+        showUploadPopup() {
+            console.log('Upload popup triggered');
+            this.uploadPopupVisible = true;
+        },
+        closeUploadPopup() {
+            this.uploadPopupVisible = false;
+        },
     },
-  },
 };
 </script>
 

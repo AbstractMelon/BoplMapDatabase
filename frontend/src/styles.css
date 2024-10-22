@@ -1,62 +1,62 @@
 :root {
-  --accent: #3975e5;
-  --bgcol: #292929;
-  --bgcol2: #272727;
-  --bgcol3: #0000003a;
-  --bgcol4: #363636;
-  --textcol: #ffffff;
-  --textcol2: #ffffff;
-  --inactiveColor: #555555;
-  --activeColor: #3975e5;
-  --activeColorDark: #1a5bb8;
+    --accent: #3975e5;
+    --bgcol: #292929;
+    --bgcol2: #272727;
+    --bgcol3: #0000003a;
+    --bgcol4: #363636;
+    --textcol: #ffffff;
+    --textcol2: #ffffff;
+    --inactiveColor: #555555;
+    --activeColor: #3975e5;
+    --activeColorDark: #1a5bb8;
 }
 
 body {
-  font-family: Arial, sans-serif;
-  background-color: var(--bgcol);
-  color: var(--textcol);
-  margin: 0;
-  padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: var(--bgcol);
+    color: var(--textcol);
+    margin: 0;
+    padding: 0;
 }
 
 header {
-  background-color: var(--accent);
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
+    background-color: var(--accent);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 .header-title {
-  font-size: 24px;
-  font-weight: bold;
+    font-size: 24px;
+    font-weight: bold;
 }
 
 #upload-button {
-  padding: 10px 20px;
-  background-color: var(--accent);
-  color: var(--textcol);
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
+    padding: 10px 20px;
+    background-color: var(--accent);
+    color: var(--textcol);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
 }
 
 #upload-button:hover {
-  background-color: #2f5dbb;
+    background-color: #2f5dbb;
 }
 
 a {
-  color: #eee;
-  text-decoration: none;
+    color: #eee;
+    text-decoration: none;
 }
 
 a:hover {
-  color: #ffffff;
+    color: #ffffff;
 }
 .multi-use-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }

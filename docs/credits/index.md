@@ -1,8 +1,8 @@
 # Credits
 
-- **Map Loader** developed by **DavidLovesJellycarWorlds**.
-- **Map Maker** developed by mostly \***\*ThEpRo\*\*** with help from **Abstractmelon**.
-- **Map Maker Site** developed by **Abstractmelon** with help from \***\*ThEpRo\*\***.
+-   **Map Loader** developed by **DavidLovesJellycarWorlds**.
+-   **Map Maker** developed by mostly \***\*ThEpRo\*\*** with help from **Abstractmelon**.
+-   **Map Maker Site** developed by **Abstractmelon** with help from \***\*ThEpRo\*\***.
 
 > "i also want to credit you guys rn:
 > david, for being the father of this amazing incredible project, taking on it with such courage is really inspiring and in the end we got it to work!

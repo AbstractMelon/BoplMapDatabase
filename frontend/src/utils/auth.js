@@ -5,8 +5,8 @@ import userUtils from './user';
  * @returns {Promise<boolean>} - True if the user is logged in, false otherwise.
  */
 async function isLoggedIn() {
-  const userData = await userUtils.fetchUserData();
-  return userData && userData.user && userData.user.token ? true : false;
+    const userData = await userUtils.fetchUserData();
+    return userData && userData.user && userData.user.token ? true : false;
 }
 
 /**
@@ -14,11 +14,11 @@ async function isLoggedIn() {
  * @returns {Promise<boolean>} - True if the user is an admin, false otherwise.
  */
 async function isAdmin() {
-  const userData = await userUtils.fetchUserData();
-  return userData && userData.user && userData.user.isAdmin ? true : false;
+    const userData = await userUtils.fetchUserData();
+    return userData && userData.user && userData.user.isAdmin ? true : false;
 }
 
 export default {
-  isLoggedIn,
-  isAdmin,
+    isLoggedIn,
+    isAdmin,
 };

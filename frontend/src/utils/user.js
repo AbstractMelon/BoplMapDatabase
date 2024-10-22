@@ -5,13 +5,13 @@ import axios from 'axios';
  * @returns {Promise<Object>} - The user data.
  */
 async function fetchUserData() {
-  try {
-    const response = await axios.get('/api/user/');
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching user data:', error);
-    return null;
-  }
+    try {
+        const response = await axios.get('/api/user/');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        return null;
+    }
 }
 
 /**
@@ -20,10 +20,10 @@ async function fetchUserData() {
  * @returns {string|null} - The username or null if not found.
  */
 function getUsername(userData) {
-  return userData && userData.user ? userData.user.username : null;
+    return userData && userData.user ? userData.user.username : null;
 }
 
 export default {
-  fetchUserData,
-  getUsername,
+    fetchUserData,
+    getUsername,
 };

@@ -3,150 +3,185 @@ const fs = require('fs');
 const path = require('path');
 const archiver = require('archiver');
 const router = express.Router();
-const { mapsDir, indexPath, logLogs, bundlesDir } = require('../database');
+const {
+    mapsDir,
+    indexPath,
+    logLogs,
+    bundlesDir,
+    bundleIndexPath,
+} = require('../database');
+const { isAuthenticated } = require('../middleware/auth');
 const { v4: uuidv4 } = require('uuid');
 
 // Endpoint to create a bundle
-router.post('/create', (req, res) => {
-  const { mapUUIDs, bundleName, description } = req.body;
+router.post('/create', isAuthenticated, (req, res) => {
+    const { mapUUIDs, bundleName, description } = req.body;
 
-  if (!mapUUIDs || mapUUIDs.length === 0 || !bundleName) {
-    return res.status(400).json({ message: 'Invalid input data' });
-  }
-
-  console.log('Received mapUUIDs:', mapUUIDs);
-  console.log('Received bundleName:', bundleName);
-
-  let indexData;
-
-  try {
-    if (fs.existsSync(indexPath)) {
-      const rawData = fs.readFileSync(indexPath);
-      indexData = JSON.parse(rawData);
-    } else {
-      indexData = [];
-    }
-  } catch (error) {
-    console.error('Error reading index file:', error);
-    return res.status(500).json({ message: 'Failed to read index file.' });
-  }
-
-  const mapsToBundle = indexData.filter(map => mapUUIDs.includes(map.MapUUID));
-
-  if (mapsToBundle.length !== mapUUIDs.length) {
-    return res.status(404).json({ message: 'One or more maps not found' });
-  }
-
-  const bundleDir = path.join(bundlesDir, `${bundleName}.zip`);
-  console.log('Bundle Directory Path:', bundleDir);
-
-  try {
-    if (!fs.existsSync(bundlesDir)) {
-      throw new Error(`Directory does not exist: ${bundlesDir}`);
+    if (!mapUUIDs || mapUUIDs.length === 0 || !bundleName) {
+        return res.status(400).json({ message: 'Invalid input data' });
     }
 
-    if (fs.existsSync(bundleDir)) {
-      console.warn(`Warning: The bundle already exists at ${bundleDir}.`);
+    console.log('Received mapUUIDs:', mapUUIDs);
+    console.log('Received bundleName:', bundleName);
+
+    let indexData;
+
+    // Retrieve map data using indexPath
+    try {
+        if (fs.existsSync(indexPath)) {
+            const rawData = fs.readFileSync(indexPath);
+            indexData = JSON.parse(rawData);
+        } else {
+            return res.status(404).json({ message: 'Index file not found' });
+        }
+    } catch (error) {
+        console.error('Error reading index file:', error);
+        return res.status(500).json({ message: 'Failed to read index file.' });
     }
-  } catch (error) {
-    console.error('An error occurred:', error.message);
-    return res
-      .status(500)
-      .json({ message: 'Error checking bundle directory.' });
-  }
 
-  const output = fs.createWriteStream(bundleDir);
-  const archive = archiver('zip', {
-    zlib: { level: 9 },
-  });
+    // Filter maps based on provided UUIDs
+    const mapsToBundle = indexData.filter(map =>
+        mapUUIDs.includes(map.MapUUID),
+    );
+    console.log('Maps to bundle: ', mapsToBundle);
 
-  output.on('close', () => {
-    const bundleMetadata = {
-      BundleUUID: uuidv4(),
-      BundleName: bundleName,
-      Description: description || '',
-      Developer: req.user.username, // Assuming you have user info
-      CreationDate: new Date().toISOString(),
-      LikeCount: 0,
-      DownloadCount: 0,
-      MapList: mapUUIDs,
-      Icon: '', // This could be set later if needed
-    };
+    if (mapsToBundle.length !== mapUUIDs.length) {
+        return res.status(404).json({ message: 'One or more maps not found' });
+    }
 
-    // Append bundle metadata to the index
-    indexData.push(bundleMetadata);
-    fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+    const bundleDir = path.join(bundlesDir, `${bundleName}.zip`);
+    console.log('Bundle Directory Path:', bundleDir);
 
-    logLogs('bundle_created', { bundleName, mapUUIDs });
-    res.json({ message: 'Bundle created successfully', bundleName });
-  });
+    try {
+        if (!fs.existsSync(bundlesDir)) {
+            throw new Error(`Directory does not exist: ${bundlesDir}`);
+        }
 
-  archive.on('error', err => {
-    res.status(500).json({
-      message: 'Failed to create bundle',
-      error: err.message,
+        if (fs.existsSync(bundleDir)) {
+            console.warn(`Warning: The bundle already exists at ${bundleDir}.`);
+        }
+    } catch (error) {
+        console.error('An error occurred:', error.message);
+        return res
+            .status(500)
+            .json({ message: 'Error checking bundle directory.' });
+    }
+
+    const output = fs.createWriteStream(bundleDir);
+    const archive = archiver('zip', {
+        zlib: { level: 9 },
     });
-  });
 
-  archive.pipe(output);
+    output.on('close', () => {
+        const bundleMetadata = {
+            BundleUUID: uuidv4(),
+            BundleName: bundleName,
+            Description: description || '',
+            Developer: req.user.username,
+            CreationDate: new Date().toISOString(),
+            LikeCount: 0,
+            DownloadCount: 0,
+            MapList: mapUUIDs,
+            Icon: '',
+        };
 
-  mapsToBundle.forEach(map => {
-    const mapFilePath = path.join(mapsDir, `${map.MapUUID}.zip`);
-    if (fs.existsSync(mapFilePath)) {
-      archive.file(mapFilePath, { name: `${map.MapName}.zip` });
-    }
-  });
+        // Append bundle metadata to the index
+        let bundleIndexData;
+        try {
+            if (fs.existsSync(bundleIndexPath)) {
+                const rawData = fs.readFileSync(bundleIndexPath);
+                bundleIndexData = JSON.parse(rawData);
+            } else {
+                bundleIndexData = [];
+            }
 
-  archive.finalize();
+            bundleIndexData.push(bundleMetadata);
+            fs.writeFileSync(
+                bundleIndexPath,
+                JSON.stringify(bundleIndexData, null, 2),
+            );
+        } catch (error) {
+            console.error('Error updating bundle index file:', error);
+            return res
+                .status(500)
+                .json({ message: 'Failed to update bundle index file.' });
+        }
+
+        logLogs('bundle_created', { bundleName, mapUUIDs });
+        res.json({ message: 'Bundle created successfully', bundleName });
+    });
+
+    archive.on('error', err => {
+        res.status(500).json({
+            message: 'Failed to create bundle',
+            error: err.message,
+        });
+    });
+
+    archive.pipe(output);
+
+    mapsToBundle.forEach(map => {
+        const mapFilePath = path.join(mapsDir, `${map.MapUUID}.zip`);
+        if (fs.existsSync(mapFilePath)) {
+            archive.file(mapFilePath, { name: `${map.MapName}.zip` });
+        }
+    });
+
+    archive.finalize();
 });
 
 // Endpoint to download a bundle
 router.get('/download/:bundleName', (req, res) => {
-  const { bundleName } = req.params;
-  const bundleFilePath = path.join(bundlesDir, `${bundleName}.zip`);
+    const { bundleName } = req.params;
+    const bundleFilePath = path.join(bundlesDir, `${bundleName}.zip`);
 
-  if (fs.existsSync(bundleFilePath)) {
-    // Update download count
-    let indexData;
-    try {
-      const rawData = fs.readFileSync(indexPath);
-      indexData = JSON.parse(rawData);
-      const bundleIndex = indexData.findIndex(
-        bundle => bundle.BundleName === bundleName,
-      );
-      if (bundleIndex > -1) {
-        indexData[bundleIndex].DownloadCount += 1;
-        fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
-      }
-    } catch (error) {
-      console.error('Error updating download count:', error);
+    if (fs.existsSync(bundleFilePath)) {
+        // Update download count
+        let bundleIndexData;
+        try {
+            const rawData = fs.readFileSync(bundleIndexPath);
+            bundleIndexData = JSON.parse(rawData);
+            const bundleIndex = bundleIndexData.findIndex(
+                bundle => bundle.BundleName === bundleName,
+            );
+            if (bundleIndex > -1) {
+                bundleIndexData[bundleIndex].DownloadCount += 1;
+                fs.writeFileSync(
+                    bundleIndexPath,
+                    JSON.stringify(bundleIndexData, null, 2),
+                );
+            }
+        } catch (error) {
+            console.error('Error updating download count:', error);
+        }
+
+        res.download(bundleFilePath, `${bundleName}.zip`, err => {
+            if (err) {
+                res.status(500).json({ message: 'Download failed' });
+            } else {
+                logLogs('bundle_download', { bundleName });
+            }
+        });
+    } else {
+        res.status(404).json({ message: 'Bundle not found' });
     }
-
-    res.download(bundleFilePath, `${bundleName}.zip`, err => {
-      if (err) {
-        res.status(500).json({ message: 'Download failed' });
-      } else {
-        logLogs('bundle_download', { bundleName });
-      }
-    });
-  } else {
-    res.status(404).json({ message: 'Bundle not found' });
-  }
 });
 
 // Endpoint to view all bundles
 router.get('/', (req, res) => {
-  fs.readdir(bundlesDir, (err, files) => {
-    if (err) {
-      return res
-        .status(500)
-        .json({ message: 'Unable to read bundles directory' });
+    let bundleIndexData;
+    try {
+        bundleIndexData = fs.existsSync(bundleIndexPath)
+            ? JSON.parse(fs.readFileSync(bundleIndexPath))
+            : [];
+    } catch (error) {
+        console.error('Error reading bundle index file:', error);
+        return res
+            .status(500)
+            .json({ message: 'Failed to read bundle index file.' });
     }
-    const bundles = files
-      .filter(file => file.endsWith('.zip'))
-      .map(file => file.replace('.zip', ''));
-    res.json({ bundles });
-  });
+
+    res.json(bundleIndexData);
 });
 
 module.exports = router;

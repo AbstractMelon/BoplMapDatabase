@@ -25,9 +25,9 @@ Alternatively, you can hold `ctrl` and drag a platform to clone it into the worl
 
 Okay lets say you created a platform which you don't want anymore, there are two simple ways to remove it completely:
 
-- Drag it back into the sidebar
+-   Drag it back into the sidebar
 
-- Click it, and press `del` or `backspace`
+-   Click it, and press `del` or `backspace`
 
 ## Moving Platforms
 
@@ -42,7 +42,7 @@ If you want to you can also just modify the platform's position from the Inspect
 
 ::: tip
 
-- If you want to move your platform only on the x/y axis, just move it while pressing `shift` and it will clamp to the closest axis!
+-   If you want to move your platform only on the x/y axis, just move it while pressing `shift` and it will clamp to the closest axis!
 
 <video autoplay loop muted playsinline style="border-radius: 10px;">
   <source src="./gifs/move-shift.mp4" type="video/mp4">
@@ -51,7 +51,7 @@ If you want to you can also just modify the platform's position from the Inspect
 
 <br>
 
-- If you want to clamp your platform to an integer position - move it while pressing `alt`, it will also display the item's position on a small window!
+-   If you want to clamp your platform to an integer position - move it while pressing `alt`, it will also display the item's position on a small window!
 
 <video autoplay loop muted playsinline style="border-radius: 10px;">
   <source src="./gifs/move-alt.mp4" type="video/mp4">
@@ -84,8 +84,8 @@ if it's black, you are in **rotating mode**.
 
 To scale a platform, just hover it and drag the marker to resize.
 
-- **upwards** = increase scale
-- **downwards** = decrease scale
+-   **upwards** = increase scale
+-   **downwards** = decrease scale
 
 ::: tip
 If you want to scale the platform not arbitrarily, just hold down `shift` while scaling and the scale will increase/decrease by multiples of 0.1
@@ -139,4 +139,4 @@ cloning a spawn point will create _the next_ spawn point (except for spawn all)
 
 The spawn-all spawn point is an item that when placed on the map, automatically spawns every player in the spot it is in.
 
-- much easier than dragging 4 spawn points to the same position.
+-   much easier than dragging 4 spawn points to the same position.

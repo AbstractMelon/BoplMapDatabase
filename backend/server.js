@@ -26,8 +26,8 @@ app.use(trackVisits);
 
 // Redirect /api/upload to /api/maps/upload
 app.post('/api/upload', (req, res, next) => {
-  req.url = '/api/maps/upload';
-  next();
+    req.url = '/api/maps/upload';
+    next();
 });
 
 // Routes
@@ -40,36 +40,36 @@ app.use('/', servingRoutes);
 
 // Enhanced Error Handling
 app.use((err, req, res, next) => {
-  // Log error details
-  console.error(`[${new Date().toISOString()}] Error:`, {
-    message: err.message,
-    stack: err.stack,
-    method: req.method,
-    url: req.originalUrl,
-    ip: req.ip,
-  });
+    // Log error details
+    console.error(`[${new Date().toISOString()}] Error:`, {
+        message: err.message,
+        stack: err.stack,
+        method: req.method,
+        url: req.originalUrl,
+        ip: req.ip,
+    });
 
-  // Check for specific error types and set status accordingly
-  if (res.headersSent) {
-    return next(err); // Delegate to the default error handler
-  }
+    // Check for specific error types and set status accordingly
+    if (res.headersSent) {
+        return next(err); // Delegate to the default error handler
+    }
 
-  if (err instanceof SyntaxError && err.status === 400) {
-    return res.status(400).json({ message: 'Bad Request: Invalid JSON' });
-  }
+    if (err instanceof SyntaxError && err.status === 400) {
+        return res.status(400).json({ message: 'Bad Request: Invalid JSON' });
+    }
 
-  res.status(err.status || 500).json({
-    message: err.message || 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err : {},
-  });
+    res.status(err.status || 500).json({
+        message: err.message || 'Something went wrong!',
+        error: process.env.NODE_ENV === 'development' ? err : {},
+    });
 });
 
 // Catch 404 and forward to error handler
 app.use((req, res, next) => {
-  res.status(404).json({ message: 'Not Found' });
+    res.status(404).json({ message: 'Not Found' });
 });
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
