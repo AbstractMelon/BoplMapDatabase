@@ -1,67 +1,129 @@
 <template>
-    <div class="map-card" v-if="map">
-        <img 
-            :src="imageUrl" 
-            alt="Map Image" 
-            class="map-image" 
+    <div class="map-card" v-if="item">
+        <img
+            :src="imageUrl"
+            alt="Item Image"
+            class="map-image"
             @error="setFallbackImage"
         />
         <h2>{{ truncatedTitle }}</h2>
-        <p>
+        <p v-if="getDeveloper">
             <strong>Developer: </strong>
-            <a :href="`/profile/${map.MapDeveloper}`" class="developer-link">{{ map.MapDeveloper }}</a>
+            <a :href="`/profile/${getDeveloper}`" class="developer-link">{{
+                getDeveloper
+            }}</a>
         </p>
-        <p><strong>Type:</strong> {{ map.MapType }}</p>
-        <p><strong>Description:</strong> {{ truncatedDescription }}</p>
-        <p class="download-count"><strong>Downloads:</strong> {{ map.downloadCount }}</p>
-        <button @click.stop="downloadMap">Download</button>
+        <p v-if="item.Type || item.MapType">
+            <strong>Type:</strong> {{ item.Type || item.MapType }}
+        </p>
+        <p v-if="truncatedDescription">
+            <strong>Description:</strong> {{ truncatedDescription }}
+        </p>
+        <p v-if="getDownloadCount">
+            <strong>Downloads:</strong> {{ getDownloadCount }}
+        </p>
+        <button @click.stop="downloadItem">
+            {{
+                getItemType() === 'Bundle' ? 'Download Bundle' : 'Download Map'
+            }}
+        </button>
+
+        <!-- Display items from MapList -->
+        <div v-if="Array.isArray(item.MapList) && item.MapList.length">
+            <h3>Maps Included:</h3>
+            <ul>
+                <li v-for="mapId in item.MapList" :key="mapId">
+                    {{ mapId }}
+                    <!-- Display map ID -->
+                </li>
+            </ul>
+        </div>
     </div>
     <div v-else>
-        <p>Loading map details...</p>
+        <p>Loading item details...</p>
     </div>
 </template>
 
 <script>
 export default {
-    props: ['map'],
+    props: ['item'],
     data() {
         return {
-            fallbackImage: '/api/maps/assets/mods/placeholder', 
-            currentImage: ''
+            fallbackImage: '/api/maps/assets/mods/placeholder',
+            currentImage: '',
         };
     },
     computed: {
         truncatedTitle() {
-            return this.map.MapName.length > 20 
-                ? this.map.MapName.slice(0, 20) + '...' 
-                : this.map.MapName;
+            return (
+                this.item.BundleName ||
+                (this.item.MapName.length > 20
+                    ? this.item.MapName.slice(0, 20) + '...'
+                    : this.item.MapName)
+            );
         },
         truncatedDescription() {
-            return this.map.MapDescription.length > 75 
-                ? this.map.MapDescription.slice(0, 75) + '...' 
-                : this.map.MapDescription;
+            if (!this.item) return '';
+            const description =
+                this.item.Description || this.item.MapDescription || '';
+            return description.length > 75
+                ? description.slice(0, 75) + '...'
+                : description;
         },
         imageUrl() {
-            return this.currentImage || `/api/maps/assets/mods/${this.map.MapUUID}`;
-        }
+            return (
+                this.currentImage ||
+                this.item.Icon ||
+                `/api/maps/assets/mods/${this.item.MapUUID}`
+            );
+        },
+        getDeveloper() {
+            return (
+                this.item.Developer ||
+                this.item.MapDeveloper ||
+                'Unknown Developer'
+            );
+        },
+        getDownloadCount() {
+            return this.item.DownloadCount || this.item.downloadCount || 0;
+        },
     },
     methods: {
-        downloadMap() {
-            this.map.downloadCount++;
-            window.location.href = `/api/maps/download/${this.map.MapUUID}`;
+        downloadItem() {
+            const type = this.getItemType();
+            const url =
+                type === 'Bundle'
+                    ? `/api/bundles/download/${this.item.BundleUUID}`
+                    : type === 'Map'
+                    ? `/api/maps/download/${this.item.MapUUID}`
+                    : null;
+
+            if (url) {
+                this.item.downloadCount = (this.item.downloadCount || 0) + 1; // Increment download count
+                window.location.href = url;
+            } else {
+                console.error('Unknown item type, cannot download.');
+            }
         },
         setFallbackImage() {
             this.currentImage = this.fallbackImage;
-        }
+        },
+        getItemType() {
+            return this.item.BundleName
+                ? 'Bundle'
+                : this.item.MapName
+                ? 'Map'
+                : 'Unknown';
+        },
     },
     mounted() {
-        if (this.map) {
-            this.currentImage = `/api/maps/assets/mods/${this.map.MapUUID}`;
+        if (this.item) {
+            this.currentImage = `/api/maps/assets/mods/${this.item.MapUUID}`;
         } else {
-            this.currentImage = this.fallbackImage; 
+            this.currentImage = this.fallbackImage;
         }
-    }
-}
+    },
+};
 </script>
 
 <style scoped>
@@ -70,7 +132,7 @@ export default {
     padding: 15px;
     border-radius: 10px;
     width: 250px;
-    height: auto; 
+    height: auto;
     padding-bottom: 75px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
@@ -124,11 +186,11 @@ export default {
 }
 
 .developer-link {
-    color: var(--link-color); 
+    color: var(--link-color);
     text-decoration: none;
 }
 
 .developer-link:hover {
-    text-decoration: underline; 
+    text-decoration: underline;
 }
 </style>

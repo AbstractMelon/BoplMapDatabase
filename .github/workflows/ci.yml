@@ -1,53 +1,53 @@
 name: CI and Deploy Workflow
 
 on:
-  push:
-    branches:
-      - main  # Trigger on push to the main branch
-  pull_request:
-    branches:
-      - main  # Trigger on pull requests targeting the main branch
+    push:
+        branches:
+            - main # Trigger on push to the main branch
+    pull_request:
+        branches:
+            - main # Trigger on pull requests targeting the main branch
 
 jobs:
-  build:
-    runs-on: ubuntu-latest 
+    build:
+        runs-on: ubuntu-latest
 
-    steps:
-      # Step 1: Checkout the code
-    #  - name: Checkout code
-    #    uses: actions/checkout@v3
+        steps:
+            # Step 1: Checkout the code
+            #  - name: Checkout code
+            #    uses: actions/checkout@v3
 
-    #  # Step 2: Set up Node.js environment
-    #  - name: Set up Node.js
-    #    uses: actions/setup-node@v3
-    #    with:
-    #      node-version: '22'  
-    #      cache: 'npm'
+            #  # Step 2: Set up Node.js environment
+            #  - name: Set up Node.js
+            #    uses: actions/setup-node@v3
+            #    with:
+            #      node-version: '22'
+            #      cache: 'npm'
 
-    #  # Step 3: Install dependencies
-    #  - name: Install dependencies
-    #    run: npm run setup
+            #  # Step 3: Install dependencies
+            #  - name: Install dependencies
+            #    run: npm run setup
 
-      # Step 4: Run frontend build
-    #  - name: Build Frontend
-    #    run: npm run frontend:build
-    #    continue-on-error: false  # Stop the workflow if this fails
+            # Step 4: Run frontend build
+            #  - name: Build Frontend
+            #    run: npm run frontend:build
+            #    continue-on-error: false  # Stop the workflow if this fails
 
-      # Step 5: Run docs build
-      #- name: Build Docs
-      #  run: npm run docs:build
-      #  continue-on-error: false  # Stop the workflow if this fails
+            # Step 5: Run docs build
+            #- name: Build Docs
+            #  run: npm run docs:build
+            #  continue-on-error: false  # Stop the workflow if this fails
 
-      # Step 6: Check for errors in backend/server.js
-      # - name: Check Backend Server
-      #   run: node backend/server.js
-      #   continue-on-error: false  # Stop the workflow if this fails
+            # Step 6: Check for errors in backend/server.js
+            # - name: Check Backend Server
+            #   run: node backend/server.js
+            #   continue-on-error: false  # Stop the workflow if this fails
 
-      # Step 7: Deploy if all steps passed
-      - name: Deploy to Production
-        if: success()  # Only run if all previous steps succeeded
-        run: |
-          curl -X POST "${{ secrets.WEBSITE }}" \
-          -H "Content-Type: application/json" \
-          -d '{"deployToken": "${{ secrets.TOKEN }}"}'
-        continue-on-error: false  # Stop the workflow if the request fails
+            # Step 7: Deploy if all steps passed
+            - name: Deploy to Production
+              if: success() # Only run if all previous steps succeeded
+              run: |
+                  curl -X POST "${{ secrets.WEBSITE }}" \
+                  -H "Content-Type: application/json" \
+                  -d '{"deployToken": "${{ secrets.TOKEN }}"}'
+              continue-on-error: false # Stop the workflow if the request fails

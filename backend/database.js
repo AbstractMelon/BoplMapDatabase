@@ -1,27 +1,32 @@
 const fs = require('fs');
 const path = require('path');
 
-const usersDir = path.join(__dirname, "../database/users");
-const mapsDir = path.join(__dirname, "../database/maps");
-const mapMakerDir = path.join(__dirname, "../database/map-maker");
-const miscDir = path.join(__dirname, "../database/misc");
-const modIconsDir = path.join(__dirname, "../database/assets/mod-icons");
-// const analyticsPath = path.join(__dirname, '../datbase/misc/analytics.json');
-const LogsPath = path.join(miscDir, "Logs.json");
-const indexPath = path.join(__dirname, "../database/maps", "index.json");
+const usersDir = path.join(__dirname, '../database/users');
+const mapMakerDir = path.join(__dirname, '../database/map-maker');
+const miscDir = path.join(__dirname, '../database/misc');
+
+// Icons
+const modIconsDir = path.join(__dirname, '../database/assets/mod-icons');
+const bundleIconsDir = path.join(__dirname, '../database/assets/bundle-icons');
+
+// Maps
+const indexPath = path.join(__dirname, '../database/maps', 'index.json');
+const mapsDir = path.join(__dirname, '../database/maps');
+
+// Bundles
+const bundlesDir = path.join(__dirname, '../database/bundles');
+const bundleIndexPath = path.join(bundlesDir, 'bundleindex.json');
+
+const LogsPath = path.join(miscDir, 'Logs.json');
 
 // Create directories if they don't exist
-[usersDir, mapsDir, miscDir, modIconsDir, mapMakerDir].forEach(dir => {
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-    }
-});
-
-/*
-if (!fs.existsSync(analyticsPath)) {
-    fs.writeFileSync(analyticsPath, JSON.stringify({ visits: 0, mapDownloads: 0, mapMakerDownloads: 0, accounts: 0 }, null, 2));
-}
-*/
+[usersDir, mapsDir, miscDir, modIconsDir, mapMakerDir, bundlesDir].forEach(
+    dir => {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+    },
+);
 
 // Logs functions
 function readLogs() {
@@ -57,8 +62,9 @@ function writeUser(username, userData) {
 }
 
 function getUsers() {
-    return Object.values(fs.readdirSync(usersDir))
-        .map((file) => readUser(file.replace(".json", "")));
+    return Object.values(fs.readdirSync(usersDir)).map(file =>
+        readUser(file.replace('.json', '')),
+    );
 }
 
 // Map functions
@@ -73,11 +79,12 @@ function updateIndex(metadata) {
     metadata.MapUUID = String(metadata.MapUUID || null);
 
     const mapIndex = indexData.findIndex(
-        (map) => map.MapUUID === metadata.MapUUID
+        map => map.MapUUID === metadata.MapUUID,
     );
 
     if (mapIndex >= 0) {
-        indexData[mapIndex].downloadCount = indexData[mapIndex].downloadCount || 0;
+        indexData[mapIndex].downloadCount =
+            indexData[mapIndex].downloadCount || 0;
         indexData[mapIndex].likeCount = indexData[mapIndex].likeCount || 0;
         indexData[mapIndex] = metadata;
     } else {
@@ -94,13 +101,15 @@ module.exports = {
     mapsDir,
     mapMakerDir,
     miscDir,
+    bundlesDir,
     modIconsDir,
     indexPath,
+    bundleIndexPath,
     readLogs,
     writeLogs,
     logLogs,
     readUser,
     writeUser,
     getUsers,
-    updateIndex
+    updateIndex,
 };

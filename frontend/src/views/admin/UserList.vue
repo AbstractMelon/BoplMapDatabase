@@ -2,13 +2,29 @@
     <section class="section">
         <h2>User List</h2>
         <div class="card-container">
-            <div v-if="!users.length" class="empty-message">No users found.</div>
-            <div v-for="user in users" :key="user.username" class="card user-card">
+            <div v-if="!users.length" class="empty-message">
+                No users found.
+            </div>
+            <div
+                v-for="user in users"
+                :key="user.username"
+                class="card user-card"
+            >
                 <div class="card-content">
                     <h3>{{ user.username }}</h3>
                     <div class="button-group">
-                        <button @click="$emit('open-edit-modal', 'user', user)" class="btn-secondary">Edit</button>
-                        <button @click="$emit('delete-user', user.username)" class="btn-danger">Delete</button>
+                        <button
+                            @click="$emit('open-edit-modal', 'user', user)"
+                            class="btn-secondary"
+                        >
+                            Edit
+                        </button>
+                        <button
+                            @click="$emit('delete-user', user.username)"
+                            class="btn-danger"
+                        >
+                            Delete
+                        </button>
                     </div>
                 </div>
             </div>
@@ -43,7 +59,7 @@ h1 {
 
 h2 {
     color: #ffffff;
-    border-bottom: 2px solid #007BFF;
+    border-bottom: 2px solid #007bff;
     padding-bottom: 5px;
 }
 
@@ -78,7 +94,7 @@ h2 {
 
 button {
     margin-right: 10px;
-    background-color: #007BFF;
+    background-color: #007bff;
     color: white;
     border: none;
     padding: 8px 12px;
@@ -92,12 +108,12 @@ button:hover {
 }
 
 .btn-primary {
-    background-color: #007BFF;
+    background-color: #007bff;
     color: white;
 }
 
 .btn-secondary {
-    background-color: #007BFF;
+    background-color: #007bff;
     color: white;
 }
 
@@ -142,7 +158,7 @@ button:hover {
 .pagination button {
     margin: 0 5px;
     padding: 5px 10px;
-    background-color: #007BFF;
+    background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
@@ -161,13 +177,12 @@ button:hover {
     margin-top: 5px;
 }
 
-
 .edit-modal {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: var(--bgcol2); 
+    background-color: var(--bgcol2);
     padding: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
     z-index: 1000;
@@ -193,10 +208,12 @@ button:hover {
 }
 
 /* Fade transition for modal */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
     transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to {
+.fade-enter,
+.fade-leave-to {
     opacity: 0;
 }
 </style>

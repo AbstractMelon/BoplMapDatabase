@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 /**
  * Fetch user data
@@ -6,10 +6,10 @@ import axios from "axios";
  */
 async function fetchUserData() {
     try {
-        const response = await axios.get("/api/user/");
+        const response = await axios.get('/api/user/');
         return response.data;
     } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error('Error fetching user data:', error);
         return null;
     }
 }

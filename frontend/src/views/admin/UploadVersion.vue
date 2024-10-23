@@ -5,19 +5,43 @@
             <div class="form-row">
                 <div class="form-group">
                     <label for="zipFile1">Windows Zip File:</label>
-                    <input type="file" id="zipFile1" ref="zipFile1" accept=".zip" required />
+                    <input
+                        type="file"
+                        id="zipFile1"
+                        ref="zipFile1"
+                        accept=".zip"
+                        required
+                    />
                 </div>
                 <div class="form-group">
                     <label for="zipFile2">Linux Zip File:</label>
-                    <input type="file" id="zipFile2" ref="zipFile2" accept=".zip" required />
+                    <input
+                        type="file"
+                        id="zipFile2"
+                        ref="zipFile2"
+                        accept=".zip"
+                        required
+                    />
                 </div>
                 <div class="form-group">
                     <label for="exeFile">Windows Executable:</label>
-                    <input type="file" id="exeFile" ref="exeFile" accept=".exe" required />
+                    <input
+                        type="file"
+                        id="exeFile"
+                        ref="exeFile"
+                        accept=".exe"
+                        required
+                    />
                 </div>
                 <div class="form-group">
                     <label for="tarFile">Tar File:</label>
-                    <input type="file" id="tarFile" ref="tarFile" accept=".tar.xz" required />
+                    <input
+                        type="file"
+                        id="tarFile"
+                        ref="tarFile"
+                        accept=".tar.xz"
+                        required
+                    />
                 </div>
                 <div class="form-group">
                     <label for="versionId">Version ID:</label>
@@ -112,11 +136,11 @@ export default {
     color: #ffffff;
     font-weight: bold;
     margin-bottom: 5px;
-    display: block; 
+    display: block;
 }
 
-.upload-section input[type="file"],
-.upload-section input[type="text"],
+.upload-section input[type='file'],
+.upload-section input[type='text'],
 .upload-section textarea {
     padding: 12px;
     border-radius: 5px;
@@ -132,7 +156,7 @@ export default {
 .btn-primary {
     margin-top: 20px;
     padding: 10px 15px;
-    background-color: #007BFF;
+    background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
@@ -147,7 +171,7 @@ export default {
 
 h2 {
     color: #ffffff;
-    border-bottom: 2px solid #007BFF;
+    border-bottom: 2px solid #007bff;
     padding-bottom: 10px;
     margin-bottom: 20px;
 }

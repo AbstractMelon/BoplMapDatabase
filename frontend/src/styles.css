@@ -6,7 +6,9 @@
     --bgcol4: #363636;
     --textcol: #ffffff;
     --textcol2: #ffffff;
-    --container: #00235c01;
+    --inactiveColor: #555555;
+    --activeColor: #3975e5;
+    --activeColorDark: #1a5bb8;
 }
 
 body {
@@ -58,71 +60,3 @@ a:hover {
     display: flex;
     flex-direction: column;
 }
-
-
-/* Popup Form */
-.popup {
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background-color: rgba(0, 0, 0, 0.7);
-}
-
-.popup-content {
-    background-color: var(--bgcol2);
-    margin: 15% auto;
-    padding: 20px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 250px;
-    text-align: center;
-}
-
-.popup-content h2 {
-    margin-top: 0;
-}
-
-.popup-content input[type="file"],
-.popup-content input[type="text"] {
-    width: 80%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: var(--bgcol3);
-    color: var(--textcol);
-}
-
-.popup-content button {
-    padding: 10px 20px;
-    background-color: var(--accent);
-    color: var(--textcol2);
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-    width: 90%;
-}
-
-.popup-content button:hover {
-    background-color: #2f5dbb;
-}
-
-.popup-content .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.popup-content .close:hover,
-.popup-content .close:focus {
-    color: white;
-    text-decoration: none;
-    cursor: pointer;
-}
-

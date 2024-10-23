@@ -3,7 +3,10 @@
         <div class="top-section">
             <div class="content-box">
                 <h1 class="title">Bopl Battle Map Creator</h1>
-                <p class="description">Create dynamic, custom battle maps for your Bopl adventures. Design, strategize, and conquer with ease.</p>
+                <p class="description">
+                    Create dynamic, custom battle maps for your Bopl adventures.
+                    Design, strategize, and conquer with ease.
+                </p>
                 <div class="action-button-container">
                     <a class="action-button" href="/download">Download</a>
                     <a class="secondary-button" href="#">Learn More</a>
@@ -11,10 +14,22 @@
             </div>
 
             <div class="map-preview">
-                <img src="/map-maker-art.png" alt="Map Preview" class="map-image" />
+                <img
+                    src="/map-maker-art.png"
+                    alt="Map Preview"
+                    class="map-image"
+                />
                 <div class="floating-battles">
-                    <img src="/icon1.png" alt="Tool Icon 1" class="battle battle-1" />
-                    <img src="/icon2.png" alt="Tool Icon 2" class="battle battle-2" />
+                    <img
+                        src="/icon1.png"
+                        alt="Tool Icon 1"
+                        class="battle battle-1"
+                    />
+                    <img
+                        src="/icon2.png"
+                        alt="Tool Icon 2"
+                        class="battle battle-2"
+                    />
                     <!-- <img src="/icon3.png" alt="Tool Icon 3" class="battle battle-3" /> -->
                 </div>
             </div>
@@ -23,32 +38,57 @@
         <div class="extra-content">
             <section class="download-section">
                 <h2 class="section-title">Download</h2>
-                <p class="section-content">Ready to get started? Download the latest version of Bopl Battle Map Creator and jump into building your battle maps.</p>
+                <p class="section-content">
+                    Ready to get started? Download the latest version of Bopl
+                    Battle Map Creator and jump into building your battle maps.
+                </p>
                 <a class="section-button" href="/download">Download Now</a>
             </section>
 
             <section class="wiki-section">
                 <h2 class="section-title">Wiki</h2>
-                <p class="section-content">Need help? Check out the official wiki for tutorials, tips, and detailed documentation on how to use Bopl Battle Map Creator.</p>
+                <p class="section-content">
+                    Need help? Check out the official wiki for tutorials, tips,
+                    and detailed documentation on how to use Bopl Battle Map
+                    Creator.
+                </p>
                 <a class="section-button" href="/docs/">Visit Wiki</a>
             </section>
 
             <section class="devlog-section">
                 <h2 class="section-title">Devlog</h2>
-                <p class="section-content">Follow the development of Bopl Battle Map Creator through our devlog. Stay up-to-date on the latest features, fixes, and improvements.</p>
+                <p class="section-content">
+                    Follow the development of Bopl Battle Map Creator through
+                    our devlog. Stay up-to-date on the latest features, fixes,
+                    and improvements.
+                </p>
                 <a class="section-button" href="/devlog">View Devlog</a>
             </section>
 
             <section class="map-loader-info-section">
                 <h2 class="section-title">Map Loader</h2>
-                <p class="section-content">Learn how to load, manage, and customize maps using our powerful map loader. Discover advanced tips for handling your maps.</p>
-                <a class="section-button" href="/docs/map-loader/">Learn More</a>
+                <p class="section-content">
+                    Learn how to load, manage, and customize maps using our
+                    powerful map loader. Discover advanced tips for handling
+                    your maps.
+                </p>
+                <a class="section-button" href="/docs/map-loader/"
+                    >Learn More</a
+                >
             </section>
 
             <section class="thunderstore-section">
                 <h2 class="section-title">Thunderstore</h2>
-                <p class="section-content">Find community-created maps and tools for Bopl Battle Map Creator on Thunderstore. Share your own creations with the community.</p>
-                <a class="section-button" href="https://thunderstore.io/c/bopl-battle/">Visit Thunderstore</a>
+                <p class="section-content">
+                    Find community-created maps and tools for Bopl Battle Map
+                    Creator on Thunderstore. Share your own creations with the
+                    community.
+                </p>
+                <a
+                    class="section-button"
+                    href="https://thunderstore.io/c/bopl-battle/"
+                    >Visit Thunderstore</a
+                >
             </section>
         </div>
     </div>
@@ -56,7 +96,7 @@
 
 <script>
 export default {
-    name: "BoplBattleMapShowcase",
+    name: 'BoplBattleMapShowcase',
 };
 </script>
 
@@ -75,15 +115,19 @@ export default {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .top-section {
     display: flex;
     justify-content: space-between;
     width: 100%;
-    max-width: 1400px; 
+    max-width: 1400px;
 }
 
 .content-box {
@@ -103,8 +147,12 @@ export default {
 }
 
 @keyframes slideInLeft {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(0); }
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
 }
 
 .description {
@@ -177,18 +225,32 @@ export default {
 
 .battle {
     position: absolute;
-    width: 50px;  /* Adjust size based on your icon */
+    width: 50px; /* Adjust size based on your icon */
     height: 50px; /* Adjust size based on your icon */
     animation: float 4s ease-in-out infinite;
 }
 
-.battle-1 { top: 15%; left: 25%; }
-.battle-2 { top: 60%; left: 70%; }
-.battle-3 { top: 80%; left: 50%; }
+.battle-1 {
+    top: 15%;
+    left: 25%;
+}
+.battle-2 {
+    top: 60%;
+    left: 70%;
+}
+.battle-3 {
+    top: 80%;
+    left: 50%;
+}
 
 @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-15px); }
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
 }
 
 .extra-content {
@@ -200,7 +262,7 @@ export default {
 }
 
 .extra-content section {
-    flex: 1 1 calc(33.333% - 20px); 
+    flex: 1 1 calc(33.333% - 20px);
     margin: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     padding: 20px;
