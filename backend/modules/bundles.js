@@ -230,6 +230,30 @@ router.get('/download-all', isAuthenticated, (req, res) => {
         }
     });
 
+    // Increment download counts for each map
+    mapsToBundle.forEach(map => {
+        let mapIndexData;
+        try {
+            if (fs.existsSync(indexPath)) {
+                const rawData = fs.readFileSync(indexPath);
+                mapIndexData = JSON.parse(rawData);
+            }
+
+            const mapIndex = mapIndexData.findIndex(
+                m => m.MapUUID === map.MapUUID,
+            );
+            if (mapIndex > -1) {
+                mapIndexData[mapIndex].DownloadCount += 1;
+                fs.writeFileSync(
+                    indexPath,
+                    JSON.stringify(mapIndexData, null, 2),
+                );
+            }
+        } catch (error) {
+            console.error('Error updating map download count:', error);
+        }
+    });
+
     // Finalize the archive (finish zipping)
     archive.finalize();
 });
