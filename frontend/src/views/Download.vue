@@ -5,9 +5,21 @@
             <transition name="fade">
                 <div v-if="!downloaded">
                     <p class="description">
-                        Select your operating system to download the latest
-                        version.
+                        Select your operating system and version to download the
+                        latest.
                     </p>
+                    <div class="version-selection">
+                        <select v-model="selectedVersion" @change="fetchFiles">
+                            <option
+                                v-for="version in versions"
+                                :key="version.versionId"
+                                :value="version.versionId"
+                            >
+                                {{ version.versionId }}
+                                <!-- Display the version ID -->
+                            </option>
+                        </select>
+                    </div>
                     <div class="os-selection">
                         <button @click="setOS('windows')" class="os-button">
                             Windows
@@ -20,34 +32,22 @@
                         <h3>Select a file to download:</h3>
                         <div v-if="os === 'windows'">
                             <button
-                                @click="download('Map Maker Extract.exe')"
+                                v-for="file in windowsFiles"
+                                :key="file"
+                                @click="download(file)"
                                 class="file-button"
                             >
-                                Map Maker Extract.exe
-                            </button>
-                            <button
-                                @click="
-                                    download('Map Maker Extract Windows.zip')
-                                "
-                                class="file-button"
-                            >
-                                Map Maker Extract Windows.zip
+                                {{ file }}
                             </button>
                         </div>
                         <div v-if="os === 'linux'">
                             <button
-                                @click="
-                                    download('Map Maker Extract Linux.tar.zx')
-                                "
+                                v-for="file in linuxFiles"
+                                :key="file"
+                                @click="download(file)"
                                 class="file-button"
                             >
-                                Map Maker Extract Linux.tar.zx
-                            </button>
-                            <button
-                                @click="download('Map Maker Extract Linux.zip')"
-                                class="file-button"
-                            >
-                                Map Maker Extract Linux.zip
+                                {{ file }}
                             </button>
                         </div>
                     </div>
@@ -84,9 +84,41 @@ export default {
         return {
             downloaded: false,
             os: null,
+            versions: [],
+            selectedVersion: null,
+            windowsFiles: [],
+            linuxFiles: [],
         };
     },
+    created() {
+        this.fetchVersions();
+    },
     methods: {
+        fetchVersions() {
+            fetch('/api/map-maker/')
+                .then(response => response.json())
+                .then(data => {
+                    this.versions = data.versions;
+                    this.selectedVersion = this.versions[0]?.versionId; // Select the first version by default
+                    this.fetchFiles();
+                });
+        },
+        fetchFiles() {
+            if (this.selectedVersion) {
+                const versionInfo = this.versions.find(
+                    version => version.versionId === this.selectedVersion,
+                );
+                if (versionInfo) {
+                    const files = versionInfo.info.files;
+                    this.windowsFiles = files.filter(file =>
+                        file.includes('Windows'),
+                    );
+                    this.linuxFiles = files.filter(file =>
+                        file.includes('Linux'),
+                    );
+                }
+            }
+        },
         setOS(selectedOS) {
             this.os = selectedOS;
             this.downloaded = false; // Reset downloaded status for new OS selection
@@ -217,5 +249,16 @@ p {
 .file-button:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5);
+}
+
+.version-selection {
+    margin-bottom: 20px;
+    text-align: center;
+}
+.version-selection select {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
 }
 </style>

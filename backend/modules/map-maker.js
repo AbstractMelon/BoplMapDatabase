@@ -8,7 +8,13 @@ const { mapMakerDir } = require('../database');
 const { trackEvent } = require('./analytics');
 
 const router = express.Router();
-const upload = multer({ dest: 'uploads/' });
+
+const upload = multer({
+    dest: 'uploads/',
+    limits: {
+        fileSize: 250 * 1024 * 1024,
+    },
+});
 
 // Helper function to write version.json
 function writeVersionFile(versionDir, versionData) {
