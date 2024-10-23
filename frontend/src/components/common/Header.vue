@@ -2,7 +2,7 @@
     <header>
         <div class="header-title"><a href="/">Bopl Map Database</a></div>
         <div class="header-buttons">
-            <a href="/map-creator"><button>Get the creator</button></a>
+            <a href="/map-creator"><button>Get Map Maker</button></a>
             <button @click="$emit('toggle-upload-popup')">Upload Map</button>
             <button @click="handleAuthButton">
                 {{ isLoggedIn ? username : 'Signup/Login' }}

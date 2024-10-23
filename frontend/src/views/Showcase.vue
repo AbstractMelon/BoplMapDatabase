@@ -273,7 +273,7 @@ export default {
 .section-title {
     font-size: 2rem;
     margin-bottom: 10px;
-    color: rgb(99, 215, 247);
+    color: var(--cyan);
 }
 
 .section-content {
