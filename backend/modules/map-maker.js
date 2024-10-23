@@ -32,6 +32,7 @@ router.get('/download/:versionId', (req, res) => {
 // Route to upload files
 router.post(
     '/upload',
+    isAuthenticated,
     isAdmin,
     upload.fields([
         { name: 'zipFile1', maxCount: 1 },
