@@ -184,4 +184,54 @@ router.get('/', (req, res) => {
     res.json(bundleIndexData);
 });
 
+// Endpoint to dynamically create and download a bundle with all maps
+router.get('/download-all', isAuthenticated, (req, res) => {
+    let indexData;
+
+    // Retrieve map data using indexPath
+    try {
+        if (fs.existsSync(indexPath)) {
+            const rawData = fs.readFileSync(indexPath);
+            indexData = JSON.parse(rawData);
+        } else {
+            return res.status(404).json({ message: 'Index file not found' });
+        }
+    } catch (error) {
+        console.error('Error reading index file:', error);
+        return res.status(500).json({ message: 'Failed to read index file.' });
+    }
+
+    const mapsToBundle = indexData; // Include all maps
+    console.log('Maps to bundle: ', mapsToBundle);
+
+    const archive = archiver('zip', {
+        zlib: { level: 9 }, // Maximum compression
+    });
+
+    // Set the headers for downloading the zip file
+    res.attachment('all_maps_bundle.zip');
+
+    archive.on('error', err => {
+        console.error('Failed to create archive:', err);
+        return res.status(500).json({
+            message: 'Failed to create bundle',
+            error: err.message,
+        });
+    });
+
+    // Pipe the archive directly to the response
+    archive.pipe(res);
+
+    // Add each map file to the zip
+    mapsToBundle.forEach(map => {
+        const mapFilePath = path.join(mapsDir, `${map.MapUUID}.zip`);
+        if (fs.existsSync(mapFilePath)) {
+            archive.file(mapFilePath, { name: `${map.MapName}.zip` });
+        }
+    });
+
+    // Finalize the archive (finish zipping)
+    archive.finalize();
+});
+
 module.exports = router;
