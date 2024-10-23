@@ -90,11 +90,20 @@ export default {
     },
     methods: {
         downloadItem() {
-            const url = this.item.isBundle
-                ? `/api/bundles/download/${this.item.BundleUUID}`
-                : `/api/maps/download/${this.item.MapUUID}`;
-            this.item.downloadCount = (this.item.downloadCount || 0) + 1; // Increment download count
-            window.location.href = url;
+            const type = this.getItemType();
+            const url =
+                type === 'Bundle'
+                    ? `/api/bundles/download/${this.item.BundleUUID}`
+                    : type === 'Map'
+                    ? `/api/maps/download/${this.item.MapUUID}`
+                    : null;
+
+            if (url) {
+                this.item.downloadCount = (this.item.downloadCount || 0) + 1; // Increment download count
+                window.location.href = url;
+            } else {
+                console.error('Unknown item type, cannot download.');
+            }
         },
         setFallbackImage() {
             this.currentImage = this.fallbackImage;
@@ -108,7 +117,11 @@ export default {
         },
     },
     mounted() {
-        this.currentImage = this.item?.Icon || this.fallbackImage;
+        if (this.item) {
+            this.currentImage = `/api/maps/assets/mods/${this.item.MapUUID}`;
+        } else {
+            this.currentImage = this.fallbackImage;
+        }
     },
 };
 </script>
