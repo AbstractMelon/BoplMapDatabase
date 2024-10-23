@@ -28,13 +28,27 @@
             }}
         </button>
 
-        <!-- Display items from MapList -->
         <div v-if="Array.isArray(item.MapList) && item.MapList.length">
-            <h3>Maps Included:</h3>
-            <ul>
-                <li v-for="mapId in item.MapList" :key="mapId">
+            <h3 @click="toggleDropdown" style="cursor: pointer">
+                Maps Included:
+                {{
+                    item.MapList.length > 10 ? (isDropdownOpen ? '▲' : '▼') : ''
+                }}
+            </h3>
+            <ul :class="{ dropdown: isDropdownOpen }">
+                <li
+                    v-for="mapId in item.MapList.slice(
+                        0,
+                        isDropdownOpen ? item.MapList.length : 10,
+                    )"
+                    :key="mapId"
+                >
                     {{ mapId }}
-                    <!-- Display map ID -->
+                </li>
+                <li v-if="item.MapList.length > 10 && !isDropdownOpen">
+                    <span style="color: var(--accent); cursor: pointer"
+                        >+ {{ item.MapList.length - 10 }} more</span
+                    >
                 </li>
             </ul>
         </div>
@@ -51,6 +65,7 @@ export default {
         return {
             fallbackImage: '/api/maps/assets/mods/placeholder',
             currentImage: '',
+            isDropdownOpen: false,
         };
     },
     computed: {
@@ -114,6 +129,11 @@ export default {
                 : this.item.MapName
                 ? 'Map'
                 : 'Unknown';
+        },
+        toggleDropdown() {
+            if (this.item.MapList.length > 10) {
+                this.isDropdownOpen = !this.isDropdownOpen;
+            }
         },
     },
     mounted() {
@@ -192,5 +212,24 @@ export default {
 
 .developer-link:hover {
     text-decoration: underline;
+}
+
+.dropdown {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown li {
+    padding: 5px 0;
+}
+
+.dropdown li span {
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.dropdown li:hover {
+    background-color: rgba(0, 0, 0, 0.1);
 }
 </style>
