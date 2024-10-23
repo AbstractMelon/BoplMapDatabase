@@ -10,7 +10,7 @@
         "frontend:prod": "cd ./frontend && npm run build",
         "backend:prod": "pm2 start ./backend/server.js --name bopl-map-database",
         "prod": "npm run frontend:prod && npm run backend:prod",
-        "format": "prettier --write '**/*.{js,jsx,ts,tsx,json,css,md}'",
+        "format": "prettier --write .",
         "lint": "eslint '**/*.{js,jsx,ts,tsx}'",
         "setup": "npm install && cd ./frontend && npm install && cd .. && cd backend && npm install",
         "docs:dev": "vitepress dev docs",

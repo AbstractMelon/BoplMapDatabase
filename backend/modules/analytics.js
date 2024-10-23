@@ -25,11 +25,11 @@ function updateAnalytics(event) {
     const data = loadAnalytics();
 
     if (data[event] === undefined) {
-        data[event] = 0; 
+        data[event] = 0;
     }
-    
-    data[event] += 1; 
-    
+
+    data[event] += 1;
+
     saveAnalytics(data);
 }
 

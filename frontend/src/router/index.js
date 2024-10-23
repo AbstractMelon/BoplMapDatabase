@@ -1,68 +1,68 @@
-import { createRouter, createWebHistory } from "vue-router";
-import Home from "../views/Homepage.vue";
-import Login from "../views/auth/Login.vue";
-import Signup from "../views/auth/Signup.vue";
-import NotFound from "../components/common/NotFound.vue";
-import Showcase from "../views/Showcase.vue";
-import Download from "../views/Download.vue";
-import AdminPanel from "../views/admin/AdminPanel.vue";
-import authUtils from "../utils/auth";
-import Profile from "../views/Profile.vue";
-import Dashboard from "../views/user/Dashboard.vue"; 
-import Settings from "../views/user/Settings.vue"; 
+import { createRouter, createWebHistory } from 'vue-router';
+import Home from '../views/Homepage.vue';
+import Login from '../views/auth/Login.vue';
+import Signup from '../views/auth/Signup.vue';
+import NotFound from '../components/common/NotFound.vue';
+import Showcase from '../views/Showcase.vue';
+import Download from '../views/Download.vue';
+import AdminPanel from '../views/admin/AdminPanel.vue';
+import authUtils from '../utils/auth';
+import Profile from '../views/Profile.vue';
+import Dashboard from '../views/user/Dashboard.vue';
+import Settings from '../views/user/Settings.vue';
 
 const routes = [
     {
-        path: "/",
-        name: "Home",
+        path: '/',
+        name: 'Home',
         component: Home,
     },
     {
-        path: "/profile/:username",
-        name: "Profile",
+        path: '/profile/:username',
+        name: 'Profile',
         component: Profile,
     },
     {
-        path: "/login",
-        name: "Login",
+        path: '/login',
+        name: 'Login',
         component: Login,
     },
     {
-        path: "/signup",
-        name: "Signup",
+        path: '/signup',
+        name: 'Signup',
         component: Signup,
     },
     {
-        path: "/map-creator",
-        name: "Map Creator",
+        path: '/map-creator',
+        name: 'Map Creator',
         component: Showcase,
     },
     {
-        path: "/download",
-        name: "Download",
+        path: '/download',
+        name: 'Download',
         component: Download,
     },
     {
-        path: "/admin",
-        name: "Admin",
+        path: '/admin',
+        name: 'Admin',
         component: AdminPanel,
         meta: { requiresAuth: true, isAdmin: true },
     },
     {
-        path: "/user/dashboard",
-        name: "Dashboard",
+        path: '/user/dashboard',
+        name: 'Dashboard',
         component: Dashboard,
         meta: { requiresAuth: true },
     },
     {
-        path: "/user/settings",
-        name: "Settings",
+        path: '/user/settings',
+        name: 'Settings',
         component: Settings,
         meta: { requiresAuth: true },
     },
     {
-        path: "/:catchAll(.*)",
-        name: "NotFound",
+        path: '/:catchAll(.*)',
+        name: 'NotFound',
         component: NotFound,
     },
 ];
@@ -78,9 +78,9 @@ router.beforeEach(async (to, from, next) => {
     const isAdmin = isAuthenticated ? await authUtils.isAdmin() : false; // Check if the user is admin if authenticated
 
     if (to.meta.requiresAuth && !isAuthenticated) {
-        next({ name: "Login" }); // Redirect to login if not authenticated
+        next({ name: 'Login' }); // Redirect to login if not authenticated
     } else if (to.meta.isAdmin && !isAdmin) {
-        next({ name: "NotFound" }); // Redirect to NotFound if not admin
+        next({ name: 'NotFound' }); // Redirect to NotFound if not admin
     } else {
         next();
     }

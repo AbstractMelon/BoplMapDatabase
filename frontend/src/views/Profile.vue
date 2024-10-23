@@ -1,8 +1,9 @@
 <template>
     <div class="profile">
-
         <div v-if="isOwnProfile" class="settings-container">
-            <p class="settings-message">This is your page! Click the settings button to edit it</p>
+            <p class="settings-message">
+                This is your page! Click the settings button to edit it
+            </p>
             <div class="settings-gear">
                 <router-link to="/dashboard/settings">
                     <font-awesome-icon icon="cog" />
@@ -22,13 +23,17 @@
             </div>
         </section>
 
-        <br>
+        <br />
 
         <section class="uploads-section">
             <h2>Uploaded Maps:</h2>
             <div class="map-list">
                 <div v-if="uploadedMaps.length">
-                    <MapCard v-for="map in uploadedMaps" :key="map.MapUUID" :map="map" />
+                    <MapCard
+                        v-for="map in uploadedMaps"
+                        :key="map.MapUUID"
+                        :map="map"
+                    />
                 </div>
                 <p v-else>No uploaded maps found.</p>
             </div>
@@ -38,10 +43,16 @@
             <h2>Liked Maps:</h2>
             <div class="map-list">
                 <div v-if="likedMaps.length">
-                    <div v-for="map in likedMaps" :key="map.MapUUID" class="map-card">
+                    <div
+                        v-for="map in likedMaps"
+                        :key="map.MapUUID"
+                        class="map-card"
+                    >
                         <h3>{{ map.MapName }}</h3>
                         <p>Developer: {{ map.MapDeveloper }}</p>
-                        <button @click="downloadMap(map.MapUUID)">Download</button>
+                        <button @click="downloadMap(map.MapUUID)">
+                            Download
+                        </button>
                     </div>
                 </div>
                 <p v-else>No liked maps found.</p>
@@ -50,9 +61,8 @@
     </div>
 </template>
 
-
 <script>
-import userUtils from "../utils/user"; 
+import userUtils from '../utils/user';
 import MapCard from '../components/gallery/MapCard.vue';
 
 export default {
@@ -69,13 +79,17 @@ export default {
     created() {
         const username = this.$route.params.username;
         this.fetchUserProfile(username);
-        this.checkIfOwnProfile(username); 
+        this.checkIfOwnProfile(username);
     },
     computed: {
         formattedJoinDate() {
             const date = new Date(this.user.accountCreationDate);
-            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-        }
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            });
+        },
     },
     methods: {
         async fetchUserProfile(username) {
@@ -85,8 +99,12 @@ export default {
                 const response = await fetch(`/api/user/${username}`);
 
                 if (!response.ok) {
-                    console.error(`HTTP error! Status: ${response.status}, Status Text: ${response.statusText}`);
-                    throw new Error(`Failed to fetch user profile. HTTP status: ${response.status}`);
+                    console.error(
+                        `HTTP error! Status: ${response.status}, Status Text: ${response.statusText}`,
+                    );
+                    throw new Error(
+                        `Failed to fetch user profile. HTTP status: ${response.status}`,
+                    );
                 }
 
                 const userData = await response.json();
@@ -94,17 +112,20 @@ export default {
 
                 await this.fetchAllMaps();
                 this.likedMaps = this.getMapsByUUIDs(this.user.likedMaps || []);
-                this.uploadedMaps = this.getMapsByUUIDs(this.user.uploadedMapUUIDs || []);
-                
+                this.uploadedMaps = this.getMapsByUUIDs(
+                    this.user.uploadedMapUUIDs || [],
+                );
             } catch (error) {
-                console.error("Error fetching user profile:", error.message);
+                console.error('Error fetching user profile:', error.message);
             }
         },
         async fetchAllMaps() {
             try {
                 const response = await fetch('/api/maps');
                 if (!response.ok) {
-                    throw new Error(`Failed to fetch maps. HTTP status: ${response.status}`);
+                    throw new Error(
+                        `Failed to fetch maps. HTTP status: ${response.status}`,
+                    );
                 }
                 const maps = await response.json();
                 this.allMaps = maps.reduce((acc, map) => {
@@ -112,11 +133,11 @@ export default {
                     return acc;
                 }, {});
             } catch (error) {
-                console.error("Error fetching all maps:", error.message);
+                console.error('Error fetching all maps:', error.message);
             }
         },
         async fetchLikedMaps(likedMapUUIDs) {
-            const mapPromises = likedMapUUIDs.map(async (mapUUID) => {
+            const mapPromises = likedMapUUIDs.map(async mapUUID => {
                 const response = await fetch(`/api/maps/${mapUUID}`);
                 return await response.json();
             });
@@ -130,20 +151,20 @@ export default {
         },
         async checkIfOwnProfile(username) {
             try {
-                const response = await userUtils.fetchUserData(); 
-                const currentUser = response.user; 
+                const response = await userUtils.fetchUserData();
+                const currentUser = response.user;
 
                 if (currentUser && currentUser.username) {
                     this.isOwnProfile = currentUser.username === username;
                 } else {
-                    this.isOwnProfile = false; 
+                    this.isOwnProfile = false;
                 }
             } catch (error) {
                 console.error('Error checking if own profile:', error);
                 this.isOwnProfile = false;
             }
-        }
-    }
+        },
+    },
 };
 </script>
 
@@ -161,8 +182,8 @@ export default {
 
 .settings-container {
     display: flex;
-    justify-content: space-between; 
-    align-items: center; 
+    justify-content: space-between;
+    align-items: center;
     border-radius: 5px;
     background-color: var(--bgcol4);
     padding: 10px 10px;
@@ -176,7 +197,7 @@ export default {
 
 .profile-header {
     text-align: center;
-    margin-bottom: 10px; 
+    margin-bottom: 10px;
     border-radius: 20px;
 }
 
@@ -188,7 +209,8 @@ export default {
     text-align: right; /* Aligns the gear to the right */
 }
 
-.maps-section, .uploads-section {
+.maps-section,
+.uploads-section {
     margin-bottom: 30px;
 }
 

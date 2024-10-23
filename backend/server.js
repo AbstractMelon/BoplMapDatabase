@@ -13,15 +13,18 @@ const adminRoutes = require('./modules/admin');
 const accountsRoutes = require('./modules/accounts');
 const mapsRoutes = require('./modules/maps');
 const mapMakerRoutes = require('./modules/map-maker');
+const bundleRoutes = require('./modules/bundles');
 const { trackVisits } = require('./modules/analytics');
 
 // Middleware
+const rateLimiter = require('./middleware/rate-limiter');
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(cookieParser());
-
 app.use(trackVisits);
+app.use(rateLimiter(300, 60 * 1000));
 
 // Redirect /api/upload to /api/maps/upload
 app.post('/api/upload', (req, res, next) => {
@@ -34,6 +37,7 @@ app.use('/api', accountsRoutes);
 app.use('/api/maps', mapsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/map-maker', mapMakerRoutes);
+app.use('/api/bundles', bundleRoutes);
 app.use('/', servingRoutes);
 
 // Enhanced Error Handling

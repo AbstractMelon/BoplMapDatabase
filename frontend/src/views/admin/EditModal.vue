@@ -7,12 +7,13 @@
                     <input type="checkbox" v-model="selectedUser.isAdmin" />
                     Admin
                 </label>
-                <textarea 
-                    :value="rawUserJson" 
-                    rows="5" 
-                    @input="$emit('update:rawUserJson', $event.target.value)" 
-                    @blur="$emit('update-user-from-json')" 
-                    class="modal-textarea">
+                <textarea
+                    :value="rawUserJson"
+                    rows="5"
+                    @input="$emit('update:rawUserJson', $event.target.value)"
+                    @blur="$emit('update-user-from-json')"
+                    class="modal-textarea"
+                >
                 </textarea>
             </div>
             <div v-if="editType === 'map'">
@@ -28,17 +29,22 @@
                     <input type="checkbox" v-model="selectedMap.isHandpicked" />
                     Handpicked
                 </label>
-                <textarea 
-                    :value="rawMapJson" 
-                    rows="5" 
-                    @input="$emit('update:rawMapJson', $event.target.value)" 
-                    @blur="$emit('update-map-from-json')" 
-                    class="modal-textarea">
+                <textarea
+                    :value="rawMapJson"
+                    rows="5"
+                    @input="$emit('update:rawMapJson', $event.target.value)"
+                    @blur="$emit('update-map-from-json')"
+                    class="modal-textarea"
+                >
                 </textarea>
             </div>
             <div class="modal-buttons">
-                <button @click="$emit('save')" class="btn-primary">Save Changes</button>
-                <button @click="$emit('close')" class="btn-secondary">Close</button>
+                <button @click="$emit('save')" class="btn-primary">
+                    Save Changes
+                </button>
+                <button @click="$emit('close')" class="btn-secondary">
+                    Close
+                </button>
             </div>
         </div>
     </transition>
@@ -75,7 +81,7 @@ h1 {
 
 h2 {
     color: #ffffff;
-    border-bottom: 2px solid #007BFF;
+    border-bottom: 2px solid #007bff;
     padding-bottom: 5px;
 }
 
@@ -110,7 +116,7 @@ h2 {
 
 button {
     margin-right: 10px;
-    background-color: #007BFF;
+    background-color: #007bff;
     color: white;
     border: none;
     padding: 8px 12px;
@@ -124,12 +130,12 @@ button:hover {
 }
 
 .btn-primary {
-    background-color: #007BFF;
+    background-color: #007bff;
     color: white;
 }
 
 .btn-secondary {
-    background-color: #007BFF;
+    background-color: #007bff;
     color: white;
 }
 
@@ -174,7 +180,7 @@ button:hover {
 .pagination button {
     margin: 0 5px;
     padding: 5px 10px;
-    background-color: #007BFF;
+    background-color: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
@@ -193,13 +199,12 @@ button:hover {
     margin-top: 5px;
 }
 
-
 .edit-modal {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: var(--bgcol2); 
+    background-color: var(--bgcol2);
     padding: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
     z-index: 1000;
@@ -225,10 +230,12 @@ button:hover {
 }
 
 /* Fade transition for modal */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
     transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to {
+.fade-enter,
+.fade-leave-to {
     opacity: 0;
 }
 </style>

@@ -4,17 +4,24 @@ const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
-const { readLogs, readUser, writeUser, usersDir, logLogs } = require('../database');
+const {
+    readLogs,
+    readUser,
+    writeUser,
+    usersDir,
+    logLogs,
+} = require('../database');
 
 router.get('/users', isAuthenticated, isAdmin, (req, res) => {
-    const users = fs.readdirSync(usersDir)
-        .map((file) => readUser(file.replace(".json", "")));
+    const users = fs
+        .readdirSync(usersDir)
+        .map(file => readUser(file.replace('.json', '')));
     res.json(users);
 });
 
 router.get('/update', isAuthenticated, isAdmin, (req, res) => {
     updateToLatest();
-    res.json("Updated Probably");
+    res.json('Updated Probably');
 });
 
 router.post('/deploy', (req, res) => {
@@ -23,9 +30,9 @@ router.post('/deploy', (req, res) => {
 
     if (deployToken === expectedToken) {
         const updateCommand =
-            "cd ../ && git fetch origin && git reset --hard origin/main && cd .. && npm run update";
+            'cd ../ && git fetch origin && git reset --hard origin/main && cd .. && npm run update';
 
-        res.json({ message: "Update command started executing" });
+        res.json({ message: 'Update command started executing' });
 
         exec(updateCommand, { cwd: __dirname }, (error, stdout, stderr) => {
             if (error) {
@@ -36,7 +43,7 @@ router.post('/deploy', (req, res) => {
             console.log(`stdout: ${stdout}`);
         });
     } else {
-        res.status(403).json({ message: "Forbidden: Invalid deploy token" });
+        res.status(403).json({ message: 'Forbidden: Invalid deploy token' });
     }
 });
 
@@ -50,7 +57,7 @@ router.get('/users/:username', isAuthenticated, isAdmin, (req, res) => {
     if (user) {
         res.json(user);
     } else {
-        res.status(404).json({ message: "User not found" });
+        res.status(404).json({ message: 'User not found' });
     }
 });
 
@@ -58,9 +65,9 @@ router.delete('/users/:username', isAuthenticated, isAdmin, (req, res) => {
     const userFilePath = path.join(usersDir, `${req.params.username}.json`);
     if (fs.existsSync(userFilePath)) {
         fs.unlinkSync(userFilePath);
-        res.json({ message: "User deleted successfully" });
+        res.json({ message: 'User deleted successfully' });
     } else {
-        res.status(404).json({ message: "User not found" });
+        res.status(404).json({ message: 'User not found' });
     }
 });
 
@@ -71,7 +78,7 @@ router.put('/users/:username', isAuthenticated, isAdmin, (req, res) => {
     // Fetch the existing user data
     const user = readUser(username);
     if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: 'User not found' });
     }
 
     // Update the user data
@@ -81,9 +88,9 @@ router.put('/users/:username', isAuthenticated, isAdmin, (req, res) => {
     writeUser(username, updatedUser);
 
     // Log the update action
-    logLogs("Updated user", { username, updatedUserData });
+    logLogs('Updated user', { username, updatedUserData });
 
-    res.json({ message: "User updated successfully" });
+    res.json({ message: 'User updated successfully' });
 });
 
 module.exports = router;

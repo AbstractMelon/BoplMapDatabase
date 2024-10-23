@@ -8,8 +8,10 @@
     --textcol2: #E0E0E0;
     --container: #00235c01;
     --cyan: #00ddff;
+    --inactiveColor: #555555;
+    --activeColor: #3975e5;
+    --activeColorDark: #1a5bb8;
 }
-
 body {
     font-family: Arial, sans-serif;
     background-color: var(--bgcol);
@@ -59,7 +61,6 @@ a:hover {
     display: flex;
     flex-direction: column;
 }
-
 
 /* Popup Form */
 .popup {
@@ -126,4 +127,3 @@ a:hover {
     text-decoration: none;
     cursor: pointer;
 }
-

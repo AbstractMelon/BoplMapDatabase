@@ -1,10 +1,10 @@
-import { reactive } from "vue";
+import { reactive } from 'vue';
 
 const state = reactive({
     user: null,
 });
 
-const setUser = (userData) => {
+const setUser = userData => {
     state.user = userData;
 };
 

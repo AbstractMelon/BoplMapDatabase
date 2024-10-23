@@ -2,9 +2,9 @@
 layout: home
 
 hero:
-    name: "Map Maker Docs"
-    // text: "The official documentation for the Map Maker mod!"
-    tagline: "Create and customize your own maps for Bopl Battle!"
+    name: 'Map Maker Docs'
+    // text: 'The official documentation for the Map Maker mod!'
+    tagline: 'Create and customize your own maps for Bopl Battle!'
     actions:
         - theme: brand
           text: Get Started
