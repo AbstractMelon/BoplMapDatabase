@@ -51,7 +51,6 @@ router.get('/download/:versionId', (req, res) => {
         }
     }
 
-    // If no file is specified, you might want to return a default response
     return res.status(400).json({ message: 'No file specified for download' });
 });
 
@@ -129,6 +128,47 @@ router.post(
         });
     },
 );
+
+// Route to get the latest version and download links
+router.get('/latest', (req, res) => {
+    const versionDirs = fs
+        .readdirSync(mapMakerDir)
+        .filter(dir => dir.startsWith('v')); // Filter directories that start with 'v'
+
+    if (versionDirs.length === 0) {
+        return res.status(404).json({ message: 'No versions available' });
+    }
+
+    // Sort versions and get the latest one
+    const latestVersionDir = versionDirs.sort((a, b) => {
+        const versionA = parseInt(a.replace('v', ''), 10);
+        const versionB = parseInt(b.replace('v', ''), 10);
+        return versionB - versionA; // Sort descending
+    })[0];
+
+    const latestVersionPath = path.join(mapMakerDir, latestVersionDir);
+    const versionInfoPath = path.join(latestVersionPath, 'version.json');
+
+    if (!fs.existsSync(versionInfoPath)) {
+        return res.status(404).json({ message: 'Version info not found' });
+    }
+
+    const latestVersionInfo = JSON.parse(fs.readFileSync(versionInfoPath));
+
+    // Construct download links
+    const downloadLinks = {
+        windowsZip: `/api/map-maker/download/${latestVersionInfo.versionId}?file=Map Maker Windows v${latestVersionInfo.versionId}.zip`,
+        linuxZip: `/api/map-maker/download/${latestVersionInfo.versionId}?file=Map Maker Linux v${latestVersionInfo.versionId}.zip`,
+        exe: `/api/map-maker/download/${latestVersionInfo.versionId}?file=Map Maker Windows.exe`,
+        tar: `/api/map-maker/download/${latestVersionInfo.versionId}?file=Map Maker.tar.xz`,
+    };
+
+    res.json({
+        latestVersion: latestVersionInfo.versionId,
+        changelog: latestVersionInfo.changelog,
+        downloadLinks,
+    });
+});
 
 // Route to get the map maker base info
 router.get('/', (req, res) => {
