@@ -31,10 +31,10 @@ Check out the sections below to dive into what you can do:
   Everything about the `Platform` class: properties, methods, and functions.
 
 - [BoplBody](./bopl-body.md)  
-  Everything about the `Platform` class: properties, methods, and functions.
+  Everything about the `BoplBody` class: properties, methods, and functions.
 
 - [BlackHole](./black-hole.md)  
-  Everything about the `Platform` class: properties, methods, and functions.
+  Everything about the `BlackHole` class: properties, methods, and functions.
 
 - [Errors](./errors.md)  
   Understanding error handling in Lua.
