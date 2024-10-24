@@ -108,8 +108,19 @@ export default {
                 })
                 .then(data => {
                     if (data.versions && Array.isArray(data.versions)) {
-                        this.versions = data.versions; // Keep this line
-                        this.selectedVersion = this.versions[0]?.info.versionId; // Set based on info.versionId
+                        this.versions = data.versions;
+
+                        // Find the version with the highest versionId
+                        const latestVersion = this.versions.reduce(
+                            (max, version) => {
+                                return version.info.versionId >
+                                    max.info.versionId
+                                    ? version
+                                    : max;
+                            },
+                        );
+
+                        this.selectedVersion = latestVersion?.info.versionId;
                         this.fetchFiles();
                     } else {
                         throw new Error(
