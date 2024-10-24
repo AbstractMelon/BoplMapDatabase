@@ -7,17 +7,6 @@
                     <p class="description">
                         Select your operating system and version to download the
                         latest.
-                        <!-- </p>
-                    <div class="version-selection">
-                        <select v-model="selectedVersion" @change="fetchFiles">
-                            <option
-                                v-for="version in versions"
-                                :key="version.versionId"
-                                :value="version.versionId"
-                            >
-                            </option>
-                        </select>
-                    </div> -->
                     </p>
 
                     <div class="os-selection">
@@ -78,8 +67,6 @@
 </template>
 
 <script>
-import { version } from 'vue';
-
 export default {
     name: 'DownloadPage',
     data() {
@@ -138,74 +125,58 @@ export default {
         },
 
         fetchFiles() {
-            console.log('Versions array before fetchFiles:', this.versions);
-            try {
-                // Check if a version is selected
-                if (!this.selectedVersion) {
-                    console.warn(
-                        'No version selected. Exiting fetchFiles method.',
-                    );
-                    return;
-                }
-
-                // Attempt to find version info
-                const versionInfo = this.versions.find(
-                    v => v.info.versionId === this.selectedVersion, // Change here
-                );
-
-                if (!versionInfo) {
-                    console.error(
-                        `Version not found for selected versionId: ${this.selectedVersion}`,
-                        this.versions,
-                    );
-                    return;
-                }
-
-                // Check if versionInfo has the required structure
-                if (
-                    !versionInfo.info ||
-                    !Array.isArray(versionInfo.info.files)
-                ) {
-                    console.error(
-                        'Version info is missing or files is not an array',
-                        versionInfo,
-                    );
-                    return;
-                }
-
-                const files = versionInfo.info.files;
-
-                // Log the files found
-                console.log('Files found:', files);
-
-                // Filter files for Windows and Linux
-                this.windowsFiles = files.filter(file =>
-                    file.includes('Windows'),
-                );
-                this.linuxFiles = files.filter(
-                    file => file.includes('Linux') || file.includes('tar'),
-                );
-
-                console.log('Filtered Windows files:', this.windowsFiles);
-                console.log('Filtered Linux files:', this.linuxFiles);
-            } catch (error) {
-                console.error(
-                    'An unexpected error occurred in fetchFiles:',
-                    error,
-                );
+            if (!this.selectedVersion) {
+                console.warn('No version selected. Exiting fetchFiles method.');
+                return;
             }
+
+            const versionInfo = this.versions.find(
+                v => v.info.versionId === this.selectedVersion,
+            );
+
+            if (!versionInfo) {
+                console.error(
+                    `Version not found for selected versionId: ${this.selectedVersion}`,
+                );
+                return;
+            }
+
+            if (!versionInfo.info || !Array.isArray(versionInfo.info.files)) {
+                console.error(
+                    'Version info is missing or files is not an array',
+                    versionInfo,
+                );
+                return;
+            }
+
+            const files = versionInfo.info.files;
+
+            this.windowsFiles = files.filter(file => file.includes('Windows'));
+            this.linuxFiles = files.filter(
+                file => file.includes('Linux') || file.includes('tar'),
+            );
+
+            console.log('Filtered Windows files:', this.windowsFiles);
+            console.log('Filtered Linux files:', this.linuxFiles);
         },
+
         setOS(selectedOS) {
             this.os = selectedOS;
             this.downloaded = false; // Reset downloaded status for new OS selection
         },
+
         download(fileName) {
+            if (!this.selectedVersion) {
+                alert('Please select a version before downloading.');
+                return;
+            }
+
+            const url = `/api/map-maker/download/${
+                this.selectedVersion
+            }?file=${encodeURIComponent(fileName)}`;
             console.log(`Downloading ${fileName} for ${this.os}...`);
-            this.downloaded = true;
-            setTimeout(() => {
-                console.log(`Download completed for ${fileName}`);
-                window.location.href = `/download/map-creator/${fileName}`;
-            }, 1000);
+            window.location.href = url;
+            this.downloaded = true; // Mark as downloaded
         },
     },
 };

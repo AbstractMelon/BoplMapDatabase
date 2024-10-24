@@ -22,17 +22,37 @@ function writeVersionFile(versionDir, versionData) {
     fs.writeFileSync(versionFilePath, JSON.stringify(versionData, null, 2));
 }
 
-// Route to download a specific version
+// Route to download a specific version or file
 router.get('/download/:versionId', (req, res) => {
     const versionId = req.params.versionId;
     const versionDir = path.join(mapMakerDir, `v${versionId}`);
+    const fileName = req.query.file; // Get the specific file name from query
 
+    // Check if the version directory exists
     if (!fs.existsSync(versionDir)) {
         return res.status(404).json({ message: 'Version not found' });
     }
 
-    res.download(versionDir);
-    trackEvent('mapMakerDownload');
+    // If a specific file is provided, check if it exists
+    if (fileName) {
+        const filePath = path.join(versionDir, fileName);
+
+        if (fs.existsSync(filePath)) {
+            return res.download(filePath, err => {
+                if (err) {
+                    return res
+                        .status(500)
+                        .json({ message: 'Error downloading file' });
+                }
+                trackEvent('mapMakerDownload', { fileName });
+            });
+        } else {
+            return res.status(404).json({ message: 'File not found' });
+        }
+    }
+
+    // If no file is specified, you might want to return a default response
+    return res.status(400).json({ message: 'No file specified for download' });
 });
 
 // Route to upload files
