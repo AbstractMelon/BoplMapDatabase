@@ -127,7 +127,7 @@ SpawnSpike(plat, 0, 1, 0) -- Spawns a normal size spike on the top of the platfo
 ```
 
 
-## Other:
+## Other
 
 ### Spawn Black Hole
 Spawns a black hole at a given position.
