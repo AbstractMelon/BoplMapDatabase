@@ -43,14 +43,11 @@ number, Player[] GetAllPlayers()
 
 Example:
 ```lua
-count, players = GetAllPlayers()
-i = 1
-while (i <= count) do
-    player = players[i]
-    player.SetAbility(1, "Dash")
-    player.SetAbility(2, "Dash")
-    player.SetAbility(3, "Dash")
-    i = i + 1
+_, players = GetAllPlayers()
+for _, p in ipairs(players) do
+    p.SetAbility(1, "Dash", false)
+    p.SetAbility(2, "Dash", false)
+    p.SetAbility(3, "Dash", false)
 end
 ```
 
@@ -64,7 +61,7 @@ number, Platforms[] GetAllPlatforms()
 Example:
 ```lua
 _, platforms = GetAllPlatforms()
-s1, s2 = platforms[0], platforms[1]
+s1, s2 = platforms[1], platforms[2]
 ```
 
 ### Get All Bopl Bodys

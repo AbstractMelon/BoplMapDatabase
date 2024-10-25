@@ -93,8 +93,39 @@ SpawnPlatform(number x, number y, number width, number height, number radius, nu
 
 Example:
 ```lua
-SpawnPlatform(0, 0, 10, 5, 1, 0, 1, 0, 1, 1)
+SpawnPlatform(0, 0, 10, 5, 1, 0, 1, 0, 1, 1)  
 ```
+
+## Spike
+
+### Spawn Spike
+Spawns a spike on a specified precentage\* around the surface a given platform, with varying scale and distance.
+
+\* precentage is 0-1
+
+```
+SpawnSpike(platform attachedPlatform, number precentAroundSurface, number scale, number offset)
+```
+
+Example:
+```lua
+plat = platforms[1]
+SpawnSpike(plat, 0, 1, 0) -- Spawns a normal size spike on the top of the platform
+```
+
+### Spawn Spike At Position
+Spawns a spike in a specified position - linked to the given platform (dont have to be directly on it but moves with it), with varying scale and distance.
+
+```
+SpawnSpikeAtPosition(platform attachedPlatform, number x, number y, number scale, number offset)
+```
+
+Example:
+```lua
+plat = platforms[1]
+SpawnSpike(plat, 0, 1, 0) -- Spawns a normal size spike on the top of the platform
+```
+
 
 ## Other:
 
