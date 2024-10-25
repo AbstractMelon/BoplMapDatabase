@@ -122,8 +122,9 @@ SpawnSpikeAtPosition(platform attachedPlatform, number x, number y, number scale
 
 Example:
 ```lua
-plat = platforms[1]
-SpawnSpike(plat, 0, 1, 0) -- Spawns a normal size spike on the top of the platform
+p = player1.GetPlatform()
+x, y = player1.GetPosition()
+SpawnSpikeAtPosition(p, x, y, 0.5, 0)
 ```
 
 
