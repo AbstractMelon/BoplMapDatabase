@@ -129,7 +129,6 @@ router.post(
     },
 );
 
-// Route to get the latest version and download links
 router.get('/latest', (req, res) => {
     const versionDirs = fs
         .readdirSync(mapMakerDir)
@@ -141,9 +140,17 @@ router.get('/latest', (req, res) => {
 
     // Sort versions and get the latest one
     const latestVersionDir = versionDirs.sort((a, b) => {
-        const versionA = parseInt(a.replace('v', ''), 10);
-        const versionB = parseInt(b.replace('v', ''), 10);
-        return versionB - versionA; // Sort descending
+        const versionA = a.replace('v', '').split('.').map(Number); // Split on '.' and convert to numbers
+        const versionB = b.replace('v', '').split('.').map(Number);
+
+        for (let i = 0; i < Math.max(versionA.length, versionB.length); i++) {
+            const numA = versionA[i] || 0; // Treat missing minor/patch versions as 0
+            const numB = versionB[i] || 0;
+            if (numA !== numB) {
+                return numB - numA; // Sort descending
+            }
+        }
+        return 0;
     })[0];
 
     const latestVersionPath = path.join(mapMakerDir, latestVersionDir);
