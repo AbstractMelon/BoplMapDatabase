@@ -104,20 +104,20 @@ Spawns a spike on a specified precentage\* around the surface a given platform, 
 \* precentage is 0-1
 
 ```
-SpawnSpike(platform attachedPlatform, number precentAroundSurface, number scale, number offset)
+BoplBody SpawnSpike(platform attachedPlatform, number precentAroundSurface, number scale, number offset)
 ```
 
 Example:
 ```lua
 plat = platforms[1]
-SpawnSpike(plat, 0, 1, 0) -- Spawns a normal size spike on the top of the platform
+spike = SpawnSpike(plat, 0, 1, 0) -- Spawns a normal size spike on the top of the platform
 ```
 
 ### Spawn Spike At Position
 Spawns a spike in a specified position - linked to the given platform (dont have to be directly on it but moves with it), with varying scale and distance.
 
 ```
-SpawnSpikeAtPosition(platform attachedPlatform, number x, number y, number scale, number offset)
+BoplBody SpawnSpikeAtPosition(platform attachedPlatform, number x, number y, number scale, number offset)
 ```
 
 Example:
