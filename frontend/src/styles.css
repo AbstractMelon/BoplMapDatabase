@@ -1,16 +1,17 @@
 :root {
-    --accent: #3975e5;
+    --accent: #2B6BE3;
     --bgcol: #292929;
     --bgcol2: #272727;
     --bgcol3: #0000003a;
     --bgcol4: #363636;
-    --textcol: #ffffff;
-    --textcol2: #ffffff;
+    --textcol: #E0E0E0;
+    --textcol2: #E0E0E0;
+    --container: #00235c01;
+    --cyan: #00ddff;
     --inactiveColor: #555555;
     --activeColor: #3975e5;
     --activeColorDark: #1a5bb8;
 }
-
 body {
     font-family: Arial, sans-serif;
     background-color: var(--bgcol);
@@ -59,4 +60,70 @@ a:hover {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+}
+
+/* Popup Form */
+.popup {
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.popup-content {
+    background-color: var(--bgcol2);
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 250px;
+    text-align: center;
+}
+
+.popup-content h2, .extra-content > * h2 {
+    margin-top: 0;
+}
+
+.popup-content input[type="file"],
+.popup-content input[type="text"] {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: var(--bgcol3);
+    color: var(--textcol);
+}
+
+.popup-content button {
+    padding: 10px 20px;
+    background-color: var(--accent);
+    color: var(--textcol2);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 90%;
+}
+
+.popup-content button:hover {
+    background-color: #2a57b1;
+}
+
+.popup-content .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.popup-content .close:hover,
+.popup-content .close:focus {
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
 }

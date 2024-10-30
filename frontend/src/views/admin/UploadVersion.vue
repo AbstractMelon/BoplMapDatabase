@@ -75,6 +75,22 @@ export default {
             formData.append('versionId', this.versionId);
             formData.append('changelog', this.changelog);
 
+            const files = [
+                this.$refs.zipFile1.files[0],
+                this.$refs.zipFile2.files[0],
+                this.$refs.exeFile.files[0],
+                this.$refs.tarFile.files[0],
+            ];
+
+            for (const file of files) {
+                if (file && file.size > 250 * 1024 * 1024) {
+                    alert(
+                        `The file ${file.name} is too large. Please limit it to 250 MB.`,
+                    );
+                    return;
+                }
+            }
+
             try {
                 const response = await fetch('/api/map-maker/upload', {
                     method: 'POST',

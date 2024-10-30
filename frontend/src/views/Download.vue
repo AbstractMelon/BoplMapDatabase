@@ -5,9 +5,10 @@
             <transition name="fade">
                 <div v-if="!downloaded">
                     <p class="description">
-                        Select your operating system to download the latest
-                        version.
+                        Select your operating system and version to download the
+                        latest.
                     </p>
+
                     <div class="os-selection">
                         <button @click="setOS('windows')" class="os-button">
                             Windows
@@ -20,34 +21,22 @@
                         <h3>Select a file to download:</h3>
                         <div v-if="os === 'windows'">
                             <button
-                                @click="download('Map Maker Extract.exe')"
+                                v-for="file in windowsFiles"
+                                :key="file"
+                                @click="download(file)"
                                 class="file-button"
                             >
-                                Map Maker Extract.exe
-                            </button>
-                            <button
-                                @click="
-                                    download('Map Maker Extract Windows.zip')
-                                "
-                                class="file-button"
-                            >
-                                Map Maker Extract Windows.zip
+                                {{ file }}
                             </button>
                         </div>
                         <div v-if="os === 'linux'">
                             <button
-                                @click="
-                                    download('Map Maker Extract Linux.tar.zx')
-                                "
+                                v-for="file in linuxFiles"
+                                :key="file"
+                                @click="download(file)"
                                 class="file-button"
                             >
-                                Map Maker Extract Linux.tar.zx
-                            </button>
-                            <button
-                                @click="download('Map Maker Extract Linux.zip')"
-                                class="file-button"
-                            >
-                                Map Maker Extract Linux.zip
+                                {{ file }}
                             </button>
                         </div>
                     </div>
@@ -84,20 +73,110 @@ export default {
         return {
             downloaded: false,
             os: null,
+            versions: [],
+            selectedVersion: null,
+            windowsFiles: [],
+            linuxFiles: [],
         };
     },
+    created() {
+        this.fetchVersions();
+    },
     methods: {
+        fetchVersions() {
+            fetch('/api/map-maker/')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(
+                            `HTTP error! Status: ${response.status}`,
+                        );
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.versions && Array.isArray(data.versions)) {
+                        this.versions = data.versions;
+
+                        // Find the version with the highest versionId
+                        const latestVersion = this.versions.reduce(
+                            (max, version) => {
+                                return version.info.versionId >
+                                    max.info.versionId
+                                    ? version
+                                    : max;
+                            },
+                        );
+
+                        this.selectedVersion = latestVersion?.info.versionId;
+                        this.fetchFiles();
+                    } else {
+                        throw new Error(
+                            "Invalid data format: 'versions' is missing or not an array.",
+                        );
+                    }
+                })
+                .catch(error => {
+                    console.error(
+                        'Error occurred during fetchVersions:',
+                        error,
+                    );
+                    alert('Failed to load versions. Please try again later.');
+                });
+        },
+
+        fetchFiles() {
+            if (!this.selectedVersion) {
+                console.warn('No version selected. Exiting fetchFiles method.');
+                return;
+            }
+
+            const versionInfo = this.versions.find(
+                v => v.info.versionId === this.selectedVersion,
+            );
+
+            if (!versionInfo) {
+                console.error(
+                    `Version not found for selected versionId: ${this.selectedVersion}`,
+                );
+                return;
+            }
+
+            if (!versionInfo.info || !Array.isArray(versionInfo.info.files)) {
+                console.error(
+                    'Version info is missing or files is not an array',
+                    versionInfo,
+                );
+                return;
+            }
+
+            const files = versionInfo.info.files;
+
+            this.windowsFiles = files.filter(file => file.includes('Windows'));
+            this.linuxFiles = files.filter(
+                file => file.includes('Linux') || file.includes('tar'),
+            );
+
+            console.log('Filtered Windows files:', this.windowsFiles);
+            console.log('Filtered Linux files:', this.linuxFiles);
+        },
+
         setOS(selectedOS) {
             this.os = selectedOS;
             this.downloaded = false; // Reset downloaded status for new OS selection
         },
+
         download(fileName) {
+            if (!this.selectedVersion) {
+                alert('Please select a version before downloading.');
+                return;
+            }
+
+            const url = `/api/map-maker/download/${
+                this.selectedVersion
+            }?file=${encodeURIComponent(fileName)}`;
             console.log(`Downloading ${fileName} for ${this.os}...`);
-            this.downloaded = true;
-            setTimeout(() => {
-                console.log(`Download completed for ${fileName}`);
-                window.location.href = `/download/map-creator/${fileName}`;
-            }, 1000);
+            window.location.href = url;
+            this.downloaded = true; // Mark as downloaded
         },
     },
 };
@@ -217,5 +296,16 @@ p {
 .file-button:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5);
+}
+
+.version-selection {
+    margin-bottom: 20px;
+    text-align: center;
+}
+.version-selection select {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
 }
 </style>

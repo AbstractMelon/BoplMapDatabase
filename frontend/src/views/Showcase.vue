@@ -142,7 +142,7 @@ export default {
     font-weight: bold;
     text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     animation: slideInLeft 1s ease-in-out;
-    color: #00c9ff;
+    color: var(--cyan);
     letter-spacing: 2px;
 }
 
@@ -179,14 +179,14 @@ export default {
 }
 
 .action-button {
-    background-color: #00c9ff;
-    color: white;
+    background-color: var(--cyan);
+    color: #000000;
 }
 
 .secondary-button {
     background-color: transparent;
     color: white;
-    border: 2px solid #00c9ff;
+    border: 2px solid var(--cyan);
 }
 
 .action-button:hover,
@@ -273,7 +273,7 @@ export default {
 .section-title {
     font-size: 2rem;
     margin-bottom: 10px;
-    color: #00c9ff;
+    color: var(--cyan);
 }
 
 .section-content {
@@ -285,8 +285,8 @@ export default {
 .section-button {
     padding: 10px 20px;
     font-size: 1.2rem;
-    background-color: #00c9ff;
-    color: white;
+    background-color: var(--cyan);
+    color: #000000;
     border: none;
     cursor: pointer;
     border-radius: 30px;
