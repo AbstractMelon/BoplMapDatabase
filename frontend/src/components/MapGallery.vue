@@ -198,7 +198,7 @@ export default {
 .side-row {
     display: flex;
     overflow-x: auto;
-    padding: 10px 0;
+    padding: 10px 10px;
     gap: 20px;
 }
 

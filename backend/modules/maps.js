@@ -134,12 +134,22 @@ router.post(
 
                 metadata.MapDeveloper = req.user.username;
 
+                // Check for .lua or .blua files
+                const files = await fs.promises.readdir(extractedPath);
+                const luaFiles = files.filter(
+                    file =>
+                        path.extname(file).toLowerCase() === '.lua' ||
+                        path.extname(file).toLowerCase() === '.blua',
+                );
+
+                // Set LuaMap to true if there are Lua files
+                metadata.LuaMap = luaFiles.length > 0;
+
                 const mapFileName = `${metadata.MapUUID}.zip`;
                 const mapStoragePath = path.join(mapsDir, mapFileName);
 
                 fs.renameSync(req.file.path, mapStoragePath);
 
-                const files = await fs.promises.readdir(extractedPath);
                 const pngFiles = files.filter(
                     file => path.extname(file).toLowerCase() === '.png',
                 );

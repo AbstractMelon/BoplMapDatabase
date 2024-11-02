@@ -76,6 +76,7 @@ function updateIndex(metadata) {
     metadata.isMotw = metadata.isMotw || false;
     metadata.isFeatured = metadata.isFeatured || false;
     metadata.isHandpicked = metadata.isHandpicked || false;
+    metadata.LuaMap = metadata.LuaMap || false;
     metadata.MapUUID = String(metadata.MapUUID || null);
 
     const mapIndex = indexData.findIndex(
@@ -96,6 +97,114 @@ function updateIndex(metadata) {
     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
 }
 
+// Function to update users and maps to latest structure
+async function updateToLatest() {
+    const indexData = fs.existsSync(indexPath)
+        ? JSON.parse(fs.readFileSync(indexPath))
+        : [];
+
+    // Update maps to include new flags
+    indexData.forEach(map => {
+        map.isMotw = map.isMotw || false;
+        map.isFeatured = map.isFeatured || false;
+        map.isHandpicked = map.isHandpicked || false;
+        map.LuaMap = false; // Initialize LuaMap to false
+        map.MapUUID = String(map.MapUUID || null);
+    });
+
+    fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+
+    // Update user data
+    const users = fs.readdirSync(usersDir);
+    users.forEach(file => {
+        const user = readUser(file.replace('.json', ''));
+        if (user) {
+            user.likedMaps = user.likedMaps || [];
+            writeUser(user.username, user);
+        }
+    });
+
+    // Extract images from zips in the index
+    if (!fs.existsSync(modIconsDir)) {
+        fs.mkdirSync(modIconsDir, { recursive: true });
+    }
+
+    for (const map of indexData) {
+        const zipPath = path.join(
+            __dirname,
+            '../database/maps',
+            `${map.MapUUID}.zip`,
+        );
+
+        if (fs.existsSync(zipPath)) {
+            const tempDir = path.join(__dirname, 'temp', map.MapUUID);
+
+            await fs.promises.mkdir(tempDir, { recursive: true });
+
+            // Extract the zip file
+            await fs
+                .createReadStream(zipPath)
+                .pipe(unzipper.Extract({ path: tempDir }))
+                .promise();
+
+            // Find the PNG file
+            const files = await fs.promises.readdir(tempDir);
+            const pngFiles = files.filter(
+                file => path.extname(file).toLowerCase() === '.png',
+            );
+
+            if (pngFiles.length === 1) {
+                const pngFilePath = path.join(tempDir, pngFiles[0]);
+                const targetPath = path.join(modIconsDir, `${map.MapUUID}.png`);
+
+                // Move the PNG file to the mod icons directory
+                fs.renameSync(pngFilePath, targetPath);
+            } else {
+                console.warn(
+                    `Expected one PNG file in ${zipPath}, found: ${pngFiles.length}`,
+                );
+            }
+
+            // Check for .lua or .blua files and set LuaMap
+            const luaFiles = files.filter(
+                file =>
+                    path.extname(file).toLowerCase() === '.lua' ||
+                    path.extname(file).toLowerCase() === '.blua',
+            );
+            map.LuaMap = luaFiles.length > 0;
+
+            // Create a new ZIP without the PNG file
+            const outputZipPath = zipPath.replace('.zip', '_updated.zip');
+            const output = fs.createWriteStream(outputZipPath);
+            const archive = archiver('zip');
+
+            output.on('close', () => {
+                // Replace original zip with the new zip
+                fs.renameSync(outputZipPath, zipPath);
+            });
+
+            archive.pipe(output);
+
+            for (const file of files) {
+                const filePath = path.join(tempDir, file);
+                if (file !== pngFiles[0]) {
+                    // Exclude the PNG file
+                    archive.file(filePath, { name: file });
+                }
+            }
+
+            await archive.finalize();
+            // Clean up the temporary directory
+            fs.rmSync(tempDir, { recursive: true, force: true });
+        } else {
+            console.warn(`Zip file not found for map UUID: ${map.MapUUID}`);
+        }
+    }
+
+    // After updating the LuaMap, save the updated index data back to the file
+    fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+}
+
 module.exports = {
     usersDir,
     mapsDir,
@@ -112,4 +221,5 @@ module.exports = {
     writeUser,
     getUsers,
     updateIndex,
+    updateToLatest,
 };
