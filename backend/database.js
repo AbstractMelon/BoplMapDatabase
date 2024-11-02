@@ -18,6 +18,7 @@ const bundlesDir = path.join(__dirname, '../database/bundles');
 const bundleIndexPath = path.join(bundlesDir, 'bundleindex.json');
 
 const LogsPath = path.join(miscDir, 'Logs.json');
+const unzipper = require('unzipper');
 
 // Create directories if they don't exist
 [usersDir, mapsDir, miscDir, modIconsDir, mapMakerDir, bundlesDir].forEach(
