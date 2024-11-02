@@ -3,7 +3,7 @@
         <div class="top-container" :class="{ hidden: showSections }">
             <div class="motw-container">
                 <h2>Map of the Week</h2>
-                <MapCard :item="motw" class="motw-card" />
+                <MapCard key="item.MapUUID" :item="motw" class="motw-card" />
             </div>
             <div class="side-container">
                 <div class="handpicked">
