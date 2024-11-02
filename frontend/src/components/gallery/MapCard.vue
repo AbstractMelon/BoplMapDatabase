@@ -19,9 +19,7 @@
         <p v-if="truncatedDescription">
             <strong>Description:</strong> {{ truncatedDescription }}
         </p>
-        <p v-if="getDownloadCount">
-            <strong>Downloads:</strong> {{ getDownloadCount }}
-        </p>
+        <p><strong>Downloads:</strong> {{ getDownloadCount }}</p>
         <button @click.stop="downloadItem">
             {{
                 getItemType() === 'Bundle' ? 'Download Bundle' : 'Download Map'

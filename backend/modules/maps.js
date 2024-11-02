@@ -4,6 +4,7 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const unzipper = require('unzipper');
+const axios = require('axios');
 const archiver = require('archiver');
 const { v4: uuidv4 } = require('uuid');
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
@@ -18,6 +19,52 @@ const {
 const { trackEvent } = require('./analytics');
 
 const upload = multer({ dest: 'uploads/' });
+
+// Load environment variables
+require('dotenv').config({
+    path: require('path').resolve(__dirname, '../../.env'),
+});
+
+// Function to check if an image exists (mocked for example)
+async function imageExists(url) {
+    try {
+        const response = await fetch(url);
+        return response.ok;
+    } catch (error) {
+        console.error(`Failed to check image at ${url}: ${error}`);
+        return false;
+    }
+}
+
+// Send the webhook
+async function sendWebhook(thumbnailUrl) {
+    const imageAvailable = await imageExists(thumbnailUrl);
+
+    if (!imageAvailable) {
+        console.warn(`Thumbnail not found, using fallback image.`);
+        webhookPayload.embeds[0].image.url = fallbackThumbnailUrl;
+    }
+
+    try {
+        const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(webhookPayload),
+        });
+
+        if (!response.ok) {
+            console.error(
+                `Webhook send failed: ${response.status} - ${response.statusText}`,
+            );
+        } else {
+            console.log(`Webhook sent successfully.`);
+        }
+    } catch (error) {
+        console.error(`Error sending webhook: ${error}`);
+    }
+}
 
 router.get('/', (req, res) => {
     const maps = fs.existsSync(indexPath)
@@ -147,6 +194,7 @@ router.post(
 
                 const mapFileName = `${metadata.MapUUID}.zip`;
                 const mapStoragePath = path.join(mapsDir, mapFileName);
+                const MapDescription = metadata.MapDescription || '';
 
                 fs.renameSync(req.file.path, mapStoragePath);
 
@@ -195,6 +243,35 @@ router.post(
                 fs.rmSync(extractedPath, { recursive: true, force: true });
 
                 logLogs('map_upload', { mapUUID: metadata.MapUUID });
+
+                // Prepare and send the webhook
+                const webhookUrl = process.env.WEBHOOK;
+                const thumbnailUrl = `${process.env.CDN}${metadata.MapUUID}.png`;
+                const fallbackThumbnailUrl = `${process.env.CDN}placeholder`;
+
+                const webhookPayload = {
+                    embeds: [
+                        {
+                            title: metadata.MapName || 'Unknown Map',
+                            description: `${
+                                MapDescription || 'No description available.'
+                            }\n\nAuthor: ${
+                                metadata.MapDeveloper || 'Unknown author.'
+                            }`,
+                            image: {
+                                url: thumbnailUrl,
+                            },
+                            footer: {
+                                text: `Made by abstractmelon with love - Map UUID: (${metadata.MapUUID}`,
+                            },
+                        },
+                    ],
+                };
+
+                // Call the function to send the webhook
+                sendWebhook(thumbnailUrl);
+
+                await axios.post(webhookUrl, webhookPayload);
 
                 res.json({ message: 'Map uploaded successfully' });
             } else {
