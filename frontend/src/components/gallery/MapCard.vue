@@ -1,5 +1,5 @@
 <template>
-    <div class="map-card" v-if="item">
+    <div class="map-card" v-if="item" :class="{ 'blue-tint': item.LuaMap }">
         <img
             :src="imageUrl"
             alt="Item Image"
@@ -157,6 +157,17 @@ export default {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
     transition: transform 0.2s;
+    outline: 2px solid var(--accent);
+}
+
+.map-card.blue-tint {
+    outline: 2px solid #d9ff00;
+}
+
+.map-card.blue-tint:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 20px #d9ff00;
+    outline: 3px solid #d9ff00;
 }
 
 .map-image {
@@ -167,7 +178,9 @@ export default {
 }
 
 .map-card:hover {
-    transform: scale(1.05);
+    transform: scale(1.03);
+    box-shadow: 0 0 20px var(--accent);
+    outline: 3px solid var(--accent);
 }
 
 .map-card h2 {

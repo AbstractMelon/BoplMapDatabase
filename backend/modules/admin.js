@@ -10,6 +10,7 @@ const {
     writeUser,
     usersDir,
     logLogs,
+    updateToLatest,
 } = require('../database');
 
 router.get('/users', isAuthenticated, isAdmin, (req, res) => {
