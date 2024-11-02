@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const unzipper = require('archiver');
 
 const usersDir = path.join(__dirname, '../database/users');
 const mapMakerDir = path.join(__dirname, '../database/map-maker');
