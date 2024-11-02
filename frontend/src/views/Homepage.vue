@@ -122,54 +122,123 @@ export default {
             await this.fetchData('/api/bundles', 'bundles');
         },
         updateFilteredItems() {
-            const source =
-                this.currentView === 'maps' ? this.maps : this.bundles;
+            try {
+                const source =
+                    this.currentView === 'maps' ? this.maps : this.bundles;
 
-            console.log('Current View:', this.currentView);
-            console.log('Source items before filtering:', source);
+                console.log('Current View:', this.currentView);
+                console.log('Source items before filtering:', source);
 
-            if (this.currentView === 'maps') {
-                this.filteredItems = source
-                    .map(item => ({
-                        ...item,
-                        relevanceScore: [
-                            'name',
-                            'developer',
-                            'type',
-                            'date',
-                        ].reduce((score, key) => {
-                            if (this.searchParams[key]) {
-                                const value =
-                                    item[
-                                        `Map${
-                                            key.charAt(0).toUpperCase() +
-                                            key.slice(1)
-                                        }`
-                                    ].toLowerCase();
-                                const param =
-                                    this.searchParams[key].toLowerCase();
-                                if (value.includes(param))
-                                    score += value === param ? 2 : 1;
-                            }
-                            return score;
-                        }, 0),
-                    }))
-                    .sort(
-                        (a, b) =>
-                            b.relevanceScore - a.relevanceScore ||
-                            new Date(b.DateCreated) -
-                                new Date(a.DateCreated) *
-                                    (this.sortBy === 'mostRecent'
-                                        ? 1
-                                        : this.sortBy === 'mostDownloaded'
-                                        ? -1
-                                        : -1),
+                // Validate source
+                if (!Array.isArray(source)) {
+                    console.error('Source is not an array:', source);
+                    throw new Error('Invalid source type');
+                }
+
+                // Check if there are search parameters
+                if (Object.keys(this.searchParams).length === 0) {
+                    this.filteredItems = [...source];
+                    console.log(
+                        'No search parameters provided, returning all items.',
                     );
-            } else {
-                this.filteredItems = this.bundles;
-            }
+                } else {
+                    this.filteredItems = source
+                        .map(item => {
+                            try {
+                                const relevanceScore = [
+                                    'name',
+                                    'developer',
+                                    'type',
+                                    'date',
+                                ].reduce((score, key) => {
+                                    if (this.searchParams[key]) {
+                                        const value =
+                                            item[
+                                                `Map${
+                                                    key
+                                                        .charAt(0)
+                                                        .toUpperCase() +
+                                                    key.slice(1)
+                                                }`
+                                            ]?.toLowerCase() || '';
+                                        const param =
+                                            this.searchParams[
+                                                key
+                                            ].toLowerCase();
+                                        if (value.includes(param)) {
+                                            score += value === param ? 2 : 1;
+                                        }
+                                    }
+                                    return score;
+                                }, 0);
 
-            console.log('Filtered items:', this.filteredItems);
+                                return { ...item, relevanceScore };
+                            } catch (itemError) {
+                                console.error(
+                                    'Error processing item:',
+                                    item,
+                                    itemError,
+                                );
+                                return { ...item, relevanceScore: 0 }; // Return item with zero relevance on error
+                            }
+                        })
+                        .filter(item => item.relevanceScore > 0); // Filter items with relevanceScore > 0
+
+                    // Check if no items were filtered
+                    if (this.filteredItems.length === 0) {
+                        console.log(
+                            'No items matched the search parameters. Returning all items.',
+                        );
+                        this.filteredItems = [...source]; // Return all items if none matched
+                    } else {
+                        // Sort the filtered items
+                        this.filteredItems.sort((a, b) => {
+                            try {
+                                // First sort by relevance score
+                                const scoreDifference =
+                                    b.relevanceScore - a.relevanceScore;
+                                if (scoreDifference !== 0)
+                                    return scoreDifference;
+
+                                // If scores are equal, sort by the selected criteria
+                                switch (this.sortBy) {
+                                    case 'mostRecent':
+                                        return (
+                                            new Date(b.DateCreated) -
+                                            new Date(a.DateCreated)
+                                        );
+                                    case 'mostDownloaded':
+                                        return (
+                                            b.downloadCount - a.downloadCount
+                                        );
+                                    case 'oldest':
+                                        return (
+                                            new Date(a.DateCreated) -
+                                            new Date(b.DateCreated)
+                                        );
+                                    default:
+                                        console.warn(
+                                            'Unknown sort criteria:',
+                                            this.sortBy,
+                                        );
+                                        return 0; // Default case
+                                }
+                            } catch (sortError) {
+                                console.error(
+                                    'Error during sorting:',
+                                    sortError,
+                                );
+                                return 0; // Return zero if sorting fails
+                            }
+                        });
+                    }
+                }
+
+                console.log('Filtered items:', this.filteredItems);
+            } catch (error) {
+                console.error('Error updating filtered items:', error);
+                this.filteredItems = []; // Set filteredItems to empty on failure
+            }
         },
 
         clearFilters() {

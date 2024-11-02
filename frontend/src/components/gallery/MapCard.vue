@@ -98,7 +98,7 @@ export default {
             );
         },
         getDownloadCount() {
-            return this.item.DownloadCount || this.item.downloadCount || 0;
+            return this.item.downloadCount || this.item.DownloadCount || 0;
         },
     },
     methods: {

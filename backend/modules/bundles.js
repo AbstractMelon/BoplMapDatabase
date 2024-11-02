@@ -258,4 +258,83 @@ router.get('/download-all', isAuthenticated, (req, res) => {
     archive.finalize();
 });
 
+// Endpoint to download all Lua maps
+router.get('/download-all-lua', isAuthenticated, (req, res) => {
+    let indexData;
+
+    // Retrieve map data using indexPath
+    try {
+        if (fs.existsSync(indexPath)) {
+            const rawData = fs.readFileSync(indexPath);
+            indexData = JSON.parse(rawData);
+        } else {
+            return res.status(404).json({ message: 'Index file not found' });
+        }
+    } catch (error) {
+        console.error('Error reading index file:', error);
+        return res.status(500).json({ message: 'Failed to read index file.' });
+    }
+
+    // Filter maps that are Lua maps
+    const luaMapsToBundle = indexData.filter(map => map.LuaMap === true);
+    console.log('Lua Maps to bundle: ', luaMapsToBundle);
+
+    if (luaMapsToBundle.length === 0) {
+        return res.status(404).json({ message: 'No Lua maps found' });
+    }
+
+    const archive = archiver('zip', {
+        zlib: { level: 9 }, // Maximum compression
+    });
+
+    // Set the headers for downloading the zip file
+    res.attachment('lua_maps_bundle.zip');
+
+    archive.on('error', err => {
+        console.error('Failed to create archive:', err);
+        return res.status(500).json({
+            message: 'Failed to create bundle',
+            error: err.message,
+        });
+    });
+
+    // Pipe the archive directly to the response
+    archive.pipe(res);
+
+    // Add each Lua map file to the zip
+    luaMapsToBundle.forEach(map => {
+        const mapFilePath = path.join(mapsDir, `${map.MapUUID}.zip`);
+        if (fs.existsSync(mapFilePath)) {
+            archive.file(mapFilePath, { name: `${map.MapName}.zip` });
+        }
+    });
+
+    // Increment download counts for each Lua map
+    luaMapsToBundle.forEach(map => {
+        let mapIndexData;
+        try {
+            if (fs.existsSync(indexPath)) {
+                const rawData = fs.readFileSync(indexPath);
+                mapIndexData = JSON.parse(rawData);
+            }
+
+            const mapIndex = mapIndexData.findIndex(
+                m => m.MapUUID === map.MapUUID,
+            );
+            if (mapIndex > -1) {
+                mapIndexData[mapIndex].DownloadCount += 1;
+                fs.writeFileSync(
+                    indexPath,
+                    JSON.stringify(mapIndexData, null, 2),
+                );
+            }
+        } catch (error) {
+            console.error('Error updating map download count:', error);
+        }
+    });
+
+    // Finalize the archive (finish zipping)
+    archive.finalize();
+});
+
 module.exports = router;
