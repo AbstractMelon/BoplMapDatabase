@@ -249,7 +249,11 @@ router.post(
                 const thumbnailUrl = `${process.env.CDN}${metadata.MapUUID}.png`;
                 const fallbackThumbnailUrl = `${process.env.CDN}placeholder`;
 
+                // Role mention
+                const roleMention = `<@&1298674559867818065>`;
+
                 const webhookPayload = {
+                    content: 'New map uploaded! ' + roleMention,
                     embeds: [
                         {
                             title: metadata.MapName || 'Unknown Map',
