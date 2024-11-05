@@ -203,25 +203,55 @@ export default {
                                 // If scores are equal, sort by the selected criteria
                                 switch (this.sortBy) {
                                     case 'mostRecent':
-                                        return (
-                                            new Date(b.DateCreated) -
-                                            new Date(a.DateCreated)
-                                        );
+                                        const dateBRecent = new Date(
+                                            b.DateCreated,
+                                        ).getTime();
+                                        const dateARecent = new Date(
+                                            a.DateCreated,
+                                        ).getTime();
+                                        if (
+                                            isNaN(dateBRecent) ||
+                                            isNaN(dateARecent)
+                                        ) {
+                                            console.warn(
+                                                'Invalid Date in sorting',
+                                                { b, a },
+                                            );
+                                            return 0; // Return zero if invalid date
+                                        }
+                                        return dateBRecent - dateARecent;
+
                                     case 'mostDownloaded':
+                                        // Sorting by download count (descending order)
                                         return (
                                             b.downloadCount - a.downloadCount
                                         );
+
                                     case 'oldest':
-                                        return (
-                                            new Date(a.DateCreated) -
-                                            new Date(b.DateCreated)
-                                        );
+                                        const dateBOldest = new Date(
+                                            b.DateCreated,
+                                        ).getTime();
+                                        const dateAOldest = new Date(
+                                            a.DateCreated,
+                                        ).getTime();
+                                        if (
+                                            isNaN(dateBOldest) ||
+                                            isNaN(dateAOldest)
+                                        ) {
+                                            console.warn(
+                                                'Invalid Date in sorting',
+                                                { b, a },
+                                            );
+                                            return 0; // Return zero if invalid date
+                                        }
+                                        return dateAOldest - dateBOldest;
+
                                     default:
                                         console.warn(
                                             'Unknown sort criteria:',
                                             this.sortBy,
                                         );
-                                        return 0; // Default case
+                                        return 0; // Default case (no sorting)
                                 }
                             } catch (sortError) {
                                 console.error(
