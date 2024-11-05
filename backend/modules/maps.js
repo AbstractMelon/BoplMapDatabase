@@ -246,7 +246,7 @@ router.post(
 
                 // Prepare and send the webhook
                 const webhookUrl = process.env.WEBHOOK;
-                const thumbnailUrl = `${process.env.CDN}${metadata.MapUUID}.png`;
+                const thumbnailUrl = `${process.env.CDN}${metadata.MapUUID}`;
                 const fallbackThumbnailUrl = `${process.env.CDN}placeholder`;
 
                 // Role mention
