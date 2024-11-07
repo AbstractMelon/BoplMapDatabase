@@ -137,7 +137,7 @@ export default {
 
                 // Check if there are search parameters
                 if (Object.keys(this.searchParams).length === 0) {
-                    console.log('test');
+                    alert('lll');
                     this.filteredItems.sort((a, b) => {
                                 switch (this.sortBy) {
                                     case 'mostRecent':
