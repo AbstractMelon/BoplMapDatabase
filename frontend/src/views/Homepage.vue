@@ -135,54 +135,104 @@ export default {
                     throw new Error('Invalid source type');
                 }
 
-                this.filteredItems = source
-                    .map(item => {
-                        try {
-                            const relevanceScore = [
-                                'name',
-                                'developer',
-                                'type',
-                                'date',
-                            ].reduce((score, key) => {
-                                if (this.searchParams[key]) {
-                                    const value =
-                                        item[
-                                            `Map${
+                // Check if there are search parameters
+                if (Object.keys(this.searchParams).length === 0) {
+                    this.filteredItems = [...source];
+                    console.log(
+                        'No search parameters provided, returning all items.',
+                    );
+                } else {
+                    this.filteredItems = source
+                        .map(item => {
+                            try {
+                                const relevanceScore = [
+                                    'name',
+                                    'developer',
+                                    'type',
+                                    'date',
+                                ].reduce((score, key) => {
+                                    if (this.searchParams[key]) {
+                                        const value =
+                                            item[
+                                                `Map${
+                                                    key
+                                                        .charAt(0)
+                                                        .toUpperCase() +
+                                                    key.slice(1)
+                                                }`
+                                            ]?.toLowerCase() || '';
+                                        const param =
+                                            this.searchParams[
                                                 key
-                                                    .charAt(0)
-                                                    .toUpperCase() +
-                                                key.slice(1)
-                                            }`
-                                        ]?.toLowerCase() || '';
-                                    const param =
-                                        this.searchParams[
-                                            key
-                                        ].toLowerCase();
-                                    if (value.includes(param)) {
-                                        score += value === param ? 2 : 1;
+                                            ].toLowerCase();
+                                        if (value.includes(param)) {
+                                            score += value === param ? 2 : 1;
+                                        }
                                     }
-                                }
-                                return score;
-                            }, 0);
+                                    return score;
+                                }, 0);
 
-                            return { ...item, relevanceScore };
-                        } catch (itemError) {
-                            console.error(
-                                'Error processing item:',
-                                item,
-                                itemError,
-                            );
-                            return { ...item, relevanceScore: 0 }; // Return item with zero relevance on error
-                        }
-                    })
-                    .filter(item => item.relevanceScore > 0); // Filter items with relevanceScore > 0
+                                return { ...item, relevanceScore };
+                            } catch (itemError) {
+                                console.error(
+                                    'Error processing item:',
+                                    item,
+                                    itemError,
+                                );
+                                return { ...item, relevanceScore: 0 }; // Return item with zero relevance on error
+                            }
+                        })
+                        .filter(item => item.relevanceScore > 0); // Filter items with relevanceScore > 0
 
                     // Check if no items were filtered
                     if (this.filteredItems.length === 0) {
-                        console.log(
-                            'No items matched the search parameters. Returning all items.',
-                        );
-                        this.filteredItems = [...source]; // Return all items if none matched
+                        console.log('No items matched the search parameters. Returning all items.');
+                        this.filteredItems.sort((a, b) => {
+                                switch (this.sortBy) {
+                                    case 'mostRecent':
+                                        const dateBRecent = new Date(b.DateCreated).getTime();
+                                        const dateARecent = new Date(a.DateCreated).getTime();
+                                        if (isNaN(dateBRecent) || isNaN(dateARecent)) {
+                                            console.warn(
+                                                'Invalid Date in sorting',
+                                                { b, a },
+                                            );
+                                            return 0; // Return zero if invalid date
+                                        }
+                                        return dateBRecent - dateARecent;
+
+                                    case 'mostDownloaded':
+                                        // Sorting by download count (descending order)
+                                        return b.downloadCount - a.downloadCount;
+
+                                    case 'oldest':
+                                        const dateBOldest = new Date(
+                                            b.DateCreated,
+                                        ).getTime();
+                                        const dateAOldest = new Date(
+                                            a.DateCreated,
+                                        ).getTime();
+                                        if (
+                                            isNaN(dateBOldest) ||
+                                            isNaN(dateAOldest)
+                                        ) {
+                                            console.warn(
+                                                'Invalid Date in sorting',
+                                                { b, a },
+                                            );
+                                            return 0; // Return zero if invalid date
+                                        }
+                                        return dateAOldest - dateBOldest;
+
+                                    default:
+                                        console.warn(
+                                            'Unknown sort criteria:',
+                                            this.sortBy,
+                                        );
+                                        return 0; // Default case (no sorting)
+                                }
+                            });
+                        }
                     } else {
                         // Sort the filtered items
                         this.filteredItems.sort((a, b) => {
@@ -268,6 +318,7 @@ export default {
             this.searchParams = { name: '', developer: '', type: '', date: '' };
             this.updateFilteredItems();
         },
+        
         onSearch() {
             this.updateFilteredItems();
         },
