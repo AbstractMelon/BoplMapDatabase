@@ -207,7 +207,7 @@ router.post(
                     // Run the ContainsText function on the boplmap content
                     ContainsText(boplmapContent).then(textList => {
                         if (textList.length > 0) {
-                            alert("Map contains text:\n" + textList.join("\n"));
+                            console.log("Map contains text:\n" + textList.join("\n"));
                         }
                     });
                 }
