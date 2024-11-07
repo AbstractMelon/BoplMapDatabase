@@ -135,54 +135,47 @@ export default {
                     throw new Error('Invalid source type');
                 }
 
-                // Check if there are search parameters
-                if (Object.keys(this.searchParams).length === 0) {
-                    this.filteredItems = [...source];
-                    console.log(
-                        'No search parameters provided, returning all items.',
-                    );
-                } else {
-                    this.filteredItems = source
-                        .map(item => {
-                            try {
-                                const relevanceScore = [
-                                    'name',
-                                    'developer',
-                                    'type',
-                                    'date',
-                                ].reduce((score, key) => {
-                                    if (this.searchParams[key]) {
-                                        const value =
-                                            item[
-                                                `Map${
-                                                    key
-                                                        .charAt(0)
-                                                        .toUpperCase() +
-                                                    key.slice(1)
-                                                }`
-                                            ]?.toLowerCase() || '';
-                                        const param =
-                                            this.searchParams[
+                this.filteredItems = source
+                    .map(item => {
+                        try {
+                            const relevanceScore = [
+                                'name',
+                                'developer',
+                                'type',
+                                'date',
+                            ].reduce((score, key) => {
+                                if (this.searchParams[key]) {
+                                    const value =
+                                        item[
+                                            `Map${
                                                 key
-                                            ].toLowerCase();
-                                        if (value.includes(param)) {
-                                            score += value === param ? 2 : 1;
-                                        }
+                                                    .charAt(0)
+                                                    .toUpperCase() +
+                                                key.slice(1)
+                                            }`
+                                        ]?.toLowerCase() || '';
+                                    const param =
+                                        this.searchParams[
+                                            key
+                                        ].toLowerCase();
+                                    if (value.includes(param)) {
+                                        score += value === param ? 2 : 1;
                                     }
-                                    return score;
-                                }, 0);
+                                }
+                                return score;
+                            }, 0);
 
-                                return { ...item, relevanceScore };
-                            } catch (itemError) {
-                                console.error(
-                                    'Error processing item:',
-                                    item,
-                                    itemError,
-                                );
-                                return { ...item, relevanceScore: 0 }; // Return item with zero relevance on error
-                            }
-                        })
-                        .filter(item => item.relevanceScore > 0); // Filter items with relevanceScore > 0
+                            return { ...item, relevanceScore };
+                        } catch (itemError) {
+                            console.error(
+                                'Error processing item:',
+                                item,
+                                itemError,
+                            );
+                            return { ...item, relevanceScore: 0 }; // Return item with zero relevance on error
+                        }
+                    })
+                    .filter(item => item.relevanceScore > 0); // Filter items with relevanceScore > 0
 
                     // Check if no items were filtered
                     if (this.filteredItems.length === 0) {
