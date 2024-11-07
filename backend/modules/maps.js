@@ -25,6 +25,19 @@ require('dotenv').config({
     path: require('path').resolve(__dirname, '../../.env'),
 });
 
+// Check if a map has text components
+async function ContainsText(map) {
+    const parsedMap = JSON.parse(map);
+
+    // Check if "texts" field exists and is an array
+    if (!parsedMap.texts || !Array.isArray(parsedMap.texts)) {
+        return [];
+    }
+
+    // Extract and return the "text" field from each text component
+    return parsedMap.texts.map(textComponent => textComponent.textData.text);
+}
+
 // Function to check if an image exists (mocked for example)
 async function imageExists(url) {
     try {
@@ -181,8 +194,25 @@ router.post(
 
                 metadata.MapDeveloper = req.user.username;
 
-                // Check for .lua or .blua files
+                // Find and process the .boplmap file
                 const files = await fs.promises.readdir(extractedPath);
+                const boplmapFile = files.find(
+                    file => path.extname(file).toLowerCase() === '.boplmap'
+                );
+
+                if (boplmapFile) {
+                    const boplmapPath = path.join(extractedPath, boplmapFile);
+                    const boplmapContent = fs.readFileSync(boplmapPath, 'utf-8');
+
+                    // Run the ContainsText function on the boplmap content
+                    ContainsText(boplmapContent).then(textList => {
+                        if (textList.length > 0) {
+                            alert("Map contains text:\n" + textList.join("\n"));
+                        }
+                    });
+                }
+
+                // Check for .lua or .blua files
                 const luaFiles = files.filter(
                     file =>
                         path.extname(file).toLowerCase() === '.lua' ||

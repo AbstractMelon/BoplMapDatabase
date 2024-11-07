@@ -139,3 +139,11 @@ docs/.vitepress/cache
 docs/.vitepress/dist
 
 /safe/
+.vs/BoplMapDatabase/config/applicationhost.config
+.vs/BoplMapDatabase/v17/.wsuo
+.vs/ProjectSettings.json
+.vs/slnx.sqlite
+.vs/VSWorkspaceState.json
+frontend/src/views/.vs/ProjectSettings.json
+frontend/src/views/.vs/slnx.sqlite
+frontend/src/views/.vs/views/v17/.wsuo
