@@ -1,10 +1,10 @@
 import { defineConfig } from 'vitepress';
 
 export default defineConfig({
-    title: 'Map Maker Docs',
+    title: 'Map Database',
     description: 'The docs for the map maker bopl mod!',
     head: [['link', { rel: 'icon', href: '/favicon.ico' }]],
-    base: '/docs/',
+    base: '/',
     ignoreDeadLinks: true,
     markdown: {
         emoji: false,
