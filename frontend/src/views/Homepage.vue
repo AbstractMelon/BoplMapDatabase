@@ -231,51 +231,7 @@ export default {
                         console.log(
                             'No items matched the search parameters. Returning all items.',
                         );
-                        this.filteredItems.sort((a, b) => {
-                                switch (this.sortBy) {
-                                    case 'mostRecent':
-                                        const dateBRecent = new Date(b.DateCreated).getTime();
-                                        const dateARecent = new Date(a.DateCreated).getTime();
-                                        if (isNaN(dateBRecent) || isNaN(dateARecent)) {
-                                            console.warn(
-                                                'Invalid Date in sorting',
-                                                { b, a },
-                                            );
-                                            return 0; // Return zero if invalid date
-                                        }
-                                        return dateBRecent - dateARecent;
-
-                                    case 'mostDownloaded':
-                                        // Sorting by download count (descending order)
-                                        return b.downloadCount - a.downloadCount;
-
-                                    case 'oldest':
-                                        const dateBOldest = new Date(
-                                            b.DateCreated,
-                                        ).getTime();
-                                        const dateAOldest = new Date(
-                                            a.DateCreated,
-                                        ).getTime();
-                                        if (
-                                            isNaN(dateBOldest) ||
-                                            isNaN(dateAOldest)
-                                        ) {
-                                            console.warn(
-                                                'Invalid Date in sorting',
-                                                { b, a },
-                                            );
-                                            return 0; // Return zero if invalid date
-                                        }
-                                        return dateAOldest - dateBOldest;
-
-                                    default:
-                                        console.warn(
-                                            'Unknown sort criteria:',
-                                            this.sortBy,
-                                        );
-                                        return 0; // Default case (no sorting)
-                                }
-                            });
+                        this.filteredItems = [...source]; // Return all items if none matched
                     } else {
                         // Sort the filtered items
                         this.filteredItems.sort((a, b) => {
