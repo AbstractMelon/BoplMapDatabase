@@ -6,11 +6,10 @@
                 <a href="https://discord.gg/Fpbg8MpKnm" class="footer-link"
                     >Discord</a
                 >
-                <a href="/motw" class="footer-link">MOTW</a>
                 <a href="/map-creator" class="footer-link">Map Creator</a>
-                <a href="/map-downloader" class="footer-link">Map Downloader</a>
+                <a href="https://thunderstore.io/c/bopl-battle/p/MapMakerTeam/Map_Loader/" class="footer-link">Map Loader</a>
                 <a href="/docs/" class="footer-link">Wiki</a>
-                <a href="/credits" class="footer-link">Credits</a>
+                <a href="/docs/credits/" class="footer-link">Credits</a>
             </div>
             <div class="footer-credit">
                 <span>&copy; 2024 Bopl Map Database. All rights reserved.</span>
