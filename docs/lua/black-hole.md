@@ -107,3 +107,8 @@ if (hole.HasBeenInitialized() and not hole.IsBeingDestroyed()) then
     hole.Destroy()
 end
 ```
+### GetClassType
+returns "BlackHole"
+```
+BlackHole.GetClassType()
+```
