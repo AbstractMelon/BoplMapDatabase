@@ -47,7 +47,24 @@ number Platform.GetBaseScale()
 ```lua
 Platform.SetBaseScale(number baseScale)
 ```
+### Max Scale
+the max scale. if the scale is more then this value it gets clamped to this value
+```lua
+number Platform.GetMaxScale()
+```
 
+```lua
+Platform.SetMaxScale(number MaxScale)
+```
+### Min Scale
+the minimum scale. if the scale is less then this value it gets clamped to this value
+```lua
+number Platform.GetMinScale()
+```
+
+```lua
+Platform.SetMinScale(number MinScale)
+```
 ## Info Functions
 
 ### Get Bopl Body
