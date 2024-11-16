@@ -63,7 +63,6 @@
 
 <script>
 import MapGallery from '../components/MapGallery.vue';
-
 export default {
     components: { MapGallery },
     data() {
@@ -95,7 +94,6 @@ export default {
                     throw new Error(
                         `Error fetching ${key}: ${response.statusText}`,
                     );
-
                 const data = await response.json();
                 console.log(
                     `${key.charAt(0).toUpperCase() + key.slice(1)} data:`,
@@ -114,7 +112,6 @@ export default {
                 console.error(`Fetch ${key} error:`, error);
             }
         },
-
         async fetchMaps() {
             await this.fetchData('/api/maps', 'maps');
         },
@@ -125,64 +122,19 @@ export default {
             try {
                 const source =
                     this.currentView === 'maps' ? this.maps : this.bundles;
-
                 console.log('Current View:', this.currentView);
                 console.log('Source items before filtering:', source);
-
                 // Validate source
                 if (!Array.isArray(source)) {
                     console.error('Source is not an array:', source);
                     throw new Error('Invalid source type');
                 }
-
                 // Check if there are search parameters
                 if (Object.keys(this.searchParams).length === 0) {
-                    console.log('test');
-                    this.filteredItems.sort((a, b) => {
-                                switch (this.sortBy) {
-                                    case 'mostRecent':
-                                        const dateBRecent = new Date(b.DateCreated).getTime();
-                                        const dateARecent = new Date(a.DateCreated).getTime();
-                                        if (isNaN(dateBRecent) || isNaN(dateARecent)) {
-                                            console.warn(
-                                                'Invalid Date in sorting',
-                                                { b, a },
-                                            );
-                                            return 0; // Return zero if invalid date
-                                        }
-                                        return dateBRecent - dateARecent;
-
-                                    case 'mostDownloaded':
-                                        // Sorting by download count (descending order)
-                                        return b.downloadCount - a.downloadCount;
-
-                                    case 'oldest':
-                                        const dateBOldest = new Date(
-                                            b.DateCreated,
-                                        ).getTime();
-                                        const dateAOldest = new Date(
-                                            a.DateCreated,
-                                        ).getTime();
-                                        if (
-                                            isNaN(dateBOldest) ||
-                                            isNaN(dateAOldest)
-                                        ) {
-                                            console.warn(
-                                                'Invalid Date in sorting',
-                                                { b, a },
-                                            );
-                                            return 0; // Return zero if invalid date
-                                        }
-                                        return dateAOldest - dateBOldest;
-
-                                    default:
-                                        console.warn(
-                                            'Unknown sort criteria:',
-                                            this.sortBy,
-                                        );
-                                        return 0; // Default case (no sorting)
-                                }
-                            });
+                    this.filteredItems = [...source];
+                    console.log(
+                        'No search parameters provided, returning all items.',
+                    );
                 } else {
                     this.filteredItems = source
                         .map(item => {
@@ -213,7 +165,6 @@ export default {
                                     }
                                     return score;
                                 }, 0);
-
                                 return { ...item, relevanceScore };
                             } catch (itemError) {
                                 console.error(
@@ -225,7 +176,6 @@ export default {
                             }
                         })
                         .filter(item => item.relevanceScore > 0); // Filter items with relevanceScore > 0
-
                     // Check if no items were filtered
                     if (this.filteredItems.length === 0) {
                         console.log(
@@ -241,7 +191,6 @@ export default {
                                     b.relevanceScore - a.relevanceScore;
                                 if (scoreDifference !== 0)
                                     return scoreDifference;
-
                                 // If scores are equal, sort by the selected criteria
                                 switch (this.sortBy) {
                                     case 'mostRecent':
@@ -262,13 +211,11 @@ export default {
                                             return 0; // Return zero if invalid date
                                         }
                                         return dateBRecent - dateARecent;
-
                                     case 'mostDownloaded':
                                         // Sorting by download count (descending order)
                                         return (
                                             b.downloadCount - a.downloadCount
                                         );
-
                                     case 'oldest':
                                         const dateBOldest = new Date(
                                             b.DateCreated,
@@ -287,7 +234,6 @@ export default {
                                             return 0; // Return zero if invalid date
                                         }
                                         return dateAOldest - dateBOldest;
-
                                     default:
                                         console.warn(
                                             'Unknown sort criteria:',
@@ -305,14 +251,12 @@ export default {
                         });
                     }
                 }
-
                 console.log('Filtered items:', this.filteredItems);
             } catch (error) {
                 console.error('Error updating filtered items:', error);
                 this.filteredItems = []; // Set filteredItems to empty on failure
             }
         },
-
         clearFilters() {
             this.searchParams = { name: '', developer: '', type: '', date: '' };
             this.updateFilteredItems();
@@ -338,7 +282,6 @@ export default {
     },
 };
 </script>
-
 <style scoped>
 .toggle-wrapper {
     display: flex;
@@ -354,13 +297,11 @@ export default {
     border-radius: 10px;
     margin-top: 20px;
 }
-
 .toggle-container {
     display: flex;
     justify-content: center;
     width: 90%;
 }
-
 .toggle-container button {
     margin: 0 10px;
     padding: 12px 20px;
@@ -374,11 +315,9 @@ export default {
     transition: background-color 0.3s, transform 0.2s;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
-
 .toggle-container button:hover {
     transform: scale(1.05);
 }
-
 .toggle-container button.active {
     background: linear-gradient(
         90deg,
@@ -388,7 +327,6 @@ export default {
     color: white;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
-
 .search-container {
     background-color: var(--bgcol3);
     padding: 5px;
@@ -399,7 +337,6 @@ export default {
     margin-top: 20px;
     align-content: top;
 }
-
 .search-bar {
     display: flex;
     flex-direction: column;
@@ -407,7 +344,6 @@ export default {
     gap: 10px;
     margin: 10px;
 }
-
 .search-bar input,
 .search-bar button,
 .search-bar select {
@@ -420,16 +356,13 @@ export default {
     width: 100%;
     max-width: 300px;
 }
-
 .search-bar input::placeholder,
 .search-bar button {
     color: #999;
 }
-
 .sort-label {
     margin-bottom: 5px; /* Adjusts space above the dropdown */
 }
-
 .sort-dropdown {
     padding: 10px;
     font-size: 1em;
@@ -440,12 +373,10 @@ export default {
     width: 100%;
     max-width: 300px;
 }
-
 @media (min-width: 768px) {
     .search-bar {
         flex-direction: row;
     }
-
     .search-bar input,
     .search-bar button,
     .search-bar select {
