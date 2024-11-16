@@ -109,6 +109,34 @@ if (!p1.IsBoulder()) then
 end
 ```
 
+### Is Anti Lock
+Returns true if the platform has an AntiLockPlatform component (that makes it move between points)
+
+```
+bool Platform.IsAntiLock()
+```
+
+Example:
+```lua
+if (plat.IsAntiLock()) then
+    plat.RemoveAntiLock()
+end
+```
+
+### Is Vector Field
+Returns true if the platform has a VectorFieldPlatform component (that makes it orbit a point)
+
+```
+bool Platform.IsVectorField()
+```
+
+Example:
+```lua
+if (plat.IsVectorField()) then
+    plat.RemoveVectorField()
+end
+```
+
 ### Get Platform Size
 Returns the platform's width, height, and radius
 ~ width and height are distances from edge to center - radius. to calculate them in bopl units you do `2(width + radius)` for width and `2(height + radius)` for height.
@@ -172,5 +200,69 @@ Example:
 ```lua
 if (player.GetPlatform() == plat) then
     plat.ShakePlatform(1, 2)
+end
+```
+
+### Make Anti Lock - <span style="color: red;">Doesn't Work For Boulder!</span>
+Adds an AntiLockPlaform component to the platform, that makes the platform move between points and ignore its home position.
+~ OrbitPathXs and OrbitPathYs are tables with coordinates of the points the platform moves between. They can have any length, as long as their lengths aren't different from each other.
+DelaySeconds is a delay before the platform starts moving counted from when the map is loaded (not from when players get spawned).
+If the platform already has an AntiLockPlaform component or a VectorFieldPlatform component, calling this function overrides it.
+
+```
+Platform.MakeAntiLock(table OrbitPathXs, table OrbitPathYs, number DelaySeconds, number OrbitForce)
+```
+
+Example:
+```lua
+if (not plat.IsBoulder()) then
+    plat.MakeAntiLock({0, 10, 10, 0}, {0, 0, 10, 10}, 3, 600)
+end
+```
+### Make Vector Field - <span style="color: red;">Doesn't Work For Boulder!</span>
+Adds a VectorFieldPlaform component to the platform, that makes the platform orbit a point and ignore its home position.
+~ DelaySeconds is a delay before the platform starts orbiting counted from when the map is loaded (not from when players get spawned).
+I do not know what expandSpeed, normalSpeedFriction, DeadZoneDist, OrbitAccelerationMulitplier, and ovalness01 are.
+If the platform already has a VectorFieldPlatform component or an AntiLockPlaform component, calling this function overrides it.
+
+```
+Platform.MakeVectorField(double centerX, double centerY, double delaySeconds, double orbitSpeed, double expandSpeed, double normalSpeedFriction, double DeadZoneDist, double OrbitAccelerationMulitplier, double targetRadius, double ovalness01)
+```
+
+Example:
+```lua
+if (not plat.IsBoulder()) then
+    plat.MakeVectorField(0, 12, 3, 15, 100, 0.95, 1, 1, 20, 1)
+end
+```
+### Remove Anti Lock
+Removes the platform's AntiLockPlatform component, causing it to stop moving between points and start moving towards its home position.
+~ Can only be called if the platform has an AntiLockPlatform component.
+A platform with an AntiLockPlatform component keeps setting its home to its position, so the platform's home is its position when this is called.
+
+```
+Platform.RemoveAntiLock()
+```
+
+Example:
+```lua
+if (plat.IsAntiLock()) then
+    plat.RemoveAntiLock()
+end
+```
+
+### Remove Vector Field
+Removes the platform's VectorFieldPlatform component, causing it to stop orbiting a point and start moving towards its home position.
+~ Can only be called if the platform has a VectorFieldPlatform component.
+A platform with a VectorFieldPlatform component keeps setting its home to its position, so the platform's home is its position when this is called.
+
+```
+Platform.RemoveVectorField()
+```
+
+Example:
+```lua
+if (plat.IsVectorField()) then
+    plat.RemoveVectorField()
 end
 ```
