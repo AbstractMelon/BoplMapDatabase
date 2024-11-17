@@ -121,7 +121,7 @@ Player.SetJumpStrength(number jumpStrength)
 ```
 
 ### Jump Extra X Strength
-???????? i dont fucking know
+???????? i dont flipping know
 ```lua
 number Player.GetJumpExtraXStrength()
 ```
@@ -131,7 +131,7 @@ Player.SetJumpExtraXStrength(number jumpExtraStrength)
 ```
 
 ### Jump kept Momentum
-???????? i dont fucking know #2
+???????? i dont flipping know #2
 ```lua
 number Player.GetJumpKeptMomentum()
 ```
