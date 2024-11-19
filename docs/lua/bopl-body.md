@@ -50,7 +50,69 @@ number BoplBody.GetMass()
 ```lua
 BoplBody.SetMass(number mass)
 ```
+### Bouncyness
+a value of 1 is perfectly elastic. a value of 0 is no bouncyness, a value of > 1 is a infinite energy generator. (danger may break the game)
+```lua
+number BoplBody.GetBouncyness()
+```
 
+```lua
+BoplBody.SetBouncyness(number Bouncyness)
+```
+### GravityScale
+
+```lua
+number BoplBody.GetGravityScale()
+```
+
+```lua
+BoplBody.SetGravityScale(number GravityScale)
+```
+### AngularVelocity
+
+```lua
+number BoplBody.GetAngularVelocity()
+```
+
+```lua
+BoplBody.SetAngularVelocity(number AngularVelocity)
+```
+### StaticFriction
+idk something to do with Friction.
+```lua
+number BoplBody.GetStaticFriction()
+```
+
+```lua
+BoplBody.SetStaticFriction(number StaticFriction)
+```
+### DynamicFriction
+idk something to do with Friction.
+```lua
+number BoplBody.GetDynamicFriction()
+```
+
+```lua
+BoplBody.SetDynamicFriction(number DynamicFriction)
+```
+### AirFriction
+the velocity is multiplyed by this value every frame. a value of 0 is infinite air resistance. a value of 1 is no air resistance. a value of > 1 causes acceleration (danger may break the game)
+```lua
+number BoplBody.GetAirFriction()
+```
+
+```lua
+BoplBody.SetAirFriction(number AirFriction)
+```
+### RotationalDrag
+the AngularVelocity is multiplyed by this value every frame. a value of 0 is infinite rotational drag. a value of 1 is no rotational drag. a value of > 1 causes rotational acceleration (danger may break the game)
+```lua
+number BoplBody.GetRotationalDrag()
+```
+
+```lua
+BoplBody.SetRotationalDrag(number RotationalDrag)
+```
 ## Info Functions
 
 ### Has Been Initialized
