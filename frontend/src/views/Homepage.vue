@@ -288,7 +288,7 @@ export default {
     justify-content: center;
     align-items: center;
     height: fit-content;
-    max-width: 95%;
+    max-width: 100%;
     margin: auto;
     padding: 20px;
     background-color: var(--bgcol3);
@@ -332,7 +332,7 @@ export default {
     padding: 5px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    max-width: 97%;
+    max-width: 100%;
     margin: auto;
     margin-top: 20px;
     align-content: top;

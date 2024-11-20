@@ -1,8 +1,8 @@
 <template>
     <div id="app">
         <div class="multi-use-container">
-            <Header @toggle-upload-popup="showUploadPopup" />
-            <router-view />
+            <Header @toggle-upload-popup="showUploadPopup"/>
+            <router-view style="width:calc(100% - 40px);max-width:1500px;margin-left:auto;margin-right:auto;padding:0px 20px 0px 20px;"/>
             <Footer />
             <UploadPopup
                 :show="uploadPopupVisible"

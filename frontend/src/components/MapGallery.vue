@@ -149,19 +149,18 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding: 20px;
+    margin-top: 20px;
 }
 
 .top-container {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
     gap: 20px;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 
-@media (min-width: 600px) {
-    .top-container {
-        grid-template-columns: 2fr 3fr;
+@media only screen and (max-width: 900px) {
+    .top-container{
+        flex-direction: column;
     }
 }
 
@@ -210,7 +209,8 @@ export default {
 }
 
 .main-map-list .map-card {
-    flex-grow: 0.2;
+    flex-grow: 1;
+    max-width: 400px;
 }
 
 .map-grid {
