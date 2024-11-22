@@ -1,22 +1,24 @@
 <template>
     <header>
-        <div class="header-title"><a href="/">Bopl Map Database</a></div>
-        <div class="header-buttons">
-            <a href="/map-creator"><button>Get Map Maker</button></a>
-            <button @click="$emit('toggle-upload-popup')">Upload Map</button>
-            <button @click="handleAuthButton">
-                {{ isLoggedIn ? username : 'Signup/Login' }}
-            </button>
-        </div>
-        <div class="hamburger" @click="toggleDropdown">
-            &#9776;
-            <!-- Hamburger icon -->
-        </div>
-        <div v-if="dropdownVisible" class="dropdown">
-            <button @click="$emit('toggle-upload-popup')">Upload Map</button>
-            <button @click="handleAuthButton">
-                {{ isLoggedIn ? username : 'Signup/Login' }}
-            </button>
+        <div class="header-content">
+            <div class="header-title"><a href="/">Bopl Map Database</a></div>
+            <div class="header-buttons">
+                <button onclick="window.location.href = '/map-creator'" tabindex="1">Get Map Maker</button>
+                <button @click="$emit('toggle-upload-popup')" tabindex="2">Upload Map</button>
+                <button @click="handleAuthButton" tabindex="3">
+                    {{ isLoggedIn ? username : 'Signup/Login' }}
+                </button>
+            </div>
+            <div class="hamburger" @click="toggleDropdown">
+                &#9776;
+                <!-- Hamburger icon -->
+            </div>
+            <div v-if="dropdownVisible" class="dropdown">
+                <button @click="$emit('toggle-upload-popup')">Upload Map</button>
+                <button @click="handleAuthButton">
+                    {{ isLoggedIn ? username : 'Signup/Login' }}
+                </button>
+            </div>
         </div>
     </header>
 </template>
@@ -59,13 +61,18 @@ export default {
 </script>
 
 <style scoped>
-header {
+.header-content {
     background-color: var(--accent);
-    padding: 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: relative; /* To position the dropdown */
+    width: 100%;
+    max-width: 1500px;
+    margin: auto;
+}
+.header{
+    display: flex;
 }
 
 .header-title {
