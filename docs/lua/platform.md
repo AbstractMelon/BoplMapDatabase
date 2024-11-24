@@ -222,11 +222,13 @@ end
 ### Make Vector Field - <span style="color: red;">Doesn't Work For Boulder!</span>
 Adds a VectorFieldPlaform component to the platform, that makes the platform orbit a point and ignore its home position.
 ~ DelaySeconds is a delay before the platform starts orbiting counted from when the map is loaded (not from when players get spawned).
-I do not know what expandSpeed, normalSpeedFriction, DeadZoneDist, OrbitAccelerationMulitplier, and ovalness01 are.
+~ DeadZoneDist is how far from the targetRadius it can go before being atracted to be closer to the targetRadius.
+~ ovalness01 has to do with how much of a oval it is. idk the exsact values.
+I do not know what expandSpeed, normalSpeedFriction, and OrbitAccelerationMulitplier are.
 If the platform already has a VectorFieldPlatform component or an AntiLockPlaform component, calling this function overrides it.
 
 ```
-Platform.MakeVectorField(double centerX, double centerY, double delaySeconds, double orbitSpeed, double expandSpeed, double normalSpeedFriction, double DeadZoneDist, double OrbitAccelerationMulitplier, double targetRadius, double ovalness01)
+Platform.MakeVectorField(number centerX, number centerY, number delaySeconds, number orbitSpeed, number expandSpeed, number normalSpeedFriction, number DeadZoneDist, number OrbitAccelerationMulitplier, number targetRadius, number ovalness01)
 ```
 
 Example:
