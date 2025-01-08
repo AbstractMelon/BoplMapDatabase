@@ -4,6 +4,7 @@
             <div class="header-title"><a href="/">Bopl Map Database</a></div>
             <div class="header-buttons">
                 <button onclick="window.location.href = '/map-creator'" tabindex="1">Get Map Maker</button>
+                <button onclick="window.location.href = '/docs'" tabindex="1">Docs</button>
                 <button @click="$emit('toggle-upload-popup')" tabindex="2">Upload Map</button>
                 <button @click="handleAuthButton" tabindex="3">
                     {{ isLoggedIn ? username : 'Signup/Login' }}

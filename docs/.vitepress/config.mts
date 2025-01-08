@@ -13,7 +13,7 @@ export default defineConfig({
         siteTitle: 'Map Maker Docs',
         logo: '/logo.png',
         nav: [
-            { text: 'Home', link: '/' },
+            { text: 'Home', link: 'https://map-maker.abstractmelon.net/' },
             { text: 'Install Guide', link: '/makerguide/install-guide' },
             {
                 text: 'Guide',
