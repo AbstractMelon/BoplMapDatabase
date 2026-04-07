@@ -87,6 +87,26 @@ export default {
         },
     },
     methods: {
+        toText(value) {
+            return (value ?? '').toString().toLowerCase();
+        },
+        getItemDate(item) {
+            return (
+                item.DateCreated ||
+                item.MapDateCreated ||
+                item.CreatedAt ||
+                item.createdAt ||
+                ''
+            );
+        },
+        getItemDownloadCount(item) {
+            return Number(
+                item.downloadCount ||
+                    item.DownloadCount ||
+                    item.BundleDownloadCount ||
+                    0,
+            );
+        },
         async fetchData(endpoint, key) {
             try {
                 const response = await fetch(endpoint);
@@ -122,136 +142,62 @@ export default {
             try {
                 const source =
                     this.currentView === 'maps' ? this.maps : this.bundles;
-                console.log('Current View:', this.currentView);
-                console.log('Source items before filtering:', source);
-                // Validate source
+
                 if (!Array.isArray(source)) {
                     console.error('Source is not an array:', source);
                     throw new Error('Invalid source type');
                 }
-                // Check if there are search parameters
-                if (Object.keys(this.searchParams).length === 0) {
-                    this.filteredItems = [...source];
-                    console.log(
-                        'No search parameters provided, returning all items.',
-                    );
-                } else {
-                    this.filteredItems = source
-                        .map(item => {
-                            try {
-                                const relevanceScore = [
-                                    'name',
-                                    'developer',
-                                    'type',
-                                    'date',
-                                ].reduce((score, key) => {
-                                    if (this.searchParams[key]) {
-                                        const value =
-                                            item[
-                                                `Map${
-                                                    key
-                                                        .charAt(0)
-                                                        .toUpperCase() +
-                                                    key.slice(1)
-                                                }`
-                                            ]?.toLowerCase() || '';
-                                        const param =
-                                            this.searchParams[
-                                                key
-                                            ].toLowerCase();
-                                        if (value.includes(param)) {
-                                            score += value === param ? 2 : 1;
-                                        }
-                                    }
-                                    return score;
-                                }, 0);
-                                return { ...item, relevanceScore };
-                            } catch (itemError) {
-                                console.error(
-                                    'Error processing item:',
-                                    item,
-                                    itemError,
-                                );
-                                return { ...item, relevanceScore: 0 }; // Return item with zero relevance on error
-                            }
-                        })
-                        .filter(item => item.relevanceScore > 0); // Filter items with relevanceScore > 0
-                    // Check if no items were filtered
-                    if (this.filteredItems.length === 0) {
-                        console.log(
-                            'No items matched the search parameters. Returning all items.',
-                        );
-                        this.filteredItems = [...source]; // Return all items if none matched
-                    } else {
-                        // Sort the filtered items
-                        this.filteredItems.sort((a, b) => {
-                            try {
-                                // First sort by relevance score
-                                const scoreDifference =
-                                    b.relevanceScore - a.relevanceScore;
-                                if (scoreDifference !== 0)
-                                    return scoreDifference;
-                                // If scores are equal, sort by the selected criteria
-                                switch (this.sortBy) {
-                                    case 'mostRecent':
-                                        const dateBRecent = new Date(
-                                            b.DateCreated,
-                                        ).getTime();
-                                        const dateARecent = new Date(
-                                            a.DateCreated,
-                                        ).getTime();
-                                        if (
-                                            isNaN(dateBRecent) ||
-                                            isNaN(dateARecent)
-                                        ) {
-                                            console.warn(
-                                                'Invalid Date in sorting',
-                                                { b, a },
-                                            );
-                                            return 0; // Return zero if invalid date
-                                        }
-                                        return dateBRecent - dateARecent;
-                                    case 'mostDownloaded':
-                                        // Sorting by download count (descending order)
-                                        return (
-                                            b.downloadCount - a.downloadCount
-                                        );
-                                    case 'oldest':
-                                        const dateBOldest = new Date(
-                                            b.DateCreated,
-                                        ).getTime();
-                                        const dateAOldest = new Date(
-                                            a.DateCreated,
-                                        ).getTime();
-                                        if (
-                                            isNaN(dateBOldest) ||
-                                            isNaN(dateAOldest)
-                                        ) {
-                                            console.warn(
-                                                'Invalid Date in sorting',
-                                                { b, a },
-                                            );
-                                            return 0; // Return zero if invalid date
-                                        }
-                                        return dateAOldest - dateBOldest;
-                                    default:
-                                        console.warn(
-                                            'Unknown sort criteria:',
-                                            this.sortBy,
-                                        );
-                                        return 0; // Default case (no sorting)
-                                }
-                            } catch (sortError) {
-                                console.error(
-                                    'Error during sorting:',
-                                    sortError,
-                                );
-                                return 0; // Return zero if sorting fails
-                            }
-                        });
+
+                const params = {
+                    name: this.toText(this.searchParams.name).trim(),
+                    developer: this.toText(this.searchParams.developer).trim(),
+                    type: this.toText(this.searchParams.type).trim(),
+                    date: this.toText(this.searchParams.date).trim(),
+                };
+
+                const hasSearch = Object.values(params).some(Boolean);
+
+                const filtered = hasSearch
+                    ? source.filter(item => {
+                          const name = this.toText(
+                              item.MapName || item.BundleName || item.Name,
+                          );
+                          const developer = this.toText(
+                              item.MapDeveloper || item.Developer || item.Author,
+                          );
+                          const type = this.toText(
+                              item.MapType || item.Type || item.BundleType,
+                          );
+                          const date = this.toText(this.getItemDate(item));
+
+                          return (
+                              (!params.name || name.includes(params.name)) &&
+                              (!params.developer ||
+                                  developer.includes(params.developer)) &&
+                              (!params.type || type.includes(params.type)) &&
+                              (!params.date || date.includes(params.date))
+                          );
+                      })
+                    : [...source];
+
+                filtered.sort((a, b) => {
+                    const dateA = new Date(this.getItemDate(a)).getTime() || 0;
+                    const dateB = new Date(this.getItemDate(b)).getTime() || 0;
+                    const downloadsA = this.getItemDownloadCount(a);
+                    const downloadsB = this.getItemDownloadCount(b);
+
+                    switch (this.sortBy) {
+                        case 'mostDownloaded':
+                            return downloadsB - downloadsA || dateB - dateA;
+                        case 'oldest':
+                            return dateA - dateB;
+                        case 'mostRecent':
+                        default:
+                            return dateB - dateA;
                     }
-                }
-                console.log('Filtered items:', this.filteredItems);
+                });
+
+                this.filteredItems = filtered;
             } catch (error) {
                 console.error('Error updating filtered items:', error);
                 this.filteredItems = []; // Set filteredItems to empty on failure

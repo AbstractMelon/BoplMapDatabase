@@ -102,6 +102,7 @@
 
 <script>
 export default {
+    emits: ['upload-success'],
     props: ['show', 'close'],
     data() {
         return {
@@ -133,10 +134,15 @@ export default {
         async fetchMaps() {
             try {
                 const response = await fetch('/api/maps');
+                if (!response.ok) {
+                    throw new Error(`Error fetching maps: ${response.status}`);
+                }
                 this.availableMaps = await response.json();
                 this.filteredMaps = this.availableMaps;
             } catch (error) {
                 console.error('Error fetching maps:', error);
+                this.availableMaps = [];
+                this.filteredMaps = [];
             }
         },
         filterMaps() {
@@ -156,10 +162,18 @@ export default {
                     method: 'POST',
                     body: formData,
                 });
-                const data = await response.json();
-                alert(data.message);
+                const responseText = await response.text();
+                const data = responseText ? JSON.parse(responseText) : {};
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Map upload failed');
+                }
+
+                alert(data.message || 'Map uploaded successfully');
+                this.$emit('upload-success');
             } catch (error) {
                 console.error('Error uploading map:', error);
+                alert(error.message || 'Failed to upload map.');
             } finally {
                 this.resetForm();
             }
@@ -182,10 +196,18 @@ export default {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(bundleData),
                 });
-                const data = await response.json();
-                alert(data.message);
+                const responseText = await response.text();
+                const data = responseText ? JSON.parse(responseText) : {};
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Bundle creation failed');
+                }
+
+                alert(data.message || 'Bundle created successfully');
+                this.$emit('upload-success');
             } catch (error) {
                 console.error('Error creating bundle:', error);
+                alert(error.message || 'Failed to create bundle.');
             } finally {
                 this.resetForm();
             }

@@ -4,7 +4,6 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 const unzipper = require('unzipper');
-const axios = require('axios');
 const archiver = require('archiver');
 const { v4: uuidv4 } = require('uuid');
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
@@ -38,8 +37,21 @@ async function ContainsText(map) {
     return parsedMap.texts.map(textComponent => textComponent.textData.text);
 }
 
-// Function to check if an image exists (mocked for example)
+function isValidHttpUrl(value) {
+    try {
+        const parsed = new URL(value);
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+    } catch {
+        return false;
+    }
+}
+
+// Function to check if an image exists
 async function imageExists(url) {
+    if (!isValidHttpUrl(url)) {
+        return false;
+    }
+
     try {
         const response = await fetch(url);
         return response.ok;
@@ -50,10 +62,15 @@ async function imageExists(url) {
 }
 
 // Send the webhook
-async function sendWebhook(thumbnailUrl) {
+async function sendWebhook({ webhookUrl, webhookPayload, thumbnailUrl, fallbackThumbnailUrl }) {
+    if (!isValidHttpUrl(webhookUrl)) {
+        console.warn('Webhook URL is missing or invalid. Skipping webhook send.');
+        return;
+    }
+
     const imageAvailable = await imageExists(thumbnailUrl);
 
-    if (!imageAvailable) {
+    if (!imageAvailable && isValidHttpUrl(fallbackThumbnailUrl)) {
         console.warn(`Thumbnail not found, using fallback image.`);
         webhookPayload.embeds[0].image.url = fallbackThumbnailUrl;
     }
@@ -275,9 +292,10 @@ router.post(
                 logLogs('map_upload', { mapUUID: metadata.MapUUID });
 
                 // Prepare and send the webhook
-                const webhookUrl = process.env.WEBHOOK;
-                const thumbnailUrl = `${process.env.CDN}${metadata.MapUUID}`;
-                const fallbackThumbnailUrl = `${process.env.CDN}placeholder`;
+                const webhookUrl = process.env.WEBHOOK || '';
+                const cdnBase = process.env.CDN || '';
+                const thumbnailUrl = `${cdnBase}${metadata.MapUUID}`;
+                const fallbackThumbnailUrl = `${cdnBase}placeholder`;
 
                 // Role mention
                 const roleMention = `<@&1298674559867818065>`;
@@ -296,16 +314,19 @@ router.post(
                                 url: thumbnailUrl,
                             },
                             footer: {
-                                text: `Made by abstractmelon with love - Map UUID: (${metadata.MapUUID}`,
+                                text: `Made by abstractmelon with love - Map UUID: (${metadata.MapUUID})`,
                             },
                         },
                     ],
                 };
 
                 // Call the function to send the webhook
-                sendWebhook(thumbnailUrl);
-
-                await axios.post(webhookUrl, webhookPayload);
+                await sendWebhook({
+                    webhookUrl,
+                    webhookPayload,
+                    thumbnailUrl,
+                    fallbackThumbnailUrl,
+                });
 
                 res.json({ message: 'Map uploaded successfully' });
             } else {

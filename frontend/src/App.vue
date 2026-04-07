@@ -7,7 +7,7 @@
             <UploadPopup
                 :show="uploadPopupVisible"
                 :close="closeUploadPopup"
-                @upload-success="fetchMaps"
+                @upload-success="handleUploadSuccess"
             />
         </div>
     </div>
@@ -32,6 +32,10 @@ export default {
         },
         closeUploadPopup() {
             this.uploadPopupVisible = false;
+        },
+        handleUploadSuccess() {
+            // UploadPopup owns the upload flow; App only needs to close the modal.
+            this.closeUploadPopup();
         },
     },
 };

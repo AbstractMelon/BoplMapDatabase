@@ -172,7 +172,8 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: stretch;
-    width: 600px;
+    width: 100%;
+    max-width: 600px;
 }
 
 .motw-container .motw-card {
@@ -208,16 +209,18 @@ export default {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.main-map-list .map-card {
-    flex-grow: 1;
-    max-width: 400px;
-}
-
 .map-grid {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 20px;
+}
+
+.map-grid .map-card,
+.side-row .map-card {
+    flex: 0 0 250px;
+    width: 250px;
+    max-width: 250px;
 }
 
 h2 {

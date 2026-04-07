@@ -9,7 +9,9 @@ async function fetchUserData() {
         const response = await axios.get('/api/user/');
         return response.data;
     } catch (error) {
-        console.error('Error fetching user data:', error);
+        if (error?.response?.status >= 500) {
+            console.error('Error fetching user data:', error);
+        }
         return null;
     }
 }

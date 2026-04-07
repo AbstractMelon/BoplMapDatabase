@@ -12,12 +12,26 @@
     --activeColor: #3975e5;
     --activeColorDark: #1a5bb8;
 }
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+    width: 100%;
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: var(--bgcol);
     color: var(--textcol);
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
 }
 
 header {
@@ -56,14 +70,6 @@ header {
 * {
     scrollbar-width: thin;
     scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
-}
-
-*::-webkit-scrollbar {
-    display: none;
-}
-
-*::-webkit-scrollbar:hover {
-    display: block;
 }
 
 .header-title {
