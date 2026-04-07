@@ -12,8 +12,10 @@
         </div>
 
         <header class="profile-header">
-            <h1>{{ user.username }}</h1>
-            <p class="join-date">Joined on: {{ formattedJoinDate }}</p>
+            <h1>{{ user.username || 'Profile' }}</h1>
+            <p class="join-date" v-if="user.accountCreationDate">
+                Joined on: {{ formattedJoinDate }}
+            </p>
         </header>
 
         <section class="user-info">
@@ -27,34 +29,33 @@
 
         <section class="uploads-section">
             <h2>Uploaded Maps:</h2>
-            <div class="map-list">
-                <div v-if="uploadedMaps.length">
+            <div class="map-grid">
+                <p v-if="isLoadingProfile">Loading uploaded maps...</p>
+                <div v-else-if="uploadedMaps.length" class="card-grid">
                     <MapCard
                         v-for="map in uploadedMaps"
                         :key="map.MapUUID"
-                        :map="map"
+                        :item="map"
                     />
                 </div>
+                <p v-else-if="profileError">{{ profileError }}</p>
                 <p v-else>No uploaded maps found.</p>
             </div>
         </section>
 
         <section class="maps-section">
             <h2>Liked Maps:</h2>
-            <div class="map-list">
-                <div v-if="likedMaps.length">
-                    <div
+            <div class="map-grid">
+                <p v-if="isLoadingProfile">Loading liked maps...</p>
+                <div v-else-if="likedMaps.length" class="card-grid">
+                    <MapCard
                         v-for="map in likedMaps"
                         :key="map.MapUUID"
-                        class="map-card"
+                        :item="map"
                     >
-                        <h3>{{ map.MapName }}</h3>
-                        <p>Developer: {{ map.MapDeveloper }}</p>
-                        <button @click="downloadMap(map.MapUUID)">
-                            Download
-                        </button>
-                    </div>
+                    </MapCard>
                 </div>
+                <p v-else-if="profileError">{{ profileError }}</p>
                 <p v-else>No liked maps found.</p>
             </div>
         </section>
@@ -74,6 +75,8 @@ export default {
             uploadedMaps: [],
             allMaps: {},
             isOwnProfile: false,
+            isLoadingProfile: false,
+            profileError: '',
         };
     },
     created() {
@@ -81,9 +84,18 @@ export default {
         this.fetchUserProfile(username);
         this.checkIfOwnProfile(username);
     },
+    watch: {
+        '$route.params.username'(newUsername) {
+            this.fetchUserProfile(newUsername);
+            this.checkIfOwnProfile(newUsername);
+        },
+    },
     computed: {
         formattedJoinDate() {
             const date = new Date(this.user.accountCreationDate);
+            if (Number.isNaN(date.getTime())) {
+                return 'Unknown';
+            }
             return date.toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
@@ -94,6 +106,11 @@ export default {
     methods: {
         async fetchUserProfile(username) {
             console.log(`Fetching user profile for username: ${username}`);
+            this.isLoadingProfile = true;
+            this.profileError = '';
+            this.user = {};
+            this.likedMaps = [];
+            this.uploadedMaps = [];
 
             try {
                 const response = await fetch(`/api/user/${username}`);
@@ -117,6 +134,9 @@ export default {
                 );
             } catch (error) {
                 console.error('Error fetching user profile:', error.message);
+                this.profileError = 'Failed to load profile data.';
+            } finally {
+                this.isLoadingProfile = false;
             }
         },
         async fetchAllMaps() {
@@ -214,17 +234,23 @@ export default {
     margin-bottom: 30px;
 }
 
+.map-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
 h2 {
     border-bottom: 2px solid var(--accent);
     padding-bottom: 5px;
     margin-bottom: 20px;
-}
-
-.map-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    flex-direction: row;
 }
 
 .settings-gear i {

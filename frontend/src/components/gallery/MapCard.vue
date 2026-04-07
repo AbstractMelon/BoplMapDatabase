@@ -1,5 +1,9 @@
 <template>
-    <div class="map-card" v-if="item" :class="{ 'blue-tint': item.LuaMap }">
+    <div
+        class="map-card"
+        v-if="item"
+        :class="{ 'blue-tint': item.LuaMap }"
+    >
         <img
             :src="imageUrl"
             alt="Item Image"
@@ -20,7 +24,7 @@
             <strong>Description:</strong> {{ truncatedDescription }}
         </p>
         <p><strong>Downloads:</strong> {{ getDownloadCount }}</p>
-        <button @click.stop="downloadItem">
+        <button v-if="!previewMode" @click.stop="downloadItem">
             {{
                 getItemType() === 'Bundle' ? 'Download Bundle' : 'Download Map'
             }}
@@ -30,7 +34,9 @@
             <h3 @click="toggleDropdown" style="cursor: pointer">
                 Maps Included:
                 {{
-                    item.MapList.length > 10 ? (isDropdownOpen ? '▲' : '▼') : ''
+                    item.MapList.length > 10
+                        ? (isDropdownOpen ? '▲' : '▼')
+                        : ''
                 }}
             </h3>
             <ul :class="{ dropdown: isDropdownOpen }">
@@ -58,7 +64,13 @@
 
 <script>
 export default {
-    props: ['item'],
+    props: {
+        item: Object,
+        previewMode: {
+            type: Boolean,
+            default: false,
+        },
+    },
     data() {
         return {
             fallbackImage: '/api/maps/assets/mods/placeholder',
@@ -136,7 +148,8 @@ export default {
     },
     mounted() {
         if (this.item) {
-            this.currentImage = `/api/maps/assets/mods/${this.item.MapUUID}`;
+            this.currentImage =
+                this.item.Icon || `/api/maps/assets/mods/${this.item.MapUUID}`;
         } else {
             this.currentImage = this.fallbackImage;
         }
