@@ -20,9 +20,17 @@ router.get('/users', isAuthenticated, isAdmin, (req, res) => {
     res.json(users);
 });
 
-router.get('/update', isAuthenticated, isAdmin, (req, res) => {
-    updateToLatest();
-    res.json('Updated Probably');
+router.get('/update', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const result = await updateToLatest();
+        res.json({
+            message: 'Update completed',
+            ...result,
+        });
+    } catch (error) {
+        console.error('Failed to run updateToLatest:', error);
+        res.status(500).json({ message: 'Update failed' });
+    }
 });
 
 router.post('/deploy', (req, res) => {

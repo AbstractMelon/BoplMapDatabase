@@ -111,7 +111,15 @@ export default {
             const response = await fetch('/api/admin/update', {
                 credentials: 'include',
             });
-            this.logs = await response.json();
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.message || 'Update failed');
+            }
+
+            await Promise.all([this.fetchMaps(), this.fetchLogs()]);
+            alert(
+                `${result.message}. Compressed ${result.compressedCount} image(s).`,
+            );
         },
         openEditModal(type, item) {
             this.editType = type;

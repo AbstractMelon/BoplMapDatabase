@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const unzipper = require('unzipper');
 const archiver = require('archiver');
+const sharp = require('sharp');
 const { v4: uuidv4 } = require('uuid');
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
 const {
@@ -59,6 +60,22 @@ async function imageExists(url) {
         console.error(`Failed to check image at ${url}: ${error}`);
         return false;
     }
+}
+
+async function compressPngImage(inputPath, outputPath) {
+    await sharp(inputPath)
+        .png({
+            compressionLevel: 9,
+            palette: true,
+            quality: 80,
+            effort: 10,
+        })
+        .toFile(outputPath);
+
+    fs.writeFileSync(
+        `${outputPath}.compressed`,
+        JSON.stringify({ compressedAt: new Date().toISOString() }, null, 2),
+    );
 }
 
 // Send the webhook
@@ -175,12 +192,9 @@ router.get('/assets/mods/:uuid', (req, res) => {
         '../../assets/fallback/mod-icon.png',
     );
 
-    fs.access(imagePath, fs.constants.F_OK, err => {
-        if (err) {
-            return res.sendFile(fallbackImagePath);
-        }
-        res.sendFile(imagePath);
-    });
+    const sourcePath = fs.existsSync(imagePath) ? imagePath : fallbackImagePath;
+    res.setHeader('Cache-Control', 'public, max-age=86400, immutable');
+    res.sendFile(sourcePath);
 });
 
 router.post(
@@ -255,7 +269,7 @@ router.post(
                         modIconsDir,
                         `${metadata.MapUUID}.png`,
                     );
-                    fs.renameSync(iconPath, targetIconPath);
+                    await compressPngImage(iconPath, targetIconPath);
                 }
 
                 const outputZipPath = mapStoragePath.replace(

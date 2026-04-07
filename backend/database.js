@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const archiver = require('archiver');
+const sharp = require('sharp');
 
 const usersDir = path.join(__dirname, '../database/users');
 const mapMakerDir = path.join(__dirname, '../database/map-maker');
@@ -20,6 +21,42 @@ const bundleIndexPath = path.join(bundlesDir, 'bundleindex.json');
 
 const LogsPath = path.join(miscDir, 'Logs.json');
 const unzipper = require('unzipper');
+
+function getCompressionMarkerPath(imagePath) {
+    return `${imagePath}.compressed`;
+}
+
+async function compressPngIfNeeded(imagePath) {
+    if (!fs.existsSync(imagePath)) {
+        return false;
+    }
+
+    const markerPath = getCompressionMarkerPath(imagePath);
+    const imageStat = fs.statSync(imagePath);
+
+    if (fs.existsSync(markerPath)) {
+        const markerStat = fs.statSync(markerPath);
+        if (markerStat.mtimeMs >= imageStat.mtimeMs) {
+            return false;
+        }
+    }
+
+    const buffer = await sharp(imagePath)
+        .png({
+            compressionLevel: 9,
+            palette: true,
+            quality: 80,
+            effort: 10,
+        })
+        .toBuffer();
+
+    fs.writeFileSync(imagePath, buffer);
+    fs.writeFileSync(
+        markerPath,
+        JSON.stringify({ compressedAt: new Date().toISOString() }, null, 2),
+    );
+    return true;
+}
 
 // Create directories if they don't exist
 [usersDir, mapsDir, miscDir, modIconsDir, mapMakerDir, bundlesDir].forEach(
@@ -101,6 +138,8 @@ function updateIndex(metadata) {
 
 // Function to update users and maps to latest structure
 async function updateToLatest() {
+    let compressedCount = 0;
+
     const indexData = fs.existsSync(indexPath)
         ? JSON.parse(fs.readFileSync(indexPath))
         : [];
@@ -161,6 +200,9 @@ async function updateToLatest() {
 
                 // Move the PNG file to the mod icons directory
                 fs.renameSync(pngFilePath, targetPath);
+                if (await compressPngIfNeeded(targetPath)) {
+                    compressedCount++;
+                }
             } else {
                 console.warn(
                     `Expected one PNG file in ${zipPath}, found: ${pngFiles.length}`,
@@ -203,8 +245,34 @@ async function updateToLatest() {
         }
     }
 
+    // Compress any existing icons that were already in mod-icons.
+    const iconFiles = fs
+        .readdirSync(modIconsDir)
+        .filter(file => path.extname(file).toLowerCase() === '.png');
+
+    for (const iconFile of iconFiles) {
+        const iconPath = path.join(modIconsDir, iconFile);
+        if (await compressPngIfNeeded(iconPath)) {
+            compressedCount++;
+        }
+    }
+
+    // Compress the fallback placeholder icon once and reuse it.
+    const placeholderPath = path.join(
+        __dirname,
+        '../assets/fallback/mod-icon.png',
+    );
+    if (await compressPngIfNeeded(placeholderPath)) {
+        compressedCount++;
+    }
+
     // After updating the LuaMap, save the updated index data back to the file
     fs.writeFileSync(indexPath, JSON.stringify(indexData, null, 2));
+
+    return {
+        mapsChecked: indexData.length,
+        compressedCount,
+    };
 }
 
 module.exports = {
